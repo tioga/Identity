@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Identity.iml" filepath="$PROJECT_DIR$/.idea/modules/Identity.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tioga-identity-engine/tioga-identity-engine.iml" filepath="$PROJECT_DIR$/.idea/modules/tioga-identity-engine/tioga-identity-engine.iml" group="tioga-identity-engine" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tioga-identity-engine/tioga-identity-engine_main.iml" filepath="$PROJECT_DIR$/.idea/modules/tioga-identity-engine/tioga-identity-engine_main.iml" group="tioga-identity-engine" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tioga-identity-engine/tioga-identity-engine_test.iml" filepath="$PROJECT_DIR$/.idea/modules/tioga-identity-engine/tioga-identity-engine_test.iml" group="tioga-identity-engine" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tioga-identity-pub/tioga-identity-pub.iml" filepath="$PROJECT_DIR$/.idea/modules/tioga-identity-pub/tioga-identity-pub.iml" group="tioga-identity-pub" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tioga-identity-pub/tioga-identity-pub_main.iml" filepath="$PROJECT_DIR$/.idea/modules/tioga-identity-pub/tioga-identity-pub_main.iml" group="tioga-identity-pub" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tioga-identity-pub/tioga-identity-pub_test.iml" filepath="$PROJECT_DIR$/.idea/modules/tioga-identity-pub/tioga-identity-pub_test.iml" group="tioga-identity-pub" />
+    </modules>
+  </component>
+</project>
