@@ -1,0 +1,46 @@
+plugins {
+    id "com.github.ben-manes.versions" version "0.8"
+    id "org.hidetake.ssh" version "1.1.2"
+    id "com.kageiit.url-cache" version "1.0.0"
+}
+
+apply(from: urlCache.get("https://raw.githubusercontent.com/tioga/build-scripts/master/build-config-java.gradle"))
+
+subprojects {
+
+    apply(from: urlCache.get("https://raw.githubusercontent.com/tioga/build-scripts/master/build-config-versions.gradle"))
+    apply(from: urlCache.get("https://raw.githubusercontent.com/tioga/build-scripts/master/build-config-reports.gradle"))
+
+    group = "org.tiogasolutions.identity"
+
+    targetCompatibility = "1.8"
+    sourceCompatibility = "1.8"
+
+    configurations.all({
+        resolutionStrategy {
+            if (System.getProperty("no-fail-version-conflict") != "true") {
+                failOnVersionConflict()
+            }
+            force(
+                    "org.slf4j:slf4j-api:1.7.7", // override Thymeleaf
+                    "org.javassist:javassist:3.18.1-GA",
+            )
+        }
+    })
+
+    dependencies {
+        testCompile("org.testng:testng:6.8.21")
+    }
+
+    ext {
+        // This is the primary version for the app
+        // which does not include pub, client, senders.
+        identityAppVersion = "1.0.0"
+        identityPubVersion = "1.0.0"
+
+        pomProjectDescription = "Tioga Solutions"
+        pomUrl = 'https://www.tiogasolutions.org'
+        pomScmUrl = "https://github.com/tioga"
+        pomScmConnection = "https://github.com/tioga/identity.git"
+    }
+}
