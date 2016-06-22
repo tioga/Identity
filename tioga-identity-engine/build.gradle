@@ -5,12 +5,10 @@ project(":tioga-identity-engine") {
     version = identityAppVersion
 
     dependencies {
-        compile(project(":tioga-identity-pub"))
+        compile(project(":tioga-identity-kernel"))
 
         compile("org.tiogasolutions.lib:tioga-lib-jaxrs:+")
         compile("javax.annotation:javax.annotation-api:+")
-        compile("org.tiogasolutions.lib:tioga-lib-couchace:+")
-        compile("org.tiogasolutions.notify:tioga-notify-sender-couch:+")
 
         compile("org.tiogasolutions.app:tioga-app-standard:+")
 

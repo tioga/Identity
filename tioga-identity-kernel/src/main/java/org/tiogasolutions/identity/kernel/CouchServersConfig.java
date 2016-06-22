@@ -1,4 +1,4 @@
-package org.tiogasolutions.identity.engine.kernel;
+package org.tiogasolutions.identity.kernel;
 
 import com.fasterxml.jackson.databind.Module;
 import org.tiogasolutions.couchace.core.api.CouchSetup;

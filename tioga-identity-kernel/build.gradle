@@ -1,0 +1,26 @@
+project(":tioga-identity-kernel") {
+
+    version = identityAppVersion
+
+    dependencies {
+        compile(project(":tioga-identity-pub"))
+
+        compile("org.tiogasolutions.lib:tioga-lib-couchace:+")
+        compile("org.tiogasolutions.notify:tioga-notify-sender-couch:+")
+
+        testCompile ("org.testng:testng:6.8.21")
+    }
+
+    apply(from: urlCache.get("https://raw.githubusercontent.com/tioga/build-scripts/master/build-config-deployer.gradle"))
+}
+
+
+
+
+
+
+
+
+
+
+

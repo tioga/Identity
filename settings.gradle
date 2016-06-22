@@ -1,1 +1,1 @@
-include "tioga-identity-engine", "tioga-identity-pub"
+include "tioga-identity-engine", "tioga-identity-kernel", "tioga-identity-pub"

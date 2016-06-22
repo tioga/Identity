@@ -1,4 +1,4 @@
-package org.tiogasolutions.identity.pub;
+package org.tiogasolutions.identity.pub.core;
 
 import java.util.LinkedHashMap;
 

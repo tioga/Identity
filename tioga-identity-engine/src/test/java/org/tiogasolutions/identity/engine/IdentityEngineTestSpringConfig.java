@@ -12,17 +12,14 @@ import org.tiogasolutions.app.standard.jaxrs.auth.AnonymousRequestFilterAuthenti
 import org.tiogasolutions.app.standard.jaxrs.filters.StandardRequestFilterConfig;
 import org.tiogasolutions.app.standard.jaxrs.filters.StandardResponseFilterConfig;
 import org.tiogasolutions.app.standard.readers.MockContentReader;
-import org.tiogasolutions.app.standard.session.DefaultSessionStore;
-import org.tiogasolutions.app.standard.session.SessionStore;
 import org.tiogasolutions.app.standard.view.thymeleaf.ThymeleafMessageBodyWriterConfig;
 import org.tiogasolutions.dev.jackson.TiogaJacksonModule;
-import org.tiogasolutions.identity.engine.mock.IdentityRequestFilterDomainResolver;
+import org.tiogasolutions.identity.engine.support.IdentityAuthenticationResponseFactory;
+import org.tiogasolutions.identity.kernel.CouchServersConfig;
+import org.tiogasolutions.identity.kernel.store.TenantStore;
 import org.tiogasolutions.lib.couchace.DefaultCouchServer;
 import org.tiogasolutions.notify.notifier.Notifier;
 import org.tiogasolutions.notify.notifier.send.LoggingNotificationSender;
-import org.tiogasolutions.identity.engine.kernel.CouchServersConfig;
-import org.tiogasolutions.identity.engine.mock.AccountStore;
-import org.tiogasolutions.identity.engine.mock.IdentityAuthenticationResponseFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -51,22 +48,13 @@ public class IdentityEngineTestSpringConfig {
     }
 
     @Bean
-    public SessionStore sessionStore() {
-        return new DefaultSessionStore(10*60*60*1000, "session-id");
-    }
-
-    @Bean
     public ExecutionManager executionManager() {
         return new ExecutionManager();
     }
 
     @Bean
-    public AccountStore accountStore() {
-        return new AccountStore();
-    }
-    @Bean
-    public IdentityRequestFilterDomainResolver identityRequestFilterDomainResolver(AccountStore accountStore, SessionStore sessionStore) {
-        return new IdentityRequestFilterDomainResolver(accountStore, sessionStore);
+    public TenantStore accountStore() {
+        return new TenantStore();
     }
 
     @Bean
@@ -75,8 +63,8 @@ public class IdentityEngineTestSpringConfig {
     }
 
     @Bean
-    public IdentityAuthenticationResponseFactory identityAuthenticationResponseFactory(AccountStore accountStore, SessionStore sessionStore) {
-        return new IdentityAuthenticationResponseFactory(accountStore, sessionStore);
+    public IdentityAuthenticationResponseFactory identityAuthenticationResponseFactory() {
+        return new IdentityAuthenticationResponseFactory();
     }
 
     @Bean

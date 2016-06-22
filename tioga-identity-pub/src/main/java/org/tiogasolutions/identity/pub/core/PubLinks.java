@@ -1,6 +1,5 @@
-package org.tiogasolutions.identity.pub;
+package org.tiogasolutions.identity.pub.core;
 
-import java.net.URI;
 import java.util.*;
 
 public class PubLinks extends LinkedHashMap<String,PubLink> {
@@ -27,11 +26,11 @@ public class PubLinks extends LinkedHashMap<String,PubLink> {
         return getLink(rel) != null;
     }
 
-    public PubLink add(String rel, URI href) {
+    public PubLink add(String rel, String href) {
         if (href == null) return null;
-        return put(rel, new PubLink(rel, href, null));
+        return put(rel, new PubLink(rel, href));
     }
-    public PubLink add(String rel, URI href, String title) {
+    public PubLink add(String rel, String href, String title) {
         if (href == null) return null;
         return put(rel, new PubLink(rel, href, title));
     }

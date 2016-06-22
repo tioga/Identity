@@ -9,30 +9,33 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.tiogasolutions.app.standard.jaxrs.filters.StandardRequestFilterConfig;
-import org.tiogasolutions.app.standard.readers.StaticContentReader;
-import org.tiogasolutions.app.standard.session.Session;
-import org.tiogasolutions.app.standard.session.SessionStore;
-import org.tiogasolutions.app.standard.view.thymeleaf.ThymeleafContent;
-import org.tiogasolutions.dev.common.EqualsUtils;
-import org.tiogasolutions.identity.engine.mock.Account;
-import org.tiogasolutions.identity.engine.mock.AccountStore;
-import org.tiogasolutions.identity.engine.mock.IdentityAuthenticationResponseFactory;
+import org.springframework.stereotype.Component;
+import org.tiogasolutions.app.standard.execution.ExecutionManager;
+import org.tiogasolutions.dev.common.net.HttpStatusCode;
+import org.tiogasolutions.identity.engine.support.IdentityPubUtils;
+import org.tiogasolutions.identity.kernel.domain.TenantProfileEo;
+import org.tiogasolutions.identity.kernel.store.TenantStore;
+import org.tiogasolutions.identity.pub.core.PubItem;
+import org.tiogasolutions.identity.pub.core.PubLinks;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.container.ContainerRequestContext;
-import javax.ws.rs.core.*;
-import java.io.IOException;
-import java.net.URI;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 @Path("/")
+@Component
 @Scope(value = "prototype")
 public class RootResource extends RootResourceSupport {
 
     private static final Log log = LogFactory.getLog(RootResource.class);
+    private static final Long startedAt = System.currentTimeMillis();
+
+    private IdentityPubUtils pubUtils;
 
     @Context
     private UriInfo uriInfo;
@@ -41,19 +44,10 @@ public class RootResource extends RootResourceSupport {
     private ContainerRequestContext requestContext;
 
     @Autowired
-    private SessionStore sessionStore;
+    private ExecutionManager<TenantProfileEo> executionManager;
 
     @Autowired
-    private AccountStore accountStore;
-
-    @Autowired
-    private StandardRequestFilterConfig standardRequestFilterConfig;
-
-    @Autowired
-    private StaticContentReader staticContentReader;
-
-    @Autowired
-    private IdentityAuthenticationResponseFactory authenticationResponseFactory;
+    private TenantStore tenantStore;
 
     public RootResource() {
         log.info("Created ");
@@ -65,60 +59,42 @@ public class RootResource extends RootResourceSupport {
     }
 
     @GET
-    @Produces(MediaType.TEXT_HTML)
-    public ThymeleafContent getIndex() throws IOException {
-        IndexModel indexModel = new IndexModel(null, accountStore.getAll(0, Integer.MAX_VALUE));
-        return new ThymeleafContent("index", indexModel);
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getIndex() throws Exception {
+
+        PubLinks links = new PubLinks();
+        links.add("self", getPubUtils().getUris().getRoot());
+        links.add("api", getPubUtils().getUris().getApi());
+
+        long elapsed = System.currentTimeMillis() - startedAt;
+        PubInfo pubInfo = new PubInfo(HttpStatusCode.OK, links, String.format("%s days, %s hours, %s minutes, %s seconds",
+                elapsed / (24 * 60 * 60 * 1000),
+                elapsed / (60 * 60 * 1000) % 24,
+                elapsed / (60 * 1000) % 60,
+                elapsed / 1000 % 60));
+
+        return getPubUtils().toResponse(pubInfo).build();
     }
 
-    @GET
-    @Path("/welcome")
-    @Produces(MediaType.TEXT_HTML)
-    public ThymeleafContent getWelcome() throws IOException {
-        return new ThymeleafContent("welcome", null);
-    }
-
-    @POST
-    @Path("/sign-in")
-    @Produces(MediaType.TEXT_HTML)
-    public Response signIn(@FormParam("email") String email, @FormParam("password") String password) throws Exception {
-        Account account = accountStore.findByEmail(email);
-
-        if (account == null || EqualsUtils.objectsNotEqual(account.getPassword(), password)) {
-            return authenticationResponseFactory.createUnauthorizedResponse(requestContext, SecurityContext.FORM_AUTH);
+    private static class PubInfo extends PubItem {
+        private final String upTime;
+        private PubInfo(HttpStatusCode httpStatusCode, PubLinks links, String upTime) {
+            super(httpStatusCode, links);
+            this.upTime = upTime;
         }
-
-        // Create the new session for the currently logged in user.
-        Session session = sessionStore.newSession();
-        session.put("account", account);
-
-        NewCookie sessionCookie = sessionStore.newSessionCookie(session, uriInfo);
-        URI other = getUriInfo().getBaseUriBuilder().path("welcome").build();
-        return Response.seeOther(other).cookie(sessionCookie).build();
+        public String getUpTime() { return upTime; }
     }
 
     @Path("/api")
     public ApiResource getApi() throws Exception {
-        return new ApiResource(uriInfo, accountStore);
+        return new ApiResource(executionManager, getPubUtils(), tenantStore);
     }
 
-    private Cookie getSessionCookie() {
-        String cookieName = sessionStore.getCookieName();
-        return requestContext.getCookies().get(cookieName);
-    }
-
-    public static class IndexModel {
-        private final String message;
-        private final List<Account> accounts = new ArrayList<>();
-
-        public IndexModel(String message, Collection<Account> accounts) {
-            this.message = message;
-            this.accounts.addAll(accounts);
+    private IdentityPubUtils getPubUtils() {
+        if (pubUtils == null) {
+            pubUtils = new IdentityPubUtils(uriInfo);
         }
-        public String getMessage() {
-            return message;
-        }
-        public List<Account> getAccounts() { return accounts; }
+        return pubUtils;
     }
 }
 

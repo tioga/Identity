@@ -1,32 +1,27 @@
-package org.tiogasolutions.identity.pub;
+package org.tiogasolutions.identity.pub.core;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.net.URI;
-
 public class PubLink {
 
-    private final URI href;
+    private final String href;
     private final String rel;
     private final String title;
 
-    public PubLink(String rel, URI href) {
+    public PubLink(String rel, String href) {
         this(rel, href, null);
     }
 
-    public PubLink(String rel, URI href, String title) {
+    @JsonCreator
+    public PubLink(@JsonProperty("rel") String rel,
+                   @JsonProperty("href") String href,
+                   @JsonProperty("title") String title) {
+
         this.rel = rel;
         this.href = href;
         this.title = title;
-    }
-
-    @JsonCreator
-    private PubLink(@JsonProperty("href") URI href,
-                    @JsonProperty("title") String title) {
-        this(null, href, title);
     }
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -34,11 +29,10 @@ public class PubLink {
         return title;
     }
 
-    public URI getHref() {
+    public String getHref() {
         return href;
     }
 
-    @JsonIgnore
     public String getRel() {
         return rel;
     }

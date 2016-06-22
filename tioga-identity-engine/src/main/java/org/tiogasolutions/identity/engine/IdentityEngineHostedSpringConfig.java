@@ -15,22 +15,20 @@ import org.tiogasolutions.app.standard.jaxrs.auth.AnonymousRequestFilterAuthenti
 import org.tiogasolutions.app.standard.jaxrs.filters.StandardRequestFilterConfig;
 import org.tiogasolutions.app.standard.jaxrs.filters.StandardResponseFilterConfig;
 import org.tiogasolutions.app.standard.readers.BundledStaticContentReader;
-import org.tiogasolutions.app.standard.session.DefaultSessionStore;
-import org.tiogasolutions.app.standard.session.SessionStore;
 import org.tiogasolutions.app.standard.view.thymeleaf.ThymeleafMessageBodyWriterConfig;
 import org.tiogasolutions.dev.jackson.TiogaJacksonModule;
 import org.tiogasolutions.dev.jackson.TiogaJacksonTranslator;
+import org.tiogasolutions.identity.engine.support.IdentityAuthenticationResponseFactory;
+import org.tiogasolutions.identity.engine.support.IdentityRequestFilterDomainResolver;
+import org.tiogasolutions.identity.engine.support.IdentityTokenRequestFilterAuthenticator;
+import org.tiogasolutions.identity.kernel.CouchServersConfig;
+import org.tiogasolutions.identity.kernel.domain.TenantProfileEo;
+import org.tiogasolutions.identity.kernel.store.TenantStore;
 import org.tiogasolutions.lib.couchace.DefaultCouchServer;
 import org.tiogasolutions.notify.notifier.Notifier;
 import org.tiogasolutions.notify.notifier.send.LoggingNotificationSender;
 import org.tiogasolutions.runners.grizzly.GrizzlyServer;
 import org.tiogasolutions.runners.grizzly.GrizzlyServerConfig;
-import org.tiogasolutions.identity.engine.kernel.CouchServersConfig;
-import org.tiogasolutions.identity.engine.mock.AccountStore;
-import org.tiogasolutions.identity.engine.mock.IdentityAuthenticationResponseFactory;
-import org.tiogasolutions.identity.engine.mock.IdentityRequestFilterDomainResolver;
-import org.tiogasolutions.identity.engine.support.IdentityBasicRequestFilterAuthenticator;
-import org.tiogasolutions.identity.engine.support.IdentityFormRequestFilterAuthenticator;
 
 import java.util.Collections;
 import java.util.List;
@@ -69,44 +67,41 @@ public class IdentityEngineHostedSpringConfig {
     }
 
     @Bean
-    public ExecutionManager executionManager() {
-        return new ExecutionManager();
+    public ExecutionManager<TenantProfileEo> executionManager() {
+        return new ExecutionManager<>();
     }
 
     @Bean
-    public AccountStore accountStore() {
-        return new AccountStore();
+    public TenantStore accountStore() {
+        return new TenantStore();
     }
 
     @Bean
-    public IdentityRequestFilterDomainResolver identityRequestFilterDomainResolver(AccountStore accountStore, SessionStore sessionStore) {
-        return new IdentityRequestFilterDomainResolver(accountStore, sessionStore);
+    public IdentityRequestFilterDomainResolver identityRequestFilterDomainResolver() {
+        return new IdentityRequestFilterDomainResolver();
     }
 
     @Bean
-    public IdentityAuthenticationResponseFactory identityAuthenticationResponseFactory(AccountStore accountStore, SessionStore sessionStore) {
-        return new IdentityAuthenticationResponseFactory(accountStore, sessionStore);
+    public IdentityAuthenticationResponseFactory identityAuthenticationResponseFactory() {
+        return new IdentityAuthenticationResponseFactory();
     }
 
     @Bean
-    public StandardRequestFilterConfig standardRequestFilterConfig(SessionStore sessionStore, IdentityAuthenticationResponseFactory responseFactory) {
+    public StandardRequestFilterConfig standardRequestFilterConfig(TenantStore tenantStore) {
         StandardRequestFilterConfig config = new StandardRequestFilterConfig();
 
         // The first list is everything that is unsecured.
         config.registerAuthenticator(AnonymousRequestFilterAuthenticator.SINGLETON,
                 "",             // home page
-                "sign-in",      // sing in page
                 "^js/.*",       // any javascript
                 "^css/.*",      // any css file
                 "^images/.*",   // any image
-                "favicon.ico"
+                "^favicon.ico",
+                "^application.wadl",
+                "^api"
         );
 
-        // The second list is for the API
-        config.registerAuthenticator(new IdentityBasicRequestFilterAuthenticator("admin:secret"), "api", "^api/.*");
-
-        // Everything else is secured
-        config.registerAuthenticator(new IdentityFormRequestFilterAuthenticator(responseFactory, sessionStore), ".*");
+        config.registerAuthenticator(new IdentityTokenRequestFilterAuthenticator(tenantStore), ".*");
 
         return config;
     }
@@ -116,13 +111,6 @@ public class IdentityEngineHostedSpringConfig {
         StandardResponseFilterConfig config = new StandardResponseFilterConfig();
         config.getExtraHeaders().put(StandardResponseFilterConfig.P3P, "CP=\"The Identity App does not have a P3P policy.\"");
         return config;
-    }
-
-    @Bean
-    public SessionStore sessionStore(@Value("${identity.maxSessionDuration}") long maxSessionDuration) {
-        // return new DefaultSessionStore(maxSessionDuration, "session-id"); // defaults to secure and httpOnly
-        // We are using this just for the sake of running on port 8080.
-        return new DefaultSessionStore(maxSessionDuration, "session-id", "/", null, null, false, false);
     }
 
     @Bean
