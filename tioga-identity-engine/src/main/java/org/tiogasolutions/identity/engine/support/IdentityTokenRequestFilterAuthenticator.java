@@ -2,7 +2,7 @@ package org.tiogasolutions.identity.engine.support;
 
 import org.tiogasolutions.app.standard.jaxrs.auth.TokenRequestFilterAuthenticator;
 import org.tiogasolutions.dev.common.exceptions.ApiException;
-import org.tiogasolutions.identity.kernel.domain.TenantProfileEo;
+import org.tiogasolutions.identity.kernel.domain.TenantEo;
 import org.tiogasolutions.identity.kernel.store.TenantStore;
 
 import javax.ws.rs.container.ContainerRequestContext;
@@ -20,11 +20,11 @@ public class IdentityTokenRequestFilterAuthenticator extends TokenRequestFilterA
     @Override
     protected SecurityContext validate(ContainerRequestContext requestContext, String token) {
         try {
-            TenantProfileEo tenantProfileEo = tenantStore.findByToken(token);
-            if (tenantProfileEo == null) {
+            TenantEo tenantEo = tenantStore.findByToken(token);
+            if (tenantEo == null) {
                 throw ApiException.unauthorized("Invalid access token");
             }
-            return new TokenBasedSecurityContext(requestContext.getSecurityContext(), tenantProfileEo);
+            return new TokenBasedSecurityContext(requestContext.getSecurityContext(), tenantEo);
 
         } catch (ApiException e) {
             throw e;
@@ -36,15 +36,15 @@ public class IdentityTokenRequestFilterAuthenticator extends TokenRequestFilterA
 
     public static class TokenBasedSecurityContext implements SecurityContext {
         private final boolean secure;
-        private final TenantProfileEo tenantProfileEo;
+        private final TenantEo tenantEo;
 
-        public TokenBasedSecurityContext(SecurityContext securityContext, TenantProfileEo tenantProfileEo) {
-            this.tenantProfileEo = tenantProfileEo;
+        public TokenBasedSecurityContext(SecurityContext securityContext, TenantEo tenantEo) {
+            this.tenantEo = tenantEo;
             this.secure = securityContext.isSecure();
         }
 
-        public TenantProfileEo getTenantProfileEo() {
-            return tenantProfileEo;
+        public TenantEo getTenantEo() {
+            return tenantEo;
         }
 
         @Override
@@ -64,7 +64,7 @@ public class IdentityTokenRequestFilterAuthenticator extends TokenRequestFilterA
 
         @Override
         public Principal getUserPrincipal() {
-            return tenantProfileEo::getTenantName;
+            return tenantEo::getName;
         }
     }
 }

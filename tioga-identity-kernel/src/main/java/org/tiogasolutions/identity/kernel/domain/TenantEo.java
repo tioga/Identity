@@ -1,6 +1,7 @@
 package org.tiogasolutions.identity.kernel.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.tiogasolutions.dev.common.StringUtils;
 import org.tiogasolutions.identity.pub.core.TenantStatus;
 
 import java.util.ArrayList;
@@ -8,61 +9,63 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
+import static java.util.stream.Collectors.toList;
+import static org.tiogasolutions.dev.common.EqualsUtils.objectsEqual;
 
-public class TenantProfileEo {
+public class TenantEo {
 
-    private final String profileId;
+    private final String id;
     private final String revision;
-    private final String tenantName;
-    private final TenantStatus tenantStatus;
+    private final String name;
+    private final TenantStatus status;
     private final String apiToken;
-    private final String tenantDbName;
+    private final String dbName;
 
     private final List<UserEo> users = new ArrayList<>();
     private final List<RealmEo> realms = new ArrayList<>();
 
-    public TenantProfileEo(@JsonProperty("profileId") String profileId,
-                           @JsonProperty("revision") String revision,
-                           @JsonProperty("tenantName") String tenantName,
-                           @JsonProperty("tenantStatus") TenantStatus tenantStatus,
-                           @JsonProperty("apiToken") String apiToken,
-                           @JsonProperty("tenantDbName") String tenantDbName,
-                           @JsonProperty("realms") List<RealmEo> realms,
-                           @JsonProperty("users") List<UserEo> users) {
+    public TenantEo(@JsonProperty("id") String id,
+                    @JsonProperty("revision") String revision,
+                    @JsonProperty("name") String name,
+                    @JsonProperty("status") TenantStatus status,
+                    @JsonProperty("apiToken") String apiToken,
+                    @JsonProperty("dbName") String dbName,
+                    @JsonProperty("realms") List<RealmEo> realms,
+                    @JsonProperty("users") List<UserEo> users) {
 
-        this.profileId = profileId;
+        this.id = id;
         this.revision = revision;
-        this.tenantName = tenantName;
-        this.tenantStatus = tenantStatus;
+        this.name = name;
+        this.status = status;
         this.apiToken = apiToken;
-        this.tenantDbName = tenantDbName;
+        this.dbName = dbName;
 
         if (users != null) this.users.addAll(users);
         if (realms != null) this.realms.addAll(realms);
     }
 
-    public String getProfileId() {
-        return profileId;
+    public String getId() {
+        return id;
     }
 
     public final String getRevision() {
         return revision;
     }
 
-    public String getTenantName() {
-        return tenantName;
+    public String getName() {
+        return name;
     }
 
     public String getApiToken() {
         return apiToken;
     }
 
-    public String getTenantDbName() {
-        return tenantDbName;
+    public String getDbName() {
+        return dbName;
     }
 
-    public TenantStatus getTenantStatus() {
-        return tenantStatus;
+    public TenantStatus getStatus() {
+        return status;
     }
 
     public List<RealmEo> getRealms() {
@@ -73,9 +76,20 @@ public class TenantProfileEo {
         return unmodifiableList(users);
     }
 
+
+    public List<UserEo> getUsers(String username) {
+        if (StringUtils.isBlank(username)) {
+            return unmodifiableList(users);
+
+        } else {
+            List<UserEo> usersList = users.stream().filter(user -> objectsEqual(username, user.getUsername())).collect(toList());
+            return unmodifiableList(usersList);
+        }
+    }
+
     public UserEo findUserByName(String username) {
         for (UserEo user : users) {
-            if (username.equals(user.getUsername())) {
+            if (objectsEqual(username, user.getUsername())) {
                 return user;
             }
         }
@@ -84,7 +98,7 @@ public class TenantProfileEo {
 
     public UserEo findUserById(String id) {
         for (UserEo user : users) {
-            if (id.equals(user.getId())) {
+            if (objectsEqual(id,user.getId())) {
                 return user;
             }
         }
@@ -94,7 +108,7 @@ public class TenantProfileEo {
     public RoleEo findRole(String roleName) {
         for (RealmEo realm : realms) {
             for (RoleEo role : realm.getRoles()) {
-                if (roleName.equals(role.getRoleName())) {
+                if (objectsEqual(roleName, role.getRoleName())) {
                     return role;
                 }
             }
@@ -104,7 +118,7 @@ public class TenantProfileEo {
 
     public RealmEo findRealm(String realmName) {
         for (RealmEo realm : realms) {
-            if (realm.equals(realm.getRealmName())) {
+            if (objectsEqual(realm, realm.getRealmName())) {
                 return realm;
             }
         }

@@ -22,7 +22,7 @@ import org.tiogasolutions.identity.engine.support.IdentityAuthenticationResponse
 import org.tiogasolutions.identity.engine.support.IdentityRequestFilterDomainResolver;
 import org.tiogasolutions.identity.engine.support.IdentityTokenRequestFilterAuthenticator;
 import org.tiogasolutions.identity.kernel.CouchServersConfig;
-import org.tiogasolutions.identity.kernel.domain.TenantProfileEo;
+import org.tiogasolutions.identity.kernel.domain.TenantEo;
 import org.tiogasolutions.identity.kernel.store.TenantStore;
 import org.tiogasolutions.lib.couchace.DefaultCouchServer;
 import org.tiogasolutions.notify.notifier.Notifier;
@@ -67,7 +67,7 @@ public class IdentityEngineHostedSpringConfig {
     }
 
     @Bean
-    public ExecutionManager<TenantProfileEo> executionManager() {
+    public ExecutionManager<TenantEo> executionManager() {
         return new ExecutionManager<>();
     }
 
@@ -97,11 +97,10 @@ public class IdentityEngineHostedSpringConfig {
                 "^css/.*",      // any css file
                 "^images/.*",   // any image
                 "^favicon.ico",
-                "^application.wadl",
-                "^api"
+                "^application.wadl"
         );
 
-        config.registerAuthenticator(new IdentityTokenRequestFilterAuthenticator(tenantStore), ".*");
+        config.registerAuthenticator(new IdentityTokenRequestFilterAuthenticator(tenantStore), "^api/tenant.*");
 
         return config;
     }

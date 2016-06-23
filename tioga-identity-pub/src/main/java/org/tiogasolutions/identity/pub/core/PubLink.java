@@ -44,14 +44,16 @@ public class PubLink {
 
         PubLink pubLink = (PubLink) o;
 
-        if (href != null ? !href.equals(pubLink.href) : pubLink.href != null) return false;
+        if (!href.equals(pubLink.href)) return false;
+        if (!rel.equals(pubLink.rel)) return false;
         return title != null ? title.equals(pubLink.title) : pubLink.title == null;
 
     }
 
     @Override
     public int hashCode() {
-        int result = href != null ? href.hashCode() : 0;
+        int result = href.hashCode();
+        result = 31 * result + rel.hashCode();
         result = 31 * result + (title != null ? title.hashCode() : 0);
         return result;
     }

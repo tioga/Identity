@@ -1,6 +1,5 @@
 package org.tiogasolutions.identity.pub.tenant;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.tiogasolutions.identity.pub.core.PubItem;
 import org.tiogasolutions.identity.pub.core.PubLinks;
@@ -9,55 +8,46 @@ import org.tiogasolutions.identity.pub.core.TenantStatus;
 
 public class PubTenant extends PubItem {
 
-    private final String profileId;
+    private final String id;
     private final String revision;
-    private final String tenantName;
-    private final TenantStatus tenantStatus;
-    private final String tenantDbName;
-
-    @JsonInclude(JsonInclude.Include.NON_NULL)
-    private final PubUsers pubUsers;
+    private final String name;
+    private final TenantStatus status;
+    private final String dbName;
 
     public PubTenant(@JsonProperty("_status")PubStatus _status,
                      @JsonProperty("_links") PubLinks _links,
-                     @JsonProperty("profileId") String profileId,
+                     @JsonProperty("id") String id,
                      @JsonProperty("revision") String revision,
-                     @JsonProperty("tenantName") String tenantName,
-                     @JsonProperty("tenantStatus") TenantStatus tenantStatus,
-                     @JsonProperty("tenantDbName") String tenantDbName,
-                     @JsonProperty("pubUsers") PubUsers pubUsers) {
+                     @JsonProperty("name") String name,
+                     @JsonProperty("status") TenantStatus status,
+                     @JsonProperty("dbName") String dbName) {
 
         super(_status, _links);
 
-        this.profileId = profileId;
+        this.id = id;
         this.revision = revision;
-        this.tenantName = tenantName;
-        this.tenantStatus = tenantStatus;
-        this.tenantDbName = tenantDbName;
-        this.pubUsers = pubUsers;
+        this.name = name;
+        this.status = status;
+        this.dbName = dbName;
     }
 
-    public String getProfileId() {
-        return profileId;
+    public String getId() {
+        return id;
     }
 
     public String getRevision() {
         return revision;
     }
 
-    public String getTenantName() {
-        return tenantName;
+    public String getName() {
+        return name;
     }
 
-    public TenantStatus getTenantStatus() {
-        return tenantStatus;
+    public TenantStatus getStatus() {
+        return status;
     }
 
-    public String getTenantDbName() {
-        return tenantDbName;
-    }
-
-    public PubUsers getPubUsers() {
-        return pubUsers;
+    public String getDbName() {
+        return dbName;
     }
 }

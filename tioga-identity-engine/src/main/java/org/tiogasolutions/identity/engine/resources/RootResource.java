@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 import org.tiogasolutions.app.standard.execution.ExecutionManager;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.support.IdentityPubUtils;
-import org.tiogasolutions.identity.kernel.domain.TenantProfileEo;
+import org.tiogasolutions.identity.kernel.domain.TenantEo;
 import org.tiogasolutions.identity.kernel.store.TenantStore;
 import org.tiogasolutions.identity.pub.core.PubItem;
 import org.tiogasolutions.identity.pub.core.PubLinks;
@@ -44,7 +44,7 @@ public class RootResource extends RootResourceSupport {
     private ContainerRequestContext requestContext;
 
     @Autowired
-    private ExecutionManager<TenantProfileEo> executionManager;
+    private ExecutionManager<TenantEo> executionManager;
 
     @Autowired
     private TenantStore tenantStore;
@@ -63,8 +63,8 @@ public class RootResource extends RootResourceSupport {
     public Response getIndex() throws Exception {
 
         PubLinks links = new PubLinks();
-        links.add("self", getPubUtils().getUris().getRoot());
-        links.add("api", getPubUtils().getUris().getApi());
+        links.add("self", getPubUtils().getRootUri());
+        links.add("api", getPubUtils().getApiUri());
 
         long elapsed = System.currentTimeMillis() - startedAt;
         PubInfo pubInfo = new PubInfo(HttpStatusCode.OK, links, String.format("%s days, %s hours, %s minutes, %s seconds",
