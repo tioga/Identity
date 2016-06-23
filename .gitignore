@@ -12,3 +12,4 @@
 hs_err_pid*
 tioga-identity-engine/build/
 tioga-identity-pub/build/
+.idea/workspace.xml
