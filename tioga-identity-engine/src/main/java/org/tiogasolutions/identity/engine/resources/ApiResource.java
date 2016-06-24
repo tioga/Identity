@@ -14,12 +14,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static java.util.Collections.singletonList;
+import static org.tiogasolutions.identity.engine.resources.Paths.$admin;
+import static org.tiogasolutions.identity.engine.resources.Paths.$tenants;
 
 public class ApiResource {
 
-    private final IdentityPubUtils pubUtils;
     private final TenantStore tenantStore;
+    private final IdentityPubUtils pubUtils;
     private final ExecutionManager<TenantEo> executionManager;
 
     public ApiResource(ExecutionManager<TenantEo> executionManager, IdentityPubUtils pubUtils, TenantStore tenantStore) {
@@ -30,27 +31,24 @@ public class ApiResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getApiRoot() {
+    public Response getRoot() {
 
         PubLinks pubLinks = new PubLinks();
         pubLinks.add("self", pubUtils.getApiUri());
         pubLinks.add("root", pubUtils.getRootUri());
-        pubLinks.add("tenant", pubUtils.getTenantUri(null));
-        pubLinks.add("tenant-users", pubUtils.getTenantUri(singletonList("users")));
+        pubLinks.add($tenants, pubUtils.getTenantsUri(null));
         PubItem pubItem = new PubItem(HttpStatusCode.OK, pubLinks);
 
         return pubUtils.toResponse(pubItem).build();
     }
 
-    @Path("/admin")
-    @Produces(MediaType.APPLICATION_JSON)
+    @Path($admin)
     public AdminResource getAdminResource() {
         return new AdminResource(executionManager, pubUtils, tenantStore);
     }
 
-    @Path("/tenant")
-    @Produces(MediaType.APPLICATION_JSON)
-    public TenantResource getTenantResource() {
-        return new TenantResource(executionManager, pubUtils);
+    @Path($tenants)
+    public TenantsResource getTenantsResource() {
+        return new TenantsResource(executionManager, tenantStore, pubUtils);
     }
 }

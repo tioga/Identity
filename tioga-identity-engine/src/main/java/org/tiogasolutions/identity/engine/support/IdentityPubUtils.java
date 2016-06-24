@@ -16,10 +16,13 @@ import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.tiogasolutions.identity.engine.resources.Paths.*;
 
 public class IdentityPubUtils {
 
@@ -41,10 +44,10 @@ public class IdentityPubUtils {
         if (includes == null) includes = emptyList();
 
         PubLinks links = new PubLinks();
-        links.add("self",               getTenantUri(includes));
-        links.add("self-no-users",      getTenantUri(emptyList()));
-        links.add("self-user-items",   getTenantUri(singletonList("user-items")));
-        links.add("self-user-links",   getTenantUri(singletonList("user-links")));
+        links.add("self",               getTenantsUri(includes));
+        links.add("self-no-users",      getTenantsUri(emptyList()));
+        links.add("self-user-items",   getTenantsUri(singletonList("user-items")));
+        links.add("self-user-links",   getTenantsUri(singletonList("user-links")));
         links.add("users",              getTenantUsersUri(null, null, 0, PubUsers.DEFAULT_LIMIT));
         links.add("users-items",        getTenantUsersUri(singletonList("items"), null, 0, PubUsers.DEFAULT_LIMIT));
         links.add("users-links",        getTenantUsersUri(singletonList("links"), null, 0, PubUsers.DEFAULT_LIMIT));
@@ -53,10 +56,11 @@ public class IdentityPubUtils {
         return new PubTenant(
                 toPubStatus(statusCode),
                 links,
-                tenant.getId(),
-                tenant.getRevision(),
                 tenant.getName(),
+                tenant.getRevision(),
                 tenant.getStatus(),
+                tenant.getAuthorizationToken(),
+                tenant.getPassword(),
                 tenant.getDbName());
     }
 
@@ -70,7 +74,7 @@ public class IdentityPubUtils {
         links.add("self-links", getTenantUsersUri(singletonList("links"), username, offset, limit));
 
         links.add("user",   getTenantUserByIdUri("{id}"));
-        links.add("tenant", getTenantUri(null));
+        links.add($tenants, getTenantsUri(null));
         links.add("api",    getApiUri());
 
         if (users.size() > 0) {
@@ -128,17 +132,17 @@ public class IdentityPubUtils {
     }
 
     public String getApiUri() {
-        return uriInfo.getBaseUriBuilder().path("api").toTemplate();
+        return uriInfo.getBaseUriBuilder().path($api_v1).toTemplate();
     }
 
     public String getAdminUri() {
         return uriInfo.getBaseUriBuilder().path("api/admin").toTemplate();
     }
 
-    public String getTenantUri(List<String> includes) {
+    public String getTenantsUri(List<String> includes) {
         if (includes == null || includes.isEmpty()) includes = emptyList();
 
-        UriBuilder builder = uriInfo.getBaseUriBuilder().path("api/tenant");
+        UriBuilder builder = uriInfo.getBaseUriBuilder().path($api_v1).path($tenants);
         for (String include : includes) {
             builder.queryParam("include", include);
         }
@@ -154,7 +158,7 @@ public class IdentityPubUtils {
         if (username == null) username = "";
 
         UriBuilder builder = uriInfo.getBaseUriBuilder()
-                .path("api/tenant/users")
+                .path($api_v1).path($tenants).path($users)
                 .queryParam("username", username)
                 .queryParam("offset", offset)
                 .queryParam("limit", limit);
@@ -167,7 +171,10 @@ public class IdentityPubUtils {
     }
 
     public String getTenantUserByIdUri(String id) {
-        return uriInfo.getBaseUriBuilder().path("api/tenant/users").path(id).toTemplate();
+        return uriInfo.getBaseUriBuilder()
+                .path($api_v1).path($tenants).path($users)
+                .path(id)
+                .toTemplate();
     }
 
     private int toInt(Object value, Object defaultValue, String paramName) {

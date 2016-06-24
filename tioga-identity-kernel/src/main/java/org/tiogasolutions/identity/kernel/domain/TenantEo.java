@@ -2,6 +2,7 @@ package org.tiogasolutions.identity.kernel.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.tiogasolutions.dev.common.StringUtils;
+import org.tiogasolutions.dev.common.id.uuid.TimeUuid;
 import org.tiogasolutions.identity.pub.core.TenantStatus;
 
 import java.util.ArrayList;
@@ -14,38 +15,38 @@ import static org.tiogasolutions.dev.common.EqualsUtils.objectsEqual;
 
 public class TenantEo {
 
-    private final String id;
-    private final String revision;
-    private final String name;
-    private final TenantStatus status;
-    private final String apiToken;
-    private final String dbName;
+    private String name;
+    private String revision;
+    private TenantStatus status;
+    private String authorizationToken;
+    private String password;
+    private String dbName;
 
     private final List<UserEo> users = new ArrayList<>();
     private final List<RealmEo> realms = new ArrayList<>();
 
-    public TenantEo(@JsonProperty("id") String id,
+    public TenantEo(@JsonProperty("name") String name,
                     @JsonProperty("revision") String revision,
-                    @JsonProperty("name") String name,
                     @JsonProperty("status") TenantStatus status,
-                    @JsonProperty("apiToken") String apiToken,
+                    @JsonProperty("authorizationToken") String authorizationToken,
+                    @JsonProperty("password") String password,
                     @JsonProperty("dbName") String dbName,
                     @JsonProperty("realms") List<RealmEo> realms,
                     @JsonProperty("users") List<UserEo> users) {
 
-        this.id = id;
-        this.revision = revision;
         this.name = name;
+        this.revision = revision;
         this.status = status;
-        this.apiToken = apiToken;
+        this.authorizationToken = authorizationToken;
+        this.password = password;
         this.dbName = dbName;
 
         if (users != null) this.users.addAll(users);
         if (realms != null) this.realms.addAll(realms);
     }
 
-    public String getId() {
-        return id;
+    public String getPassword() {
+        return password;
     }
 
     public final String getRevision() {
@@ -56,8 +57,8 @@ public class TenantEo {
         return name;
     }
 
-    public String getApiToken() {
-        return apiToken;
+    public String getAuthorizationToken() {
+        return authorizationToken;
     }
 
     public String getDbName() {
@@ -76,6 +77,9 @@ public class TenantEo {
         return unmodifiableList(users);
     }
 
+    public void generateAccessToken() {
+        this.authorizationToken = TimeUuid.randomUUID().toString();
+    }
 
     public List<UserEo> getUsers(String username) {
         if (StringUtils.isBlank(username)) {

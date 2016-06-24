@@ -26,6 +26,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.net.URI;
+
+import static org.tiogasolutions.identity.engine.resources.Paths.$api;
+import static org.tiogasolutions.identity.engine.resources.Paths.$api_v1;
 
 @Path("/")
 @Component
@@ -85,8 +89,15 @@ public class RootResource extends RootResourceSupport {
         public String getUpTime() { return upTime; }
     }
 
-    @Path("/api")
-    public ApiResource getApi() throws Exception {
+    @GET
+    @Path($api)
+    public Response getApi() throws Exception {
+        URI location = URI.create(getPubUtils().getApiUri());
+        return Response.seeOther(location).build();
+    }
+
+    @Path($api_v1)
+    public ApiResource getApiV1() throws Exception {
         return new ApiResource(executionManager, getPubUtils(), tenantStore);
     }
 

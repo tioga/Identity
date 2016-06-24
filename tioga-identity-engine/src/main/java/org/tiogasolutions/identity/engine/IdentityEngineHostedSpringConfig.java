@@ -33,6 +33,9 @@ import org.tiogasolutions.runners.grizzly.GrizzlyServerConfig;
 import java.util.Collections;
 import java.util.List;
 
+import static org.tiogasolutions.identity.engine.resources.Paths.$api_v1;
+import static org.tiogasolutions.identity.engine.resources.Paths.$tenants;
+
 @Profile("hosted")
 @Configuration
 public class IdentityEngineHostedSpringConfig {
@@ -97,10 +100,11 @@ public class IdentityEngineHostedSpringConfig {
                 "^css/.*",      // any css file
                 "^images/.*",   // any image
                 "^favicon.ico",
-                "^application.wadl"
+                "^application.wadl",
+                "^"+ $api_v1 + "/" + $tenants + "/[a-zA-Z0-9]*/" + "access-token"
         );
 
-        config.registerAuthenticator(new IdentityTokenRequestFilterAuthenticator(tenantStore), "^api/tenant.*");
+        config.registerAuthenticator(new IdentityTokenRequestFilterAuthenticator(tenantStore), "^"+ $api_v1 + "/" + $tenants + ".*");
 
         return config;
     }
@@ -147,9 +151,27 @@ public class IdentityEngineHostedSpringConfig {
         return new DefaultCouchServer(config.toCouchSetup());
     }
 
+//    private static class BetterExceptionMapper extends StandardJaxRsExceptionMapper {
+//        @Autowired
+//        public BetterExceptionMapper(Notifier notifier) {
+//            super(notifier);
+//        }
+//        @Override
+//        public Response toResponse(Throwable ex) {
+//            if (ex instanceof NotFoundException) {
+//                ApiException apiEx = ApiException.badRequest("The specified resource path does not exist.");
+//                return super.toResponse(apiEx);
+//            }
+//            return super.toResponse(ex);
+//        }
+//    }
+
     @Bean
     public ResourceConfig resourceConfig(ApplicationContext applicationContext) {
         StandardApplication application = new StandardApplication();
+//        application.getClasses().remove(StandardJaxRsExceptionMapper.class);
+//        application.getClasses().add(BetterExceptionMapper.class);
+
         ResourceConfig resourceConfig = ResourceConfig.forApplication(application);
         resourceConfig.property("contextConfig", applicationContext);
         resourceConfig.packages("org.tiogasolutions.identity");
