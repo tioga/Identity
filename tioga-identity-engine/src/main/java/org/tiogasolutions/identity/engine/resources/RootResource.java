@@ -28,8 +28,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
-import static org.tiogasolutions.identity.engine.resources.Paths.$api;
-import static org.tiogasolutions.identity.engine.resources.Paths.$api_v1;
+import static org.tiogasolutions.identity.kernel.constants.Paths.$api;
+import static org.tiogasolutions.identity.kernel.constants.Paths.$api_v1;
 
 @Path("/")
 @Component
@@ -67,8 +67,8 @@ public class RootResource extends RootResourceSupport {
     public Response getIndex() throws Exception {
 
         PubLinks links = new PubLinks();
-        links.add("self", getPubUtils().getRootUri());
-        links.add("api", getPubUtils().getApiUri());
+        links.add("self", getPubUtils().uriRoot());
+        links.add("api", getPubUtils().uriApi());
 
         long elapsed = System.currentTimeMillis() - startedAt;
         PubInfo pubInfo = new PubInfo(HttpStatusCode.OK, links, String.format("%s days, %s hours, %s minutes, %s seconds",
@@ -92,7 +92,7 @@ public class RootResource extends RootResourceSupport {
     @GET
     @Path($api)
     public Response getApi() throws Exception {
-        URI location = URI.create(getPubUtils().getApiUri());
+        URI location = URI.create(getPubUtils().uriApi());
         return Response.seeOther(location).build();
     }
 

@@ -2,12 +2,15 @@ package org.tiogasolutions.identity.kernel.domain;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.tiogasolutions.dev.common.StringUtils;
+import org.tiogasolutions.dev.common.exceptions.ExceptionUtils;
 import org.tiogasolutions.dev.common.id.uuid.TimeUuid;
 import org.tiogasolutions.identity.pub.core.TenantStatus;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
+import static java.util.Collections.*;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
@@ -23,7 +26,7 @@ public class TenantEo {
     private String dbName;
 
     private final List<UserEo> users = new ArrayList<>();
-    private final List<RealmEo> realms = new ArrayList<>();
+    private final List<SystemEo> systems = new ArrayList<>();
 
     public TenantEo(@JsonProperty("name") String name,
                     @JsonProperty("revision") String revision,
@@ -31,10 +34,10 @@ public class TenantEo {
                     @JsonProperty("authorizationToken") String authorizationToken,
                     @JsonProperty("password") String password,
                     @JsonProperty("dbName") String dbName,
-                    @JsonProperty("realms") List<RealmEo> realms,
-                    @JsonProperty("users") List<UserEo> users) {
+                    @JsonProperty("users") List<UserEo> users,
+                    @JsonProperty("systems") List<SystemEo> systems) {
 
-        this.name = name;
+        this.name = ExceptionUtils.assertNotZeroLength(name, "name").toLowerCase();
         this.revision = revision;
         this.status = status;
         this.authorizationToken = authorizationToken;
@@ -42,7 +45,7 @@ public class TenantEo {
         this.dbName = dbName;
 
         if (users != null) this.users.addAll(users);
-        if (realms != null) this.realms.addAll(realms);
+        if (systems != null) this.systems.addAll(systems);
     }
 
     public String getPassword() {
@@ -69,8 +72,8 @@ public class TenantEo {
         return status;
     }
 
-    public List<RealmEo> getRealms() {
-        return unmodifiableList(realms);
+    public List<SystemEo> getSystems() {
+        return systems;
     }
 
     public List<UserEo> getUsers() {
@@ -109,35 +112,30 @@ public class TenantEo {
         return null;
     }
 
-    public RoleEo findRole(String roleName) {
-        for (RealmEo realm : realms) {
-            for (RoleEo role : realm.getRoles()) {
-                if (objectsEqual(roleName, role.getRoleName())) {
-                    return role;
-                }
-            }
-        }
-        return null;
+    public SystemEo createSystem(String systemName) {
+        SystemEo system = SystemEo.createSystem(this, systemName);
+        systems.add(system);
+        return system;
     }
 
-    public RealmEo findRealm(String realmName) {
-        for (RealmEo realm : realms) {
-            if (objectsEqual(realm, realm.getRealmName())) {
-                return realm;
-            }
-        }
-        return null;
-    }
-
-    public RealmEo createRealm(String realmName) {
-        RealmEo realm = new RealmEo(realmName, emptyList());
-        realms.add(realm);
-        return realm;
-    }
-
-    public UserEo createUser(String username, String password, RoleEo...roles) {
-        UserEo user = new UserEo(username, password, roles);
+    public UserEo createUser(String username, String password) {
+        UserEo user = new UserEo(username, password);
         users.add(user);
         return user;
     }
+
+    public static TenantEo create(String name, String password) {
+        return new TenantEo(
+                name,
+                "0",
+                TenantStatus.ACTIVE,
+                TimeUuid.randomUUID().toString(),
+                password,
+                "identity-"+name,
+                emptyList(),
+                emptyList());
+    }
 }
+
+
+

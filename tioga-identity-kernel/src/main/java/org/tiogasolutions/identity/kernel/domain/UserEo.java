@@ -11,11 +11,11 @@ import static java.util.Collections.unmodifiableList;
 
 public class UserEo {
 
-    private final String id;
-    private final String revision;
-    private final String username;
-    private final String password;
-    private final List<String> assignedRoles = new ArrayList<>();
+    private String id;
+    private String revision;
+    private String username;
+    private String password;
+    private List<String> assignedRoles = new ArrayList<>();
 
     @JsonCreator
     public UserEo(@JsonProperty("id") String id,
@@ -40,7 +40,7 @@ public class UserEo {
         this.password = password;
 
         for (RoleEo role : roles) {
-            assignedRoles.add(role.getRoleName());
+            assignedRoles.add(role.getName());
         }
     }
 
@@ -60,7 +60,18 @@ public class UserEo {
         return password;
     }
 
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
     public List<String> getAssignedRoles() {
         return unmodifiableList(assignedRoles);
+    }
+
+    public UserEo assign(RoleEo...roles) {
+        for (RoleEo role : roles) {
+            assignedRoles.add(role.getName());
+        }
+        return this;
     }
 }

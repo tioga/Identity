@@ -30,8 +30,8 @@ public class AdminResource {
     public Response getApiRoot() {
 
         PubLinks pubLinks = new PubLinks();
-        pubLinks.add("self", pubUtils.getAdminUri());
-        pubLinks.add("api", pubUtils.getApiUri());
+        pubLinks.add("self", pubUtils.uriAdmin());
+        pubLinks.add("api", pubUtils.uriApi());
         PubItem pubItem = new PubItem(HttpStatusCode.OK, pubLinks);
 
         return pubUtils.toResponse(pubItem).build();

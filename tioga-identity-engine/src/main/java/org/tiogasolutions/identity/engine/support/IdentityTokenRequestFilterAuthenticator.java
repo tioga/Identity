@@ -7,7 +7,11 @@ import org.tiogasolutions.identity.kernel.store.TenantStore;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.SecurityContext;
-import java.security.Principal;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.tiogasolutions.identity.kernel.constants.Roles.$ADMIN;
+import static org.tiogasolutions.identity.kernel.constants.Roles.$USER;
 
 public class IdentityTokenRequestFilterAuthenticator extends TokenRequestFilterAuthenticator {
 
@@ -20,11 +24,22 @@ public class IdentityTokenRequestFilterAuthenticator extends TokenRequestFilterA
     @Override
     protected SecurityContext validate(ContainerRequestContext requestContext, String token) {
         try {
+
             TenantEo tenantEo = tenantStore.findByToken(token);
             if (tenantEo == null) {
                 throw ApiException.unauthorized("Invalid access token");
             }
-            return new TokenBasedSecurityContext(requestContext.getSecurityContext(), tenantEo);
+
+            List<String> roles = new ArrayList<>();
+            roles.add($USER); // Everyone is a user
+
+            if ("admin".equalsIgnoreCase(tenantEo.getName())) {
+                // If this is the "admin" tenant
+                // then you get the admin role
+                roles.add($ADMIN);
+            }
+
+            return new IdentityTokenBasedSecurityContext(requestContext.getSecurityContext(), tenantEo, roles);
 
         } catch (ApiException e) {
             throw e;
@@ -34,37 +49,4 @@ public class IdentityTokenRequestFilterAuthenticator extends TokenRequestFilterA
         }
     }
 
-    public static class TokenBasedSecurityContext implements SecurityContext {
-        private final boolean secure;
-        private final TenantEo tenantEo;
-
-        public TokenBasedSecurityContext(SecurityContext securityContext, TenantEo tenantEo) {
-            this.tenantEo = tenantEo;
-            this.secure = securityContext.isSecure();
-        }
-
-        public TenantEo getTenantEo() {
-            return tenantEo;
-        }
-
-        @Override
-        public boolean isUserInRole(String role) {
-            return false;
-        }
-
-        @Override
-        public boolean isSecure() {
-            return secure;
-        }
-
-        @Override
-        public String getAuthenticationScheme() {
-            return "TOKEN";
-        }
-
-        @Override
-        public Principal getUserPrincipal() {
-            return tenantEo::getName;
-        }
-    }
 }

@@ -14,8 +14,8 @@ public class IdentityRequestFilterDomainResolver implements StandardRequestFilte
     @Override
     public TenantEo getDomain(ContainerRequestContext rc) {
         SecurityContext sc = rc.getSecurityContext();
-        if (sc instanceof IdentityTokenRequestFilterAuthenticator.TokenBasedSecurityContext) {
-            IdentityTokenRequestFilterAuthenticator.TokenBasedSecurityContext isc = (IdentityTokenRequestFilterAuthenticator.TokenBasedSecurityContext)sc;
+        if (sc instanceof IdentityTokenBasedSecurityContext) {
+            IdentityTokenBasedSecurityContext isc = (IdentityTokenBasedSecurityContext)sc;
             return isc.getTenantEo();
         }
         return null;

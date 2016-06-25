@@ -15,7 +15,9 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static org.tiogasolutions.dev.common.EqualsUtils.objectsNotEqual;
-import static org.tiogasolutions.identity.engine.resources.Paths.$users;
+import static org.tiogasolutions.identity.kernel.constants.Paths.$authenticate;
+import static org.tiogasolutions.identity.kernel.constants.Paths.$systems;
+import static org.tiogasolutions.identity.kernel.constants.Paths.$users;
 
 public class TenantResource {
 
@@ -36,7 +38,7 @@ public class TenantResource {
     }
 
     @POST
-    @Path("access-token")
+    @Path($authenticate)
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCreateToken(@FormParam("password") String password) {
 
@@ -48,14 +50,14 @@ public class TenantResource {
         tenantEo.generateAccessToken();
         tenantStore.update(tenantEo);
 
-        PubTenant pubTenant = pubUtils.toTenant(HttpStatusCode.OK, tenantEo, emptyList());
+        PubTenant pubTenant = pubUtils.toTenant(HttpStatusCode.OK, tenantEo);
         return pubUtils.toResponse(pubTenant).build();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getTenant(@QueryParam("include") List<String> includes) {
-        PubTenant pubTenant = pubUtils.toTenant(HttpStatusCode.OK, getTenant(), includes);
+        PubTenant pubTenant = pubUtils.toTenant(HttpStatusCode.OK, getTenant());
         return pubUtils.toResponse(pubTenant).build();
     }
 
@@ -63,4 +65,10 @@ public class TenantResource {
     public UsersResource getUsersResource() {
         return new UsersResource(executionManager, pubUtils);
     }
+
+    @Path($systems)
+    public SystemsResource getSystemsResource() {
+        return new SystemsResource(executionManager, pubUtils);
+    }
+
 }

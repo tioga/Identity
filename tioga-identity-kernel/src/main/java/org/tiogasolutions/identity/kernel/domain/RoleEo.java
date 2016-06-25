@@ -9,18 +9,18 @@ import static java.util.Collections.unmodifiableList;
 
 public class RoleEo {
 
-    private final String roleName;
+    private final String name;
     private final List<PermissionEo> permissions = new ArrayList<>();
 
-    public RoleEo(@JsonProperty("roleName") String roleName,
+    public RoleEo(@JsonProperty("roleName") String name,
                   @JsonProperty("permissions") List<PermissionEo> permissions) {
 
-        this.roleName = roleName;
+        this.name = name;
         if (permissions != null) this.permissions.addAll(permissions);
     }
 
-    public String getRoleName() {
-        return roleName;
+    public String getName() {
+        return name;
     }
 
     public List<PermissionEo> getPermissions() {

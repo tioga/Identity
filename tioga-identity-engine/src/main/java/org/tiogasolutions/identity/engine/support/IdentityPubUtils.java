@@ -2,15 +2,14 @@ package org.tiogasolutions.identity.engine.support;
 
 import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
+import org.tiogasolutions.identity.kernel.domain.SystemEo;
 import org.tiogasolutions.identity.kernel.domain.TenantEo;
 import org.tiogasolutions.identity.kernel.domain.UserEo;
 import org.tiogasolutions.identity.pub.core.PubItem;
 import org.tiogasolutions.identity.pub.core.PubLink;
 import org.tiogasolutions.identity.pub.core.PubLinks;
 import org.tiogasolutions.identity.pub.core.PubStatus;
-import org.tiogasolutions.identity.pub.tenant.PubTenant;
-import org.tiogasolutions.identity.pub.tenant.PubUser;
-import org.tiogasolutions.identity.pub.tenant.PubUsers;
+import org.tiogasolutions.identity.pub.tenant.*;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
@@ -22,7 +21,7 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.tiogasolutions.identity.engine.resources.Paths.*;
+import static org.tiogasolutions.identity.kernel.constants.Paths.*;
 
 public class IdentityPubUtils {
 
@@ -40,21 +39,18 @@ public class IdentityPubUtils {
         return Response.status(pubItem.get_status().getCode()).entity(pubItem);
     }
 
-    public PubTenant toTenant(HttpStatusCode statusCode, TenantEo tenant, List<String> includes) {
-        if (includes == null) includes = emptyList();
+
+
+
+
+    public PubTenant toTenant(HttpStatusCode statusCode, TenantEo tenant) {
 
         PubLinks links = new PubLinks();
-        links.add("self",               getTenantsUri(includes));
-        links.add("self-no-users",      getTenantsUri(emptyList()));
-        links.add("self-user-items",   getTenantsUri(singletonList("user-items")));
-        links.add("self-user-links",   getTenantsUri(singletonList("user-links")));
-        links.add("users",              getTenantUsersUri(null, null, 0, PubUsers.DEFAULT_LIMIT));
-        links.add("users-items",        getTenantUsersUri(singletonList("items"), null, 0, PubUsers.DEFAULT_LIMIT));
-        links.add("users-links",        getTenantUsersUri(singletonList("links"), null, 0, PubUsers.DEFAULT_LIMIT));
-        links.add("api",                getApiUri());
+        links.add("self",               uriTenantByName(tenant));
+        links.add("systems",            uriSystems(tenant.getName(), null, null, null));
 
         return new PubTenant(
-                toPubStatus(statusCode),
+                toStatus(statusCode),
                 links,
                 tenant.getName(),
                 tenant.getRevision(),
@@ -64,28 +60,144 @@ public class IdentityPubUtils {
                 tenant.getDbName());
     }
 
+    public PubTenants toTenants(HttpStatusCode statusCode, List<TenantEo> tenants, List<String> includes, Object offset, Object limit) {
+        if (includes == null) includes = Collections.emptyList();
+
+        PubLinks links = new PubLinks();
+
+        links.add("self",       uriTenants(includes, offset, limit));
+        links.add("self-items", uriTenants(singletonList("items"), offset, limit));
+        links.add("self-links", uriTenants(singletonList("links"), offset, limit));
+
+        if (tenants.size() > 0) {
+            TenantEo first = tenants.get(0);
+            links.add("first-tenant", uriTenantByName(first));
+        }
+
+        links.add("first", uriTenants(includes, offset, limit));
+        links.add("prev",  uriTenants(includes, offset, limit));
+        links.add("next",  uriTenants(includes, offset, limit));
+        links.add("last",  uriTenants(includes, offset, limit));
+
+        List<PubTenant> tenantsList = new ArrayList<>();
+        List<PubLink> linksList = new ArrayList<>();
+        for (int i = 0; i < tenants.size(); i++) {
+            TenantEo tenant = tenants.get(i);
+            PubTenant pubUser = toTenant(null, tenant);
+            tenantsList.add(pubUser);
+            linksList.add(pubUser.get_links().get("self"));
+        }
+
+        return new PubTenants(
+                toStatus(statusCode),
+                links,
+                linksList.size(),
+                linksList.size(),
+                0,
+                999999999,
+                includes.contains("items") ? tenantsList : null,
+                includes.contains("links") ? linksList : null);
+    }
+
+
+
+
+
+    public PubSystem toSystem(HttpStatusCode statusCode, SystemEo system) {
+
+        PubLinks links = new PubLinks();
+        links.add("self", uriSystemById(system));
+
+        return new PubSystem(
+                toStatus(statusCode),
+                links,
+                system.getName(),
+                system.getTenantName()
+        );
+    }
+
+    public PubSystems toSystems(HttpStatusCode statusCode, TenantEo tenant, List<String> includes, Object offset, Object limit) {
+        if (includes == null) includes = Collections.emptyList();
+
+        PubLinks links = new PubLinks();
+        List<SystemEo> systems = tenant.getSystems();
+
+        links.add("self",       uriSystems(tenant.getName(), includes, offset, limit));
+        links.add("self-items", uriSystems(tenant.getName(), singletonList("items"), offset, limit));
+        links.add("self-links", uriSystems(tenant.getName(), singletonList("links"), offset, limit));
+
+
+        if (systems.size() > 0) {
+            SystemEo first = systems.get(0);
+            links.add("first-system", uriSystemById(first));
+        }
+
+        links.add("first", uriSystems(tenant.getName(), null, 0, limit));
+        links.add("prev",  uriSystems(tenant.getName(), null, 0, limit));
+        links.add("next",  uriSystems(tenant.getName(), null, 0, limit));
+        links.add("last",  uriSystems(tenant.getName(), null, 0, limit));
+
+        List<PubSystem> itemsList = new ArrayList<>();
+        List<PubLink> linksList = new ArrayList<>();
+        for (int i = 0; i < systems.size(); i++) {
+            SystemEo system = systems.get(i);
+            PubSystem pubSystem = toSystem(null, system);
+            itemsList.add(pubSystem);
+            linksList.add(pubSystem.get_links().get("self"));
+        }
+
+        return new PubSystems(
+                toStatus(statusCode),
+                links,
+                itemsList.size(),
+                itemsList.size(),
+                0,
+                999999999,
+                includes.contains("items") ? itemsList : null,
+                includes.contains("links") ? linksList : null);
+    }
+
+
+
+
+
+    public PubUser toUser(HttpStatusCode statusCode, UserEo user) {
+
+        PubLinks links = new PubLinks();
+        links.add("self", uriUserById(user.getId()));
+
+        return new PubUser(
+                toStatus(statusCode),
+                links,
+                user.getId(),
+                user.getRevision(),
+                user.getUsername(),
+                user.getPassword(),
+                user.getAssignedRoles()
+        );
+    }
+
     public PubUsers toUsers(HttpStatusCode statusCode, List<UserEo> users, List<String> includes, String username, Object offset, Object limit) {
         if (includes == null) includes = Collections.emptyList();
 
         PubLinks links = new PubLinks();
 
-        links.add("self",       getTenantUsersUri(includes, username, offset, limit));
-        links.add("self-items", getTenantUsersUri(singletonList("items"), username, offset, limit));
-        links.add("self-links", getTenantUsersUri(singletonList("links"), username, offset, limit));
+        links.add("self",       uriUsers(includes, username, offset, limit));
+        links.add("self-items", uriUsers(singletonList("items"), username, offset, limit));
+        links.add("self-links", uriUsers(singletonList("links"), username, offset, limit));
 
-        links.add("user",   getTenantUserByIdUri("{id}"));
-        links.add($tenants, getTenantsUri(null));
-        links.add("api",    getApiUri());
+        links.add("user",   uriUserById("{id}"));
+        links.add("api",    uriApi());
 
         if (users.size() > 0) {
             UserEo first = users.get(0);
-            links.add("first-user", getTenantUserByIdUri(first.getId()));
+            links.add("first-user", uriUserById(first.getId()));
         }
 
-        links.add("first", getTenantUsersUri(null, username, 0, limit));
-        links.add("prev",  getTenantUsersUri(null, username, 0, limit));
-        links.add("next",  getTenantUsersUri(null, username, 0, limit));
-        links.add("last",  getTenantUsersUri(null, username, 0, limit));
+        links.add("first", uriUsers(null, username, 0, limit));
+        links.add("prev",  uriUsers(null, username, 0, limit));
+        links.add("next",  uriUsers(null, username, 0, limit));
+        links.add("last",  uriUsers(null, username, 0, limit));
 
         List<PubUser> usersList = new ArrayList<>();
         List<PubLink> linksList = new ArrayList<>();
@@ -97,49 +209,33 @@ public class IdentityPubUtils {
         }
 
         return new PubUsers(
-                toPubStatus(statusCode),
+                toStatus(statusCode),
                 links,
-                users.size(),
-                users.size(),
+                usersList.size(),
+                usersList.size(),
                 0,
                 999999999,
                 includes.contains("items") ? usersList : null,
                 includes.contains("links") ? linksList : null);
     }
 
-    public PubUser toUser(HttpStatusCode statusCode, UserEo user) {
-
-        PubLinks links = new PubLinks();
-        links.add("self", getTenantUserByIdUri(user.getId()));
-
-        return new PubUser(
-            toPubStatus(statusCode),
-            links,
-            user.getId(),
-            user.getRevision(),
-            user.getUsername(),
-            user.getPassword(),
-            user.getAssignedRoles()
-        );
-    }
-
-    private PubStatus toPubStatus(HttpStatusCode statusCode) {
+    private PubStatus toStatus(HttpStatusCode statusCode) {
         return statusCode == null ? null : new PubStatus(statusCode);
     }
 
-    public String getRootUri() {
+    public String uriRoot() {
         return uriInfo.getBaseUriBuilder().toTemplate();
     }
 
-    public String getApiUri() {
+    public String uriApi() {
         return uriInfo.getBaseUriBuilder().path($api_v1).toTemplate();
     }
 
-    public String getAdminUri() {
+    public String uriAdmin() {
         return uriInfo.getBaseUriBuilder().path("api/admin").toTemplate();
     }
 
-    public String getTenantsUri(List<String> includes) {
+    public String uriTenants(List<String> includes, Object offset, Object limit) {
         if (includes == null || includes.isEmpty()) includes = emptyList();
 
         UriBuilder builder = uriInfo.getBaseUriBuilder().path($api_v1).path($tenants);
@@ -150,7 +246,37 @@ public class IdentityPubUtils {
         return builder.toTemplate();
     }
 
-    public String getTenantUsersUri(List<String> includes, String username, Object offsetObj, Object limitObj) {
+    public String uriTenantByName(TenantEo tenant) {
+        return uriInfo.getBaseUriBuilder()
+                .path($api_v1)
+                .path($tenants)
+                .path(tenant.getName())
+                .toTemplate();
+    }
+
+    public String uriSystemById(SystemEo first) {
+        return uriInfo.getBaseUriBuilder()
+                .path($api_v1)
+                .path($tenants)
+                .path(first.getTenantName())
+                .path($systems)
+                .path(first.getId())
+                .toTemplate();
+    }
+
+    private String uriSystems(String tenantName, List<String> includes, Object offset, Object limit) {
+        if (includes == null || includes.isEmpty()) includes = emptyList();
+
+        UriBuilder builder = uriInfo.getBaseUriBuilder().path($api_v1).path($tenants).path(tenantName).path("systems");
+        for (String include : includes) {
+            builder.queryParam("include", include);
+        }
+
+        return builder.toTemplate();
+    }
+
+
+    public String uriUsers(List<String> includes, String username, Object offsetObj, Object limitObj) {
         if (includes == null) includes = emptyList();
 
         int offset = toInt(offsetObj, 0, "offset");
@@ -170,7 +296,7 @@ public class IdentityPubUtils {
         return builder.toTemplate();
     }
 
-    public String getTenantUserByIdUri(String id) {
+    public String uriUserById(String id) {
         return uriInfo.getBaseUriBuilder()
                 .path($api_v1).path($tenants).path($users)
                 .path(id)

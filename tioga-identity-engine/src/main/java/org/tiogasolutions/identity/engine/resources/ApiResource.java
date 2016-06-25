@@ -14,8 +14,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import static org.tiogasolutions.identity.engine.resources.Paths.$admin;
-import static org.tiogasolutions.identity.engine.resources.Paths.$tenants;
+import static org.tiogasolutions.identity.kernel.constants.Paths.$admin;
+import static org.tiogasolutions.identity.kernel.constants.Paths.$tenants;
 
 public class ApiResource {
 
@@ -34,9 +34,9 @@ public class ApiResource {
     public Response getRoot() {
 
         PubLinks pubLinks = new PubLinks();
-        pubLinks.add("self", pubUtils.getApiUri());
-        pubLinks.add("root", pubUtils.getRootUri());
-        pubLinks.add($tenants, pubUtils.getTenantsUri(null));
+        pubLinks.add("self", pubUtils.uriApi());
+        pubLinks.add("status", pubUtils.uriRoot());
+        pubLinks.add($tenants, pubUtils.uriTenants(null, null, null));
         PubItem pubItem = new PubItem(HttpStatusCode.OK, pubLinks);
 
         return pubUtils.toResponse(pubItem).build();
