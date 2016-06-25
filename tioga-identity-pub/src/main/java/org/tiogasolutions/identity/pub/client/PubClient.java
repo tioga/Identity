@@ -1,4 +1,4 @@
-package org.tiogasolutions.identity.pub.tenant;
+package org.tiogasolutions.identity.pub.client;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.tiogasolutions.identity.pub.core.PubItem;
@@ -6,7 +6,7 @@ import org.tiogasolutions.identity.pub.core.PubLinks;
 import org.tiogasolutions.identity.pub.core.PubStatus;
 import org.tiogasolutions.identity.pub.core.TenantStatus;
 
-public class PubTenant extends PubItem {
+public class PubClient extends PubItem {
 
     private final String name;
     private final String revision;
@@ -15,7 +15,7 @@ public class PubTenant extends PubItem {
     private final String password;
     private final String dbName;
 
-    public PubTenant(@JsonProperty("_status")PubStatus _status,
+    public PubClient(@JsonProperty("_status")PubStatus _status,
                      @JsonProperty("_links") PubLinks _links,
                      @JsonProperty("name") String name,
                      @JsonProperty("revision") String revision,

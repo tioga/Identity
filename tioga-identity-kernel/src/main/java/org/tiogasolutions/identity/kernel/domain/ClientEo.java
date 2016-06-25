@@ -7,16 +7,14 @@ import org.tiogasolutions.dev.common.id.uuid.TimeUuid;
 import org.tiogasolutions.identity.pub.core.TenantStatus;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import static java.util.Collections.*;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
 import static org.tiogasolutions.dev.common.EqualsUtils.objectsEqual;
 
-public class TenantEo {
+public class ClientEo {
 
     private String name;
     private String revision;
@@ -28,7 +26,7 @@ public class TenantEo {
     private final List<UserEo> users = new ArrayList<>();
     private final List<SystemEo> systems = new ArrayList<>();
 
-    public TenantEo(@JsonProperty("name") String name,
+    public ClientEo(@JsonProperty("name") String name,
                     @JsonProperty("revision") String revision,
                     @JsonProperty("status") TenantStatus status,
                     @JsonProperty("authorizationToken") String authorizationToken,
@@ -124,8 +122,8 @@ public class TenantEo {
         return user;
     }
 
-    public static TenantEo create(String name, String password) {
-        return new TenantEo(
+    public static ClientEo create(String name, String password) {
+        return new ClientEo(
                 name,
                 "0",
                 TenantStatus.ACTIVE,

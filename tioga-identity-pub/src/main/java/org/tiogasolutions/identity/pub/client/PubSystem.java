@@ -1,4 +1,4 @@
-package org.tiogasolutions.identity.pub.tenant;
+package org.tiogasolutions.identity.pub.client;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -6,31 +6,28 @@ import org.tiogasolutions.identity.pub.core.PubItem;
 import org.tiogasolutions.identity.pub.core.PubLinks;
 import org.tiogasolutions.identity.pub.core.PubStatus;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class PubSystem extends PubItem {
 
     private final String name;
-    private final String tenantName;
+    private final String clientName;
 
     @JsonCreator
     public PubSystem(@JsonProperty("_status") PubStatus _status,
                      @JsonProperty("_links") PubLinks _links,
                      @JsonProperty("name") String name,
-                     @JsonProperty("tenantName") String tenantName) {
+                     @JsonProperty("clientName") String clientName) {
 
         super(_status, _links);
 
         this.name = name;
-        this.tenantName = tenantName;
+        this.clientName = clientName;
     }
 
     public String getName() {
         return name;
     }
 
-    public String getTenantName() {
-        return tenantName;
+    public String getClientName() {
+        return clientName;
     }
 }

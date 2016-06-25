@@ -2,8 +2,8 @@ package org.tiogasolutions.identity.engine.support;
 
 import org.tiogasolutions.app.standard.jaxrs.auth.TokenRequestFilterAuthenticator;
 import org.tiogasolutions.dev.common.exceptions.ApiException;
-import org.tiogasolutions.identity.kernel.domain.TenantEo;
-import org.tiogasolutions.identity.kernel.store.TenantStore;
+import org.tiogasolutions.identity.kernel.domain.ClientEo;
+import org.tiogasolutions.identity.kernel.store.ClientStore;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.SecurityContext;
@@ -15,31 +15,31 @@ import static org.tiogasolutions.identity.kernel.constants.Roles.$USER;
 
 public class IdentityTokenRequestFilterAuthenticator extends TokenRequestFilterAuthenticator {
 
-    private final TenantStore tenantStore;
+    private final ClientStore clientStore;
 
-    public IdentityTokenRequestFilterAuthenticator(TenantStore tenantStore) {
-        this.tenantStore = tenantStore;
+    public IdentityTokenRequestFilterAuthenticator(ClientStore clientStore) {
+        this.clientStore = clientStore;
     }
 
     @Override
     protected SecurityContext validate(ContainerRequestContext requestContext, String token) {
         try {
 
-            TenantEo tenantEo = tenantStore.findByToken(token);
-            if (tenantEo == null) {
+            ClientEo clientEo = clientStore.findByToken(token);
+            if (clientEo == null) {
                 throw ApiException.unauthorized("Invalid access token");
             }
 
             List<String> roles = new ArrayList<>();
             roles.add($USER); // Everyone is a user
 
-            if ("admin".equalsIgnoreCase(tenantEo.getName())) {
-                // If this is the "admin" tenant
+            if ("admin".equalsIgnoreCase(clientEo.getName())) {
+                // If this is the "admin" client
                 // then you get the admin role
                 roles.add($ADMIN);
             }
 
-            return new IdentityTokenBasedSecurityContext(requestContext.getSecurityContext(), tenantEo, roles);
+            return new IdentityTokenBasedSecurityContext(requestContext.getSecurityContext(), clientEo, roles);
 
         } catch (ApiException e) {
             throw e;

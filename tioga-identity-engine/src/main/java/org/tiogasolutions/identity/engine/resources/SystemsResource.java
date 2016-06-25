@@ -4,11 +4,10 @@ import org.tiogasolutions.app.standard.execution.ExecutionManager;
 import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.support.IdentityPubUtils;
-import org.tiogasolutions.identity.kernel.domain.TenantEo;
+import org.tiogasolutions.identity.kernel.domain.ClientEo;
 import org.tiogasolutions.identity.kernel.domain.UserEo;
-import org.tiogasolutions.identity.pub.tenant.PubSystems;
-import org.tiogasolutions.identity.pub.tenant.PubUser;
-import org.tiogasolutions.identity.pub.tenant.PubUsers;
+import org.tiogasolutions.identity.pub.client.PubSystems;
+import org.tiogasolutions.identity.pub.client.PubUser;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -18,14 +17,14 @@ import java.util.List;
 public class SystemsResource {
 
     private final IdentityPubUtils pubUtils;
-    private final ExecutionManager<TenantEo> executionManager;
+    private final ExecutionManager<ClientEo> executionManager;
 
-    public SystemsResource(ExecutionManager<TenantEo> executionManager, IdentityPubUtils pubUtils) {
+    public SystemsResource(ExecutionManager<ClientEo> executionManager, IdentityPubUtils pubUtils) {
         this.pubUtils = pubUtils;
         this.executionManager = executionManager;
     }
 
-    private TenantEo getTenant() {
+    private ClientEo getTenant() {
         return executionManager.getContext().getDomain();
     }
 

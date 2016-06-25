@@ -1,4 +1,4 @@
-package org.tiogasolutions.identity.pub.tenant;
+package org.tiogasolutions.identity.pub.client;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

@@ -1,4 +1,4 @@
-package org.tiogasolutions.identity.pub.tenant;
+package org.tiogasolutions.identity.pub.client;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -12,7 +12,7 @@ import java.util.List;
 
 import static java.util.Collections.unmodifiableList;
 
-public class PubTenants extends PubItem {
+public class PubUsers extends PubItem {
 
     public static final String DEFAULT_LIMIT = "10";
 
@@ -22,19 +22,19 @@ public class PubTenants extends PubItem {
     private final int limit;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private final List<PubTenant> items = new ArrayList<>();
+    private final List<PubUser> items = new ArrayList<>();
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final List<PubLink> links = new ArrayList<>();
 
-    public PubTenants(@JsonProperty("_status") PubStatus _status,
-                      @JsonProperty("_links") PubLinks _links,
-                      @JsonProperty("included") int included,
-                      @JsonProperty("total") int total,
-                      @JsonProperty("offset") int offset,
-                      @JsonProperty("limit") int limit,
-                      @JsonProperty("items") List<PubTenant> items,
-                      @JsonProperty("links") List<PubLink> links) {
+    public PubUsers(@JsonProperty("_status") PubStatus _status,
+                    @JsonProperty("_links") PubLinks _links,
+                    @JsonProperty("included") int included,
+                    @JsonProperty("total") int total,
+                    @JsonProperty("offset") int offset,
+                    @JsonProperty("limit") int limit,
+                    @JsonProperty("items") List<PubUser> items,
+                    @JsonProperty("links") List<PubLink> links) {
 
         super(_status, _links);
 
@@ -55,7 +55,7 @@ public class PubTenants extends PubItem {
         return limit;
     }
 
-    public List<PubTenant> getItems() {
+    public List<PubUser> getItems() {
         return unmodifiableList(items);
     }
 

@@ -23,8 +23,8 @@ import org.tiogasolutions.identity.engine.support.IdentityAuthenticationResponse
 import org.tiogasolutions.identity.engine.support.IdentityRequestFilterDomainResolver;
 import org.tiogasolutions.identity.engine.support.IdentityTokenRequestFilterAuthenticator;
 import org.tiogasolutions.identity.kernel.CouchServersConfig;
-import org.tiogasolutions.identity.kernel.domain.TenantEo;
-import org.tiogasolutions.identity.kernel.store.TenantStore;
+import org.tiogasolutions.identity.kernel.domain.ClientEo;
+import org.tiogasolutions.identity.kernel.store.ClientStore;
 import org.tiogasolutions.lib.couchace.DefaultCouchServer;
 import org.tiogasolutions.notify.notifier.Notifier;
 import org.tiogasolutions.notify.notifier.send.LoggingNotificationSender;
@@ -36,7 +36,6 @@ import java.util.List;
 
 import static org.tiogasolutions.identity.kernel.constants.Paths.$api_v1;
 import static org.tiogasolutions.identity.kernel.constants.Paths.$authenticate;
-import static org.tiogasolutions.identity.kernel.constants.Paths.$tenants;
 
 @Profile("hosted")
 @Configuration
@@ -72,13 +71,13 @@ public class IdentityEngineHostedSpringConfig {
     }
 
     @Bean
-    public ExecutionManager<TenantEo> executionManager() {
+    public ExecutionManager<ClientEo> executionManager() {
         return new ExecutionManager<>();
     }
 
     @Bean
-    public TenantStore accountStore() {
-        return new TenantStore();
+    public ClientStore accountStore() {
+        return new ClientStore();
     }
 
     @Bean
@@ -92,7 +91,7 @@ public class IdentityEngineHostedSpringConfig {
     }
 
     @Bean
-    public StandardRequestFilterConfig standardRequestFilterConfig(TenantStore tenantStore) {
+    public StandardRequestFilterConfig standardRequestFilterConfig(ClientStore clientStore) {
         StandardRequestFilterConfig config = new StandardRequestFilterConfig();
 
         // The first list is everything that is unsecured.
@@ -103,10 +102,10 @@ public class IdentityEngineHostedSpringConfig {
                 "^images/.*",   // any image
                 "^favicon.ico",
                 "^application.wadl",
-                "^"+ $api_v1 + "/" + $tenants + "/[a-zA-Z0-9]*/" + $authenticate
+                "^"+ $api_v1 + "/" + $authenticate
         );
 
-        config.registerAuthenticator(new IdentityTokenRequestFilterAuthenticator(tenantStore), "^"+ $api_v1 + "/" + $tenants + ".*");
+        config.registerAuthenticator(new IdentityTokenRequestFilterAuthenticator(clientStore), "^"+ $api_v1 + "/.*");
 
         return config;
     }

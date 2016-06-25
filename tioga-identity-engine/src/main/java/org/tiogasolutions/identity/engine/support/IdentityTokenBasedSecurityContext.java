@@ -1,6 +1,6 @@
 package org.tiogasolutions.identity.engine.support;
 
-import org.tiogasolutions.identity.kernel.domain.TenantEo;
+import org.tiogasolutions.identity.kernel.domain.ClientEo;
 
 import javax.ws.rs.core.SecurityContext;
 import java.security.Principal;
@@ -12,17 +12,17 @@ import static java.util.Collections.unmodifiableList;
 public class IdentityTokenBasedSecurityContext implements SecurityContext {
 
     private final boolean secure;
-    private final TenantEo tenantEo;
+    private final ClientEo clientEo;
     private final List<String> roles;
 
-    public IdentityTokenBasedSecurityContext(SecurityContext securityContext, TenantEo tenantEo, List<String> roles) {
-        this.tenantEo = tenantEo;
+    public IdentityTokenBasedSecurityContext(SecurityContext securityContext, ClientEo clientEo, List<String> roles) {
+        this.clientEo = clientEo;
         this.secure = securityContext.isSecure();
         this.roles = (roles == null ? emptyList() : unmodifiableList(roles));
     }
 
-    public TenantEo getTenantEo() {
-        return tenantEo;
+    public ClientEo getClientEo() {
+        return clientEo;
     }
 
     public List<String> getRoles() {
@@ -46,6 +46,6 @@ public class IdentityTokenBasedSecurityContext implements SecurityContext {
 
     @Override
     public Principal getUserPrincipal() {
-        return tenantEo::getName;
+        return clientEo::getName;
     }
 }

@@ -16,7 +16,7 @@ import org.tiogasolutions.app.standard.view.thymeleaf.ThymeleafMessageBodyWriter
 import org.tiogasolutions.dev.jackson.TiogaJacksonModule;
 import org.tiogasolutions.identity.engine.support.IdentityAuthenticationResponseFactory;
 import org.tiogasolutions.identity.kernel.CouchServersConfig;
-import org.tiogasolutions.identity.kernel.store.TenantStore;
+import org.tiogasolutions.identity.kernel.store.ClientStore;
 import org.tiogasolutions.lib.couchace.DefaultCouchServer;
 import org.tiogasolutions.notify.notifier.Notifier;
 import org.tiogasolutions.notify.notifier.send.LoggingNotificationSender;
@@ -53,8 +53,8 @@ public class IdentityEngineTestSpringConfig {
     }
 
     @Bean
-    public TenantStore accountStore() {
-        return new TenantStore();
+    public ClientStore accountStore() {
+        return new ClientStore();
     }
 
     @Bean
