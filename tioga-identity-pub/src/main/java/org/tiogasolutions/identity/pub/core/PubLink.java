@@ -57,4 +57,8 @@ public class PubLink {
         result = 31 * result + (title != null ? title.hashCode() : 0);
         return result;
     }
+
+    public PubLink clone(String rel) {
+        return new PubLink(rel, href, title);
+    }
 }

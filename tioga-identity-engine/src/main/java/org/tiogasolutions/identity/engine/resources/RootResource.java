@@ -11,14 +11,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import org.tiogasolutions.app.standard.execution.ExecutionManager;
-import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
-import org.tiogasolutions.identity.engine.support.IdentityPubUtils;
+import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.domain.ClientEo;
 import org.tiogasolutions.identity.kernel.store.ClientStore;
 import org.tiogasolutions.identity.pub.core.PubLinks;
 import org.tiogasolutions.identity.pub.client.PubInfo;
-import org.tiogasolutions.identity.pub.client.PubClient;
 
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -28,10 +26,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
-import static org.tiogasolutions.dev.common.EqualsUtils.objectsNotEqual;
 import static org.tiogasolutions.identity.kernel.constants.Paths.$api;
 import static org.tiogasolutions.identity.kernel.constants.Paths.$api_v1;
-import static org.tiogasolutions.identity.kernel.constants.Paths.$authenticate;
 
 @Path("/")
 @Component
@@ -41,7 +37,7 @@ public class RootResource extends RootResourceSupport {
     private static final Log log = LogFactory.getLog(RootResource.class);
     private static final Long startedAt = System.currentTimeMillis();
 
-    private IdentityPubUtils pubUtils;
+    private PubUtils pubUtils;
 
     @Context
     private UriInfo uriInfo;
@@ -71,9 +67,9 @@ public class RootResource extends RootResourceSupport {
         PubLinks links = new PubLinks();
         links.add("self", getPubUtils().uriRoot());
         links.add("api", getPubUtils().uriApi());
-        links.add("admin", getPubUtils().uriAdmin());
         links.add("authenticate", getPubUtils().uriAuthenticate());
         links.add("client", getPubUtils().uriClient());
+        links.add("admin", getPubUtils().uriAdmin());
 
         long elapsed = System.currentTimeMillis() - startedAt;
         PubInfo pubInfo = new PubInfo(HttpStatusCode.OK, links, elapsed);
@@ -93,9 +89,9 @@ public class RootResource extends RootResourceSupport {
         return new ApiResource(executionManager, getPubUtils(), clientStore);
     }
 
-    private IdentityPubUtils getPubUtils() {
+    private PubUtils getPubUtils() {
         if (pubUtils == null) {
-            pubUtils = new IdentityPubUtils(uriInfo);
+            pubUtils = new PubUtils(uriInfo);
         }
         return pubUtils;
     }

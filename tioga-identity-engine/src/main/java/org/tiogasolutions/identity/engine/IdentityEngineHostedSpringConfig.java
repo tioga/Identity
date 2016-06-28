@@ -147,10 +147,10 @@ public class IdentityEngineHostedSpringConfig {
         return new CouchServersConfig(url, databaseName, username, password, jacksonModule);
     }
 
-    @Bean
-    public DefaultCouchServer defaultCouchServer(CouchServersConfig config) {
-        return new DefaultCouchServer(config.toCouchSetup());
-    }
+//    @Bean
+//    public DefaultCouchServer defaultCouchServer(CouchServersConfig config) {
+//        return new DefaultCouchServer(config.toCouchSetup());
+//    }
 
 //    private static class BetterExceptionMapper extends StandardJaxRsExceptionMapper {
 //        @Autowired

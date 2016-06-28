@@ -17,14 +17,14 @@ public class IdentityAuthenticationResponseFactory implements StandardAuthentica
     public Response createForbiddenResponse(ContainerRequestContext requestContext) {
         String msg = "You do not have permission to access this resource.";
         PubItem pubItem = new PubItem(new PubStatus(HttpStatusCode.FORBIDDEN.getCode(), msg));
-        return new IdentityPubUtils(requestContext).toResponse(pubItem).build();
+        return new PubUtils(requestContext).toResponse(pubItem).build();
     }
 
     @Override
     public Response createUnauthorizedResponse(ContainerRequestContext requestContext, String authenticationScheme) {
         String msg = "Invalid authorization token.";
         PubItem pubItem = new PubItem(new PubStatus(HttpStatusCode.UNAUTHORIZED.getCode(), msg));
-        Response.ResponseBuilder builder = new IdentityPubUtils(requestContext).toResponse(pubItem);
+        Response.ResponseBuilder builder = new PubUtils(requestContext).toResponse(pubItem);
         return builder.build();
     }
 }

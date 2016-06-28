@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.tiogasolutions.identity.kernel.constants.Roles.$ADMIN;
+import static org.tiogasolutions.identity.kernel.constants.Roles.$ADMIN_CLIENT;
 import static org.tiogasolutions.identity.kernel.constants.Roles.$USER;
 
 public class IdentityTokenRequestFilterAuthenticator extends TokenRequestFilterAuthenticator {
@@ -33,7 +34,7 @@ public class IdentityTokenRequestFilterAuthenticator extends TokenRequestFilterA
             List<String> roles = new ArrayList<>();
             roles.add($USER); // Everyone is a user
 
-            if ("admin".equalsIgnoreCase(clientEo.getName())) {
+            if ($ADMIN_CLIENT.equalsIgnoreCase(clientEo.getClientName())) {
                 // If this is the "admin" client
                 // then you get the admin role
                 roles.add($ADMIN);

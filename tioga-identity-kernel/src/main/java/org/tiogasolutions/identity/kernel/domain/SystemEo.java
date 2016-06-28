@@ -1,7 +1,8 @@
 package org.tiogasolutions.identity.kernel.domain;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.tiogasolutions.dev.common.id.uuid.TimeUuid;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,19 +12,23 @@ import static java.util.Collections.emptyList;
 public class SystemEo {
 
     private final String id;
-    private final String name;
-    private final String clientName;
+    private final String systemName;
+
+    @JsonBackReference
     private final List<RealmEo> realms = new ArrayList<>();
 
+    @JsonManagedReference
+    private final ClientEo client;
 
-    private SystemEo(@JsonProperty("id") String id,
-                     @JsonProperty("name") String name,
-                     @JsonProperty("clientName") String clientName,
+    private SystemEo(ClientEo client,
+                     @JsonProperty("id") String id,
+                     @JsonProperty("systemName") String systemName,
                      @JsonProperty("realms") List<RealmEo> realms) {
 
+        this.client = client;
+
         this.id = id;
-        this.name = name;
-        this.clientName = clientName;
+        this.systemName = systemName;
         if (realms != null) this.realms.addAll(realms);
     }
 
@@ -31,30 +36,40 @@ public class SystemEo {
         return id;
     }
 
-    public String getName() {
-        return name;
+    public String getSystemName() {
+        return systemName;
     }
 
-    public String getClientName() {
-        return clientName;
+    public ClientEo getClient() {
+        return client;
     }
 
     public List<RealmEo> getRealms() {
         return realms;
     }
 
-    public RealmEo createRealm(String realmName) {
-        RealmEo system = new RealmEo(realmName, emptyList());
-        realms.add(system);
-        return system;
+    public RealmEo addRealm(String realmName) {
+        RealmEo realm = RealmEo.createRealm(this, realmName);
+        realms.add(realm);
+        return realm;
     }
 
-    public static SystemEo createSystem(ClientEo clientEo, String name) {
+    public static SystemEo createSystem(ClientEo client, String systemName) {
+
+        String id = client.getClientName() + ":" + systemName;
+
         return new SystemEo(
-                TimeUuid.randomUUID().toString(),
-                name,
-                clientEo.getName(),
-                emptyList()
-        );
+                client,
+                id,
+                systemName,
+                emptyList());
+    }
+
+    public String getIdPath() {
+        return getClient().getClientName() + ":" + getSystemName();
+    }
+
+    public String toString() {
+        return getIdPath();
     }
 }

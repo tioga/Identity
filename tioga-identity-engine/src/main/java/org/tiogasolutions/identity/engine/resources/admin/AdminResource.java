@@ -2,7 +2,7 @@ package org.tiogasolutions.identity.engine.resources.admin;
 
 import org.tiogasolutions.app.standard.execution.ExecutionManager;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
-import org.tiogasolutions.identity.engine.support.IdentityPubUtils;
+import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.domain.ClientEo;
 import org.tiogasolutions.identity.kernel.store.ClientStore;
 import org.tiogasolutions.identity.pub.core.PubItem;
@@ -19,10 +19,10 @@ import static org.tiogasolutions.identity.kernel.constants.Paths.$clients;
 public class AdminResource {
 
     private final ExecutionManager<ClientEo> executionManager;
-    private final IdentityPubUtils pubUtils;
+    private final PubUtils pubUtils;
     private final ClientStore clientStore;
 
-    public AdminResource(ExecutionManager<ClientEo> executionManager, IdentityPubUtils pubUtils, ClientStore clientStore) {
+    public AdminResource(ExecutionManager<ClientEo> executionManager, PubUtils pubUtils, ClientStore clientStore) {
         this.executionManager = executionManager;
         this.pubUtils = pubUtils;
         this.clientStore = clientStore;
@@ -42,7 +42,7 @@ public class AdminResource {
     }
 
     @Path($clients)
-    public TenantsResource getTenantsResource() {
-        return new TenantsResource(executionManager, clientStore, pubUtils);
+    public ClientsResource getClientsResource() {
+        return new ClientsResource(executionManager, clientStore, pubUtils);
     }
 }

@@ -1,0 +1,21 @@
+---
+applications:
+- name: tioga-identity-engine
+
+  timeout: 180
+  # buildpack: java_buildpack
+  buildpack: https://github.com/tioga/java-buildpack.git
+  path: build/pws/tioga-identity-engine.jar
+
+  memory: 256M
+  host: identity-engine
+  domain: tioga.solutions
+
+  env:
+    # _JAVA_OPTIONS: -Xmx64M -XX:MaxMetaspaceSize=20M
+    JBP_CONFIG_ORACLE_JRE: '[jre: {repository_root: "http://tioga.s3-website-us-west-1.amazonaws.com"}]'
+    JBP_CONFIG_COMPONENTS: '[jres: ["JavaBuildpack::Jre::OracleJRE"]]'
+
+    identity.hostName: 0.0.0.0
+    identity.port: 8080
+    identity.shutdownPort: 8081

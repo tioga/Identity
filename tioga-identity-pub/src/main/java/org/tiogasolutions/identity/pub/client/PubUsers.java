@@ -2,6 +2,7 @@ package org.tiogasolutions.identity.pub.client;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import org.tiogasolutions.identity.pub.core.PubItem;
 import org.tiogasolutions.identity.pub.core.PubLink;
 import org.tiogasolutions.identity.pub.core.PubLinks;

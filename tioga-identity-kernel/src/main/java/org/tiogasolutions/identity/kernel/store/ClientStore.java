@@ -3,10 +3,9 @@ package org.tiogasolutions.identity.kernel.store;
 import org.tiogasolutions.dev.common.EqualsUtils;
 import org.tiogasolutions.identity.kernel.domain.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
+
+import static org.tiogasolutions.identity.kernel.constants.Roles.$ADMIN_CLIENT;
 
 public class ClientStore {
 
@@ -23,13 +22,13 @@ public class ClientStore {
 
         // Within "Identity", the "admin" client is used to
         // administer this application and is hard coded into the filter.
-        ClientEo client = ClientEo.create("admin", "password-123");
+        ClientEo client = ClientEo.create($ADMIN_CLIENT, "password-123");
 
-        RealmEo defaultRealm = client.createSystem("default").createRealm("default");
-        RoleEo adminRole = defaultRealm.createRole("admin");
+        RealmEo defaultRealm = client.addSystem("system").addRealm("realm");
+        RoleEo adminRole = defaultRealm.createRole("administrator");
 
-        client.createUser("me@jacobparr.com", "password-123").assign(adminRole);
-        client.createUser("harlan.work@gmail.com", "password-123").assign(adminRole);
+        client.addUser("me@jacobparr.com", "password-123").assign(adminRole);
+        client.addUser("harlan.work@gmail.com", "password-123").assign(adminRole);
 
         this.clients.add(client);
     }
@@ -38,18 +37,21 @@ public class ClientStore {
         ClientEo client = ClientEo.create("spending-fyi", "password-123");
 
         // Spending-FYI has only one system and one realm
-        RealmEo defaultRealm = client.createSystem("default").createRealm("default");
+        RealmEo defaultRealm = client.addSystem("system").addRealm("realm");
         // We have two roles, admin and user.
-        RoleEo adminRole = defaultRealm.createRole("admin");
+        RoleEo adminRole = defaultRealm.createRole("administrator");
+        adminRole.addPermission("delete");
+
         RoleEo userRole = defaultRealm.createRole("user");
+        userRole.addPermission("edit");
 
         // Admin users
-        client.createUser("me@jacobparr.com", "password-123").assign(adminRole, userRole);
+        client.addUser("me@jacobparr.com", "password-123").assign(adminRole, userRole);
 
         // Regular users
-        client.createUser("angieparr@gmail.com", "password-123").assign(userRole);
-        client.createUser("tigerspanda1994@gmail.com", "password-123").assign(userRole);
-        client.createUser("jedijes@gmail.com", "password-123").assign(userRole);
+        client.addUser("angieparr@gmail.com", "password-123").assign(userRole);
+        client.addUser("tigerspanda1994@gmail.com", "password-123").assign(userRole);
+        client.addUser("jedijes@gmail.com", "password-123").assign(userRole);
 
         this.clients.add(client);
     }
@@ -61,21 +63,21 @@ public class ClientStore {
         ClientEo client = ClientEo.create("tioga", "password-123");
 
         // Create the users of this client
-        UserEo jacob = client.createUser("me@jacobparr.com", "password-123");
-        UserEo harlan = client.createUser("harlan.work@gmail.com", "password-123");
-        UserEo chris = client.createUser("chrisjasp@gmail.com", "password-123");
+        UserEo jacob = client.addUser("me@jacobparr.com", "password-123");
+        UserEo harlan = client.addUser("harlan.work@gmail.com", "password-123");
+        UserEo chris = client.addUser("chrisjasp@gmail.com", "password-123");
 
         // We have one system for each micro-service
         List<SystemEo> systems = Arrays.asList(
-                client.createSystem("notify"),
-                client.createSystem("push"),
-                client.createSystem("identity"),
-                client.createSystem("ack-im")
+                client.addSystem("notify"),
+                client.addSystem("push"),
+                client.addSystem("identity"),
+                client.addSystem("ack-im")
         );
 
         // Create the "admin" realm and admin roles for each system
         for (SystemEo system : systems) {
-            RoleEo role = system.createRealm("admin").createRole("admin");
+            RoleEo role = system.addRealm("admin").createRole("administrator");
             // Jacob and Harlan get admin rights
             jacob.assign(role);
             harlan.assign(role);
@@ -83,7 +85,7 @@ public class ClientStore {
 
         // The "test" realm is a real realm/domain/space used strictly for testing
         for (SystemEo system : systems) {
-            RoleEo role = system.createRealm("test").createRole("user");
+            RoleEo role = system.addRealm("test").createRole("user");
             // Let Chris play with the test system...
             jacob.assign(role);
             harlan.assign(role);
@@ -97,23 +99,23 @@ public class ClientStore {
         ClientEo client = ClientEo.create("photo-lab", "password-123");
 
         // Create the users of this client
-        UserEo jacob = client.createUser("me@jacobparr.com", "password-123");
-        UserEo harlan = client.createUser("harlan.work@gmail.com", "password-123");
-        UserEo rich = client.createUser("rich@westcoastimaging.com", "password-123");
-        UserEo angie = client.createUser("angieparr@gmail.com", "password-123");
-        UserEo brit = client.createUser("tigerspanda1994@gmail.com", "password-123");
-        UserEo jesse = client.createUser("jedijes@gmail.com", "password-123");
-        UserEo joe = client.createUser("joseph2jsh@gmail.com", "password-123");
-        UserEo hannah = client.createUser("hn.noon@gmail.com", "password-123");
+        UserEo jacob = client.addUser("me@jacobparr.com", "password-123");
+        UserEo harlan = client.addUser("harlan.work@gmail.com", "password-123");
+        UserEo rich = client.addUser("rich@westcoastimaging.com", "password-123");
+        UserEo angie = client.addUser("angieparr@gmail.com", "password-123");
+        UserEo brit = client.addUser("tigerspanda1994@gmail.com", "password-123");
+        UserEo jesse = client.addUser("jedijes@gmail.com", "password-123");
+        UserEo joe = client.addUser("joseph2jsh@gmail.com", "password-123");
+        UserEo hannah = client.addUser("hn.noon@gmail.com", "password-123");
 
-        // Photo Lab is not multi-tenant, so we create the one "default" realm.
-        RealmEo glacierRealm = client.createSystem("glacier").createRealm("default");
-        RealmEo tenayaRealm = client.createSystem("tenaya").createRealm("default");
-        RealmEo basecampRealm = client.createSystem("basecamp").createRealm("default");
+        // Photo Lab is not multi-tenant, so we addRealm the one "default" realm.
+        RealmEo glacierRealm = client.addSystem("glacier").addRealm("realm");
+        RealmEo tenayaRealm = client.addSystem("tenaya").addRealm("realm");
+        RealmEo basecampRealm = client.addSystem("basecamp").addRealm("realm");
 
         // Assign all the admin roles
         for (RealmEo realm : Arrays.asList(glacierRealm, tenayaRealm, basecampRealm)) {
-            RoleEo role = realm.createRole("admin");
+            RoleEo role = realm.createRole("administrator");
             jacob.assign(role);
             harlan.assign(role);
             rich.assign(role);
@@ -136,17 +138,19 @@ public class ClientStore {
 
     public ClientEo findByName(String name) {
         for (ClientEo client : clients) {
-            if (EqualsUtils.objectsEqual(name, client.getName())) {
+            if (EqualsUtils.objectsEqual(name, client.getClientName())) {
                 return client;
             }
         }
         return null;
     }
 
-    public ClientEo findByToken(String token) {
+    public ClientEo findByToken(String test) {
         for (ClientEo client : clients) {
-            if (EqualsUtils.objectsEqual(token, client.getAuthorizationToken())) {
-                return client;
+            for (String token : client.getAuthorizationTokens().values()) {
+                if (EqualsUtils.objectsEqual(token, test)) {
+                    return client;
+                }
             }
         }
         return null;

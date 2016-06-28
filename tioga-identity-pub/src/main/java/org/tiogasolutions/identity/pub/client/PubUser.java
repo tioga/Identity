@@ -6,8 +6,7 @@ import org.tiogasolutions.identity.pub.core.PubItem;
 import org.tiogasolutions.identity.pub.core.PubLinks;
 import org.tiogasolutions.identity.pub.core.PubStatus;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 public class PubUser extends PubItem {
 
@@ -15,7 +14,8 @@ public class PubUser extends PubItem {
     private final String revision;
     private final String username;
     private final String password;
-    private final List<String> assignedRoles = new ArrayList<>();
+    private final String clientName;
+    private final Set<String> assignedRoles = new TreeSet<>();
 
     @JsonCreator
     public PubUser(@JsonProperty("_status") PubStatus _status,
@@ -24,7 +24,8 @@ public class PubUser extends PubItem {
                    @JsonProperty("revision") String revision,
                    @JsonProperty("username") String username,
                    @JsonProperty("password") String password,
-                   @JsonProperty("assignedRoles") List<String> assignedRoles) {
+                   @JsonProperty("clientName") String clientName,
+                   @JsonProperty("assignedRoles") Set<String> assignedRoles) {
 
         super(_status, _links);
 
@@ -32,7 +33,13 @@ public class PubUser extends PubItem {
         this.revision = revision;
         this.username = username;
         this.password = password;
+        this.clientName = clientName;
+
         if (assignedRoles != null) this.assignedRoles.addAll(assignedRoles);
+    }
+
+    public String getClientName() {
+        return clientName;
     }
 
     public String getUsername() {
@@ -43,7 +50,7 @@ public class PubUser extends PubItem {
         return password;
     }
 
-    public List<String> getAssignedRoles() {
+    public Set<String> getAssignedRoles() {
         return assignedRoles;
     }
 

@@ -2,36 +2,36 @@ package org.tiogasolutions.identity.engine.support;
 
 import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
-import org.tiogasolutions.identity.kernel.domain.SystemEo;
-import org.tiogasolutions.identity.kernel.domain.ClientEo;
-import org.tiogasolutions.identity.kernel.domain.UserEo;
+import org.tiogasolutions.identity.kernel.domain.*;
+import org.tiogasolutions.identity.pub.client.*;
 import org.tiogasolutions.identity.pub.core.PubItem;
 import org.tiogasolutions.identity.pub.core.PubLink;
 import org.tiogasolutions.identity.pub.core.PubLinks;
 import org.tiogasolutions.identity.pub.core.PubStatus;
-import org.tiogasolutions.identity.pub.client.*;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.tiogasolutions.identity.kernel.constants.Paths.*;
+import static org.tiogasolutions.identity.kernel.constants.Roles.$ADMIN;
+import static org.tiogasolutions.identity.kernel.constants.Roles.$ADMIN_CLIENT;
 
-public class IdentityPubUtils {
+public class PubUtils {
 
     private final UriInfo uriInfo;
 
-    public IdentityPubUtils(UriInfo uriInfo) {
+    public PubUtils(UriInfo uriInfo) {
         this.uriInfo = uriInfo;
     }
 
-    public IdentityPubUtils(ContainerRequestContext requestContext) {
+    public PubUtils(ContainerRequestContext requestContext) {
         this.uriInfo = requestContext.getUriInfo();
     }
 
@@ -43,10 +43,20 @@ public class IdentityPubUtils {
 
 
 
-    public PubClient toClient(HttpStatusCode statusCode, ClientEo client) {
 
+    public PubToken toToken(HttpStatusCode statusCode, ClientEo client, String tokenName) {
         PubLinks links = new PubLinks();
-        links.add("self",          uriClient());
+        links.add("self", uriToken());
+
+        links.add("client", uriClient());
+
+        // We cannot check the security context because we may have just authenticated in
+        // which case the SC thinks we are anonymous even though this *IS* the admin client.
+        if ($ADMIN_CLIENT.equals(client.getClientName())) {
+            links.add("admin",   uriAdmin());
+            links.add("admin-clients", uriClients(null, null, null));
+            links.add("admin-clients-links", uriClients(singletonList("links"), null, null));
+        }
 
         links.add("systems",       uriSystems(null, null, null));
         links.add("systems-links", uriSystems(singletonList("links"), null, null));
@@ -56,24 +66,62 @@ public class IdentityPubUtils {
         links.add("users-links", uriUsers(singletonList("links"), null, null, null));
         links.add("users-items", uriUsers(singletonList("items"), null, null, null));
 
+        return new PubToken(
+                toStatus(statusCode),
+                links,
+                tokenName,
+                client.getClientName(),
+                client.getAuthorizationTokens().get(PubToken.DEFAULT)
+        );
+    }
+
+
+
+
+
+
+    public PubClient toClient(SecurityContext sc, HttpStatusCode statusCode, ClientEo client) {
+
+        PubLinks links = new PubLinks();
+        links.add("self", uriClient());
+
+        if (sc != null && sc.isUserInRole($ADMIN)) {
+            links.add("admin",   uriAdmin());
+            links.add("admin-clients", uriClients(null, null, null));
+        }
+
+        links.add("systems",       uriSystems(null, null, null));
+        links.add("systems-links", uriSystems(singletonList("links"), null, null));
+        links.add("systems-items", uriSystems(singletonList("items"), null, null));
+
+        links.add("users",       uriUsers(null, null, null, null));
+        links.add("users-links", uriUsers(singletonList("links"), null, null, null));
+        links.add("users-items", uriUsers(singletonList("items"), null, null, null));
+
+        List<PubSystem> pubSystems = new ArrayList<>();
+        for (SystemEo system : client.getSystems()) {
+            PubSystem pubSystem = toSystem(null, system);
+            pubSystems.add(pubSystem);
+        }
+
         return new PubClient(
                 toStatus(statusCode),
                 links,
-                client.getName(),
+                client.getClientName(),
                 client.getRevision(),
                 client.getStatus(),
-                client.getAuthorizationToken(),
+                client.getAuthorizationTokens(),
                 client.getPassword(),
-                client.getDbName());
+                client.getDbName(),
+                pubSystems);
     }
 
-    public PubClients toClients(HttpStatusCode statusCode, List<ClientEo> clients, List<String> includes, Object offset, Object limit) {
-        if (includes == null) includes = Collections.emptyList();
+    public PubClients toClients(SecurityContext sc, HttpStatusCode statusCode, List<ClientEo> clients, List<String> includes, Object offset, Object limit) {
+        if (includes == null) includes = emptyList();
 
         PubLinks links = new PubLinks();
 
         links.add("self",       uriClients(includes, offset, limit));
-        links.add("self-items", uriClients(singletonList("items"), offset, limit));
         links.add("self-links", uriClients(singletonList("links"), offset, limit));
 
         links.add("first", uriClients(includes, offset, limit));
@@ -82,10 +130,9 @@ public class IdentityPubUtils {
         links.add("last",  uriClients(includes, offset, limit));
 
         List<PubLink> linksList = new ArrayList<>();
-        for (int i = 0; i < clients.size(); i++) {
-            ClientEo client = clients.get(i);
-            PubClient pubUser = toClient(null, client);
-            linksList.add(pubUser.get_links().get("self"));
+        for (ClientEo client : clients) {
+            linksList.add(new PubLink(client.getClientName(), uriAdminClient(client)));
+            linksList.add(new PubLink("impersonate-"+client.getClientName(), uriImpersonate(client)));
         }
 
         return new PubClients(
@@ -98,25 +145,82 @@ public class IdentityPubUtils {
                 includes.contains("links") ? linksList : null);
     }
 
-
-
-
-
     public PubSystem toSystem(HttpStatusCode statusCode, SystemEo system) {
 
         PubLinks links = new PubLinks();
         links.add("self", uriSystemById(system));
 
+        List<PubRealm> realms = new ArrayList<>();
+        for (RealmEo realm : system.getRealms()) {
+            PubRealm pubRealm = toRealm(null, realm);
+            realms.add(pubRealm);
+        }
+
         return new PubSystem(
                 toStatus(statusCode),
                 links,
-                system.getName(),
-                system.getClientName()
+                system.getId(),
+                system.getSystemName(),
+                system.getClient().getClientName(),
+                realms
         );
     }
 
+    public PubRealm toRealm(HttpStatusCode statusCode, RealmEo realm) {
+
+        PubLinks links = new PubLinks();
+        links.add("self", uriRealmById(realm));
+
+        List<PubRole> roles = new ArrayList<>();
+        for (RoleEo role : realm.getRoles()) {
+            PubRole pubRole = toRole(null, role);
+            roles.add(pubRole);
+        }
+
+        return new PubRealm(
+                toStatus(statusCode),
+                links,
+                realm.getId(),
+                realm.getRealmName(),
+                realm.getSystem().getClient().getClientName(),
+                realm.getSystem().getSystemName(),
+                roles);
+    }
+
+    public PubRole toRole(HttpStatusCode statusCode, RoleEo role) {
+
+        PubLinks links = new PubLinks();
+        links.add("self", uriRoleById(role));
+
+        List<PubPermission> permissions = new ArrayList<>();
+        for (Permission permission : role.getPermissions()) {
+            PubPermission pubPermission = toPermission(null, permission);
+            permissions.add(pubPermission);
+        }
+
+        return new PubRole(
+                toStatus(statusCode),
+                links,
+                role.getId(),
+                role.getRoleName(),
+                role.getRealm().getSystem().getClient().getClientName(),
+                role.getRealm().getSystem().getSystemName(),
+                role.getRealm().getRealmName(),
+                permissions);
+    }
+
+    private PubPermission toPermission(HttpStatusCode statusCode, Permission permission) {
+
+        return new PubPermission(
+                permission.getPermissionName(),
+                permission.getRole().getRealm().getSystem().getClient().getClientName(),
+                permission.getRole().getRealm().getSystem().getSystemName(),
+                permission.getRole().getRealm().getRealmName(),
+                permission.getRole().getRoleName());
+    }
+
     public PubSystems toSystems(HttpStatusCode statusCode, ClientEo client, List<String> includes, Object offset, Object limit) {
-        if (includes == null) includes = Collections.emptyList();
+        if (includes == null) includes = emptyList();
 
         PubLinks links = new PubLinks();
         List<SystemEo> systems = client.getSystems();
@@ -142,7 +246,7 @@ public class IdentityPubUtils {
             SystemEo system = systems.get(i);
             PubSystem pubSystem = toSystem(null, system);
             itemsList.add(pubSystem);
-            linksList.add(pubSystem.get_links().get("self"));
+            linksList.add(pubSystem.get_links().get("self").clone(pubSystem.getSystemName()));
         }
 
         return new PubSystems(
@@ -172,12 +276,13 @@ public class IdentityPubUtils {
                 user.getRevision(),
                 user.getUsername(),
                 user.getPassword(),
+                user.getClient().getClientName(),
                 user.getAssignedRoles()
         );
     }
 
     public PubUsers toUsers(HttpStatusCode statusCode, List<UserEo> users, List<String> includes, String username, Object offset, Object limit) {
-        if (includes == null) includes = Collections.emptyList();
+        if (includes == null) includes = emptyList();
 
         PubLinks links = new PubLinks();
 
@@ -204,7 +309,8 @@ public class IdentityPubUtils {
             UserEo user = users.get(i);
             PubUser pubUser = toUser(null, user);
             usersList.add(pubUser);
-            linksList.add(pubUser.get_links().get("self"));
+
+            linksList.add(pubUser.get_links().get("self").clone(pubUser.getUsername()));
         }
 
         return new PubUsers(
@@ -246,6 +352,25 @@ public class IdentityPubUtils {
                 .toTemplate();
     }
 
+    private String uriAdminClient(ClientEo client) {
+        return uriInfo.getBaseUriBuilder()
+                .path($api_v1)
+                .path($admin)
+                .path($clients)
+                .path(client.getClientName())
+                .toTemplate();
+    }
+
+    private String uriImpersonate(ClientEo client) {
+        return uriInfo.getBaseUriBuilder()
+                .path($api_v1)
+                .path($admin)
+                .path($clients)
+                .path(client.getClientName())
+                .path($impersonate)
+                .toTemplate();
+    }
+
     public String uriClients(List<String> includes, Object offset, Object limit) {
         if (includes == null || includes.isEmpty()) includes = emptyList();
 
@@ -261,6 +386,14 @@ public class IdentityPubUtils {
         return builder.toTemplate();
     }
 
+    public String uriToken() {
+        return uriInfo.getBaseUriBuilder()
+                .path($api_v1)
+                .path($client)
+                .path($token)
+                .toTemplate();
+    }
+
     public String uriClient() {
         return uriInfo.getBaseUriBuilder()
                 .path($api_v1)
@@ -273,6 +406,22 @@ public class IdentityPubUtils {
                 .path($api_v1)
                 .path($systems)
                 .path(system.getId())
+                .toTemplate();
+    }
+
+    public String uriRealmById(RealmEo realm) {
+        return uriInfo.getBaseUriBuilder()
+                .path($api_v1)
+                .path($realms)
+                .path(realm.getId())
+                .toTemplate();
+    }
+
+    public String uriRoleById(RoleEo role) {
+        return uriInfo.getBaseUriBuilder()
+                .path($api_v1)
+                .path($roles)
+                .path(role.getId())
                 .toTemplate();
     }
 

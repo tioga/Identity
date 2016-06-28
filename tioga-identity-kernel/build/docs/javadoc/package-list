@@ -1,0 +1,4 @@
+org.tiogasolutions.identity.kernel
+org.tiogasolutions.identity.kernel.constants
+org.tiogasolutions.identity.kernel.domain
+org.tiogasolutions.identity.kernel.store

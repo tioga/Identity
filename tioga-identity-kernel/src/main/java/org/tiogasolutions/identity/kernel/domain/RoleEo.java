@@ -1,29 +1,82 @@
 package org.tiogasolutions.identity.kernel.domain;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.Collections.*;
 import static java.util.Collections.unmodifiableList;
 
 public class RoleEo {
 
-    private final String name;
-    private final List<PermissionEo> permissions = new ArrayList<>();
+    public final String id;
+    private final String roleName;
 
-    public RoleEo(@JsonProperty("roleName") String name,
-                  @JsonProperty("permissions") List<PermissionEo> permissions) {
+    @JsonManagedReference
+    private final List<Permission> permissions = new ArrayList<>();
 
-        this.name = name;
+    @JsonManagedReference
+    private final RealmEo realm;
+
+    private RoleEo(RealmEo realm,
+                   @JsonProperty("id") String id,
+                   @JsonProperty("roleName") String roleName,
+                   @JsonProperty("permissions") List<Permission> permissions) {
+
+        this.realm = realm;
+
+        this.id = id;
+        this.roleName = roleName;
         if (permissions != null) this.permissions.addAll(permissions);
     }
 
-    public String getName() {
-        return name;
+    public String getId() {
+        return id;
     }
 
-    public List<PermissionEo> getPermissions() {
+    public String getRoleName() {
+        return roleName;
+    }
+
+    public RealmEo getRealm() {
+        return realm;
+    }
+
+    public List<Permission> getPermissions() {
         return unmodifiableList(permissions);
+    }
+
+    public String toAssignedRole() {
+        return String.format("%s:%s:%s",
+                realm.getSystem().getSystemName(),
+                realm.getRealmName(),
+                roleName);
+    }
+
+    public static RoleEo create(RealmEo realm, String roleName) {
+
+        String id = realm.getIdPath() + ":" + roleName;
+
+        return new RoleEo(
+                realm,
+                id,
+                roleName,
+                emptyList()
+        );
+    }
+
+    public void addPermission(String permissionName) {
+        Permission permission = Permission.create(this, permissionName);
+        this.permissions.add(permission);
+    }
+
+    public String getIdPath() {
+        return getRealm().getSystem().getClient().getClientName() + ":" + getRealm().getSystem().getSystemName() + ":" + getRealm().getRealmName() + ":" + getRoleName();
+    }
+
+    public String toString() {
+        return getIdPath();
     }
 }

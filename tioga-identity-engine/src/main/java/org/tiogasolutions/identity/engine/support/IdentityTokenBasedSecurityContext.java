@@ -46,6 +46,6 @@ public class IdentityTokenBasedSecurityContext implements SecurityContext {
 
     @Override
     public Principal getUserPrincipal() {
-        return clientEo::getName;
+        return clientEo::getClientName;
     }
 }

@@ -24,6 +24,6 @@ public class IdentityRequestFilterDomainResolver implements StandardRequestFilte
     @Override
     public String getDomainName(ContainerRequestContext requestContext) {
         ClientEo profile = getDomain(requestContext);
-        return (profile == null) ? null : profile.getName();
+        return (profile == null) ? null : profile.getClientName();
     }
 }

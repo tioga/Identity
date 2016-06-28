@@ -3,7 +3,7 @@ package org.tiogasolutions.identity.engine.resources;
 import org.tiogasolutions.app.standard.execution.ExecutionManager;
 import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
-import org.tiogasolutions.identity.engine.support.IdentityPubUtils;
+import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.domain.ClientEo;
 import org.tiogasolutions.identity.kernel.domain.UserEo;
 import org.tiogasolutions.identity.pub.client.PubUser;
@@ -16,15 +16,15 @@ import java.util.List;
 
 public class UsersResource {
 
-    private final IdentityPubUtils pubUtils;
+    private final PubUtils pubUtils;
     private final ExecutionManager<ClientEo> executionManager;
 
-    public UsersResource(ExecutionManager<ClientEo> executionManager, IdentityPubUtils pubUtils) {
+    public UsersResource(ExecutionManager<ClientEo> executionManager, PubUtils pubUtils) {
         this.pubUtils = pubUtils;
         this.executionManager = executionManager;
     }
 
-    private ClientEo getTenant() {
+    private ClientEo getClient() {
         return executionManager.getContext().getDomain();
     }
 
@@ -35,7 +35,7 @@ public class UsersResource {
                              @QueryParam("limit") String limit,
                              @QueryParam("include") List<String> includes) {
 
-        PubUsers pubUsers = pubUtils.toUsers(HttpStatusCode.OK, getTenant().getUsers(username), includes, username, offset, limit);
+        PubUsers pubUsers = pubUtils.toUsers(HttpStatusCode.OK, getClient().getUsers(username), includes, username, offset, limit);
         return pubUtils.toResponse(pubUsers).build();
     }
 
@@ -43,7 +43,7 @@ public class UsersResource {
     @Path("{userId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(@PathParam("userId") String userId) {
-        UserEo user = getTenant().findUserById(userId);
+        UserEo user = getClient().findUserById(userId);
         if (user == null) {
             throw ApiException.notFound("The specified user was not found.");
         }

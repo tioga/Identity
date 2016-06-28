@@ -3,11 +3,11 @@ package org.tiogasolutions.identity.engine.resources;
 import org.tiogasolutions.app.standard.execution.ExecutionManager;
 import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
-import org.tiogasolutions.identity.engine.support.IdentityPubUtils;
+import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.domain.ClientEo;
-import org.tiogasolutions.identity.kernel.domain.UserEo;
+import org.tiogasolutions.identity.kernel.domain.SystemEo;
+import org.tiogasolutions.identity.pub.client.PubSystem;
 import org.tiogasolutions.identity.pub.client.PubSystems;
-import org.tiogasolutions.identity.pub.client.PubUser;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -16,15 +16,15 @@ import java.util.List;
 
 public class SystemsResource {
 
-    private final IdentityPubUtils pubUtils;
+    private final PubUtils pubUtils;
     private final ExecutionManager<ClientEo> executionManager;
 
-    public SystemsResource(ExecutionManager<ClientEo> executionManager, IdentityPubUtils pubUtils) {
+    public SystemsResource(ExecutionManager<ClientEo> executionManager, PubUtils pubUtils) {
         this.pubUtils = pubUtils;
         this.executionManager = executionManager;
     }
 
-    private ClientEo getTenant() {
+    private ClientEo getClient() {
         return executionManager.getContext().getDomain();
     }
 
@@ -35,19 +35,19 @@ public class SystemsResource {
                              @QueryParam("limit") String limit,
                              @QueryParam("include") List<String> includes) {
 
-        PubSystems pubSystems = pubUtils.toSystems(HttpStatusCode.OK, getTenant(), includes, offset, limit);
+        PubSystems pubSystems = pubUtils.toSystems(HttpStatusCode.OK, getClient(), includes, offset, limit);
         return pubUtils.toResponse(pubSystems).build();
     }
 
     @GET
-    @Path("{userId}")
+    @Path("{systemId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUser(@PathParam("userId") String userId) {
-        UserEo user = getTenant().findUserById(userId);
-        if (user == null) {
-            throw ApiException.notFound("The specified user was not found.");
+    public Response getUser(@PathParam("systemId") String systemId) {
+        SystemEo system = getClient().findSystemById(systemId);
+        if (system == null) {
+            throw ApiException.notFound("The specified system was not found.");
         }
-        PubUser pubUser = pubUtils.toUser(HttpStatusCode.OK, user);
-        return pubUtils.toResponse(pubUser).build();
+        PubSystem pubSystem = pubUtils.toSystem(HttpStatusCode.OK, system);
+        return pubUtils.toResponse(pubSystem).build();
     }
 }
