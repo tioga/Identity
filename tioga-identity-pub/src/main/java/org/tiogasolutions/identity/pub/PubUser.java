@@ -1,4 +1,4 @@
-package org.tiogasolutions.identity.pub.client;
+package org.tiogasolutions.identity.pub;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -14,7 +14,7 @@ public class PubUser extends PubItem {
     private final String revision;
     private final String username;
     private final String password;
-    private final String clientName;
+    private final String domainName;
     private final Set<String> assignedRoles = new TreeSet<>();
 
     @JsonCreator
@@ -24,7 +24,7 @@ public class PubUser extends PubItem {
                    @JsonProperty("revision") String revision,
                    @JsonProperty("username") String username,
                    @JsonProperty("password") String password,
-                   @JsonProperty("clientName") String clientName,
+                   @JsonProperty("domainName") String domainName,
                    @JsonProperty("assignedRoles") Set<String> assignedRoles) {
 
         super(_status, _links);
@@ -33,13 +33,13 @@ public class PubUser extends PubItem {
         this.revision = revision;
         this.username = username;
         this.password = password;
-        this.clientName = clientName;
+        this.domainName = domainName;
 
         if (assignedRoles != null) this.assignedRoles.addAll(assignedRoles);
     }
 
-    public String getClientName() {
-        return clientName;
+    public String getDomainName() {
+        return domainName;
     }
 
     public String getUsername() {

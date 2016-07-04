@@ -18,14 +18,14 @@ public class SystemEo {
     private final List<RealmEo> realms = new ArrayList<>();
 
     @JsonManagedReference
-    private final ClientEo client;
+    private final DomainProfileEo domainProfile;
 
-    private SystemEo(ClientEo client,
+    private SystemEo(DomainProfileEo domainProfile,
                      @JsonProperty("id") String id,
                      @JsonProperty("systemName") String systemName,
                      @JsonProperty("realms") List<RealmEo> realms) {
 
-        this.client = client;
+        this.domainProfile = domainProfile;
 
         this.id = id;
         this.systemName = systemName;
@@ -40,8 +40,8 @@ public class SystemEo {
         return systemName;
     }
 
-    public ClientEo getClient() {
-        return client;
+    public DomainProfileEo getDomainProfile() {
+        return domainProfile;
     }
 
     public List<RealmEo> getRealms() {
@@ -54,19 +54,19 @@ public class SystemEo {
         return realm;
     }
 
-    public static SystemEo createSystem(ClientEo client, String systemName) {
+    public static SystemEo createSystem(DomainProfileEo domainProfile, String systemName) {
 
-        String id = client.getClientName() + ":" + systemName;
+        String id = domainProfile.getDomainName() + ":" + systemName;
 
         return new SystemEo(
-                client,
+                domainProfile,
                 id,
                 systemName,
                 emptyList());
     }
 
     public String getIdPath() {
-        return getClient().getClientName() + ":" + getSystemName();
+        return getDomainProfile().getDomainName() + ":" + getSystemName();
     }
 
     public String toString() {

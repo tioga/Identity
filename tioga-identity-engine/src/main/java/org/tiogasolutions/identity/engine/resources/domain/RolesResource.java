@@ -5,9 +5,8 @@ import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
-import org.tiogasolutions.identity.kernel.domain.ClientEo;
 import org.tiogasolutions.identity.kernel.domain.RoleEo;
-import org.tiogasolutions.identity.pub.client.PubRole;
+import org.tiogasolutions.identity.pub.PubRole;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -37,7 +36,7 @@ public class RolesResource {
 //                             @QueryParam("limit") String limit,
 //                             @QueryParam("include") List<String> includes) {
 //
-//        PubSystems pubSystems = pubUtils.toSystems(HttpStatusCode.OK, getClient(), includes, offset, limit);
+//        PubSystems pubSystems = pubUtils.toSystems(HttpStatusCode.OK, getDomainProfile(), includes, offset, limit);
 //        return pubUtils.toResponse(pubSystems).build();
 //    }
 
@@ -45,7 +44,7 @@ public class RolesResource {
     @Path("{roleId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(@PathParam("roleId") String roleId) {
-        RoleEo role = getKernel().getClient().findRoleById(roleId);
+        RoleEo role = getKernel().getDomainProfile().findRoleById(roleId);
         if (role == null) {
             throw ApiException.notFound("The specified role was not found.");
         }

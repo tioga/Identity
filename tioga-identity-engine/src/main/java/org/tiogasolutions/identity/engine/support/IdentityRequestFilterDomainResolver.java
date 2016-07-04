@@ -2,7 +2,6 @@ package org.tiogasolutions.identity.engine.support;
 
 import org.tiogasolutions.app.standard.jaxrs.filters.StandardRequestFilterDomainResolver;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
-import org.tiogasolutions.identity.kernel.domain.ClientEo;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.SecurityContext;

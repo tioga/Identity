@@ -1,4 +1,4 @@
-package org.tiogasolutions.identity.pub.client;
+package org.tiogasolutions.identity.pub;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.tiogasolutions.identity.pub.core.PubItem;
@@ -11,9 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PubClient extends PubItem {
+public class PubDomain extends PubItem {
 
-    private final String clientName;
+    private final String domainName;
     private final String revision;
     private final DomainStatus status;
     private final Map<String,String> authorizationTokens = new HashMap<>();
@@ -22,9 +22,9 @@ public class PubClient extends PubItem {
 
     private final List<PubSystem> systems = new ArrayList<>();
 
-    public PubClient(@JsonProperty("_status")PubStatus _status,
+    public PubDomain(@JsonProperty("_status")PubStatus _status,
                      @JsonProperty("_links") PubLinks _links,
-                     @JsonProperty("clientName") String clientName,
+                     @JsonProperty("domainName") String domainName,
                      @JsonProperty("revision") String revision,
                      @JsonProperty("status") DomainStatus status,
                      @JsonProperty("authorizationToken") Map<String,String> authorizationTokens,
@@ -35,7 +35,7 @@ public class PubClient extends PubItem {
         super(_status, _links);
 
         this.revision = revision;
-        this.clientName = clientName;
+        this.domainName = domainName;
         this.status = status;
         this.password = password;
         this.dbName = dbName;
@@ -56,8 +56,8 @@ public class PubClient extends PubItem {
         return revision;
     }
 
-    public String getClientName() {
-        return clientName;
+    public String getDomainName() {
+        return domainName;
     }
 
     public DomainStatus getStatus() {

@@ -1,7 +1,6 @@
 package org.tiogasolutions.identity.engine.support;
 
 import org.tiogasolutions.identity.kernel.IdentityKernel;
-import org.tiogasolutions.identity.kernel.domain.ClientEo;
 
 import javax.ws.rs.core.SecurityContext;
 import java.security.Principal;

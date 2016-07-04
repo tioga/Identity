@@ -6,12 +6,13 @@ import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.domain.UserEo;
-import org.tiogasolutions.identity.pub.client.PubUser;
-import org.tiogasolutions.identity.pub.client.PubUsers;
+import org.tiogasolutions.identity.pub.PubUser;
+import org.tiogasolutions.identity.pub.PubUsers;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
 
 public class UsersResource {
@@ -35,7 +36,10 @@ public class UsersResource {
                              @QueryParam("limit") String limit,
                              @QueryParam("include") List<String> includes) {
 
-        PubUsers pubUsers = pubUtils.toUsers(HttpStatusCode.OK, getKernel().findUserByName(username), includes, username, offset, limit);
+        ArrayList<UserEo> users = new ArrayList<>();
+        users.add(getKernel().findUserByName(username));
+
+        PubUsers pubUsers = pubUtils.toUsers(HttpStatusCode.OK, users, includes, username, offset, limit);
         return pubUtils.toResponse(pubUsers).build();
     }
 

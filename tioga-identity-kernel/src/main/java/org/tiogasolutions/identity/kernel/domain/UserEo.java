@@ -1,7 +1,6 @@
 package org.tiogasolutions.identity.kernel.domain;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.List;
@@ -19,17 +18,17 @@ public class UserEo {
     private String password;
     private Set<String> assignedRoles = new TreeSet<>();
 
-    private String clientName;
+    private String domainName;
 
     @JsonCreator
     private UserEo(@JsonProperty("id") String id,
                    @JsonProperty("revision") String revision,
-                   @JsonProperty("clientName") String clientName,
+                   @JsonProperty("domainName") String domainName,
                    @JsonProperty("username") String username,
                    @JsonProperty("password") String password,
                    @JsonProperty("assignedRoles") List<String> assignedRoles) {
 
-        this.clientName = clientName;
+        this.domainName = domainName;
 
         this.id = id;
         this.revision = revision;
@@ -62,8 +61,8 @@ public class UserEo {
         return unmodifiableSet(assignedRoles);
     }
 
-    public String getClientName() {
-        return clientName;
+    public String getDomainName() {
+        return domainName;
     }
 
     public UserEo assign(RoleEo...roles) {
@@ -73,14 +72,14 @@ public class UserEo {
         return this;
     }
 
-    public static UserEo create(ClientEo client, String username, String password) {
+    public static UserEo create(DomainProfileEo domainProfile, String username, String password) {
 
-        String id = client.getClientName() + ":" + username;
+        String id = domainProfile.getDomainName() + ":" + username;
 
         return new UserEo(
             id,
             null,
-            client.getClientName(),
+            domainProfile.getDomainName(),
             username,
             password,
             emptyList()

@@ -3,7 +3,6 @@ package org.tiogasolutions.identity.kernel.domain;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.tiogasolutions.dev.common.BeanUtils;
-import org.tiogasolutions.dev.common.StringUtils;
 import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.dev.common.exceptions.ExceptionUtils;
 import org.tiogasolutions.identity.pub.core.DomainStatus;
@@ -11,13 +10,13 @@ import org.tiogasolutions.identity.pub.core.DomainStatus;
 import java.util.*;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.unmodifiableList;
-import static java.util.stream.Collectors.toList;
 import static org.tiogasolutions.dev.common.EqualsUtils.objectsEqual;
 
-public class ClientEo {
+public class DomainProfileEo {
 
-    private String clientName;
+    public static final String INTERNAL_DOMAIN = "internal";
+
+    private String domainName;
     private String revision;
     private DomainStatus status;
     private String password;
@@ -28,15 +27,15 @@ public class ClientEo {
     @JsonBackReference
     private final List<SystemEo> systems = new ArrayList<>();
 
-    public ClientEo(@JsonProperty("clientName") String clientName,
-                    @JsonProperty("revision") String revision,
-                    @JsonProperty("status") DomainStatus status,
-                    @JsonProperty("authorizationTokens") Map<String,String> authorizationTokens,
-                    @JsonProperty("password") String password,
-                    @JsonProperty("dbName") String dbName,
-                    @JsonProperty("systems") List<SystemEo> systems) {
+    public DomainProfileEo(@JsonProperty("domainName") String domainName,
+                           @JsonProperty("revision") String revision,
+                           @JsonProperty("status") DomainStatus status,
+                           @JsonProperty("authorizationTokens") Map<String,String> authorizationTokens,
+                           @JsonProperty("password") String password,
+                           @JsonProperty("dbName") String dbName,
+                           @JsonProperty("systems") List<SystemEo> systems) {
 
-        this.clientName = ExceptionUtils.assertNotZeroLength(clientName, "name").toLowerCase();
+        this.domainName = ExceptionUtils.assertNotZeroLength(domainName, "name").toLowerCase();
         this.revision = revision;
         this.status = status;
         this.authorizationTokens = authorizationTokens;
@@ -54,8 +53,8 @@ public class ClientEo {
         return revision;
     }
 
-    public String getClientName() {
-        return clientName;
+    public String getDomainName() {
+        return domainName;
     }
 
     public String getDbName() {
@@ -116,8 +115,8 @@ public class ClientEo {
         return system;
     }
 
-    public static ClientEo create(String name, String password) {
-        return new ClientEo(
+    public static DomainProfileEo create(String name, String password) {
+        return new DomainProfileEo(
                 name,
                 "0",
                 DomainStatus.ACTIVE,
@@ -128,7 +127,7 @@ public class ClientEo {
     }
 
     public String toString() {
-        return getClientName();
+        return getDomainName();
     }
 }
 

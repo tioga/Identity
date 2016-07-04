@@ -6,10 +6,8 @@ import org.tiogasolutions.identity.engine.resources.domain.SystemsResource;
 import org.tiogasolutions.identity.engine.resources.domain.UsersResource;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
-import org.tiogasolutions.identity.kernel.domain.ClientEo;
-import org.tiogasolutions.identity.kernel.store.ClientStore;
-import org.tiogasolutions.identity.pub.client.PubClient;
-import org.tiogasolutions.identity.pub.client.PubToken;
+import org.tiogasolutions.identity.pub.PubDomain;
+import org.tiogasolutions.identity.pub.PubToken;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -22,13 +20,11 @@ import static org.tiogasolutions.identity.kernel.constants.Paths.$users;
 
 public class ClientResource {
 
-    private final ClientStore clientStore;
     private final PubUtils pubUtils;
     private final ExecutionManager<IdentityKernel> executionManager;
 
-    public ClientResource(ExecutionManager<IdentityKernel> executionManager, ClientStore clientStore, PubUtils pubUtils) {
+    public ClientResource(ExecutionManager<IdentityKernel> executionManager, PubUtils pubUtils) {
         this.pubUtils = pubUtils;
-        this.clientStore = clientStore;
         this.executionManager = executionManager;
     }
 
@@ -38,17 +34,17 @@ public class ClientResource {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getClient(@QueryParam("include") List<String> includes) {
+    public Response getDomainProfile(@QueryParam("include") List<String> includes) {
         SecurityContext sc = executionManager.getContext().getSecurityContext();
-        PubClient pubClient = pubUtils.toClient(sc, HttpStatusCode.OK, getKernel().getClient());
-        return pubUtils.toResponse(pubClient).build();
+        PubDomain pubDomain = pubUtils.toDomainProfile(sc, HttpStatusCode.OK, getKernel().getDomainProfile());
+        return pubUtils.toResponse(pubDomain).build();
     }
 
     @GET
     @Path("token/{name}")
     public Response getToken(@PathParam("name") String name) {
         SecurityContext sc = executionManager.getContext().getSecurityContext();
-        PubToken pubToken = pubUtils.toToken(HttpStatusCode.CREATED, getKernel().getClient(), name);
+        PubToken pubToken = pubUtils.toToken(HttpStatusCode.CREATED, getKernel().getDomainProfile(), name);
         return pubUtils.toResponse(pubToken).build();
     }
 

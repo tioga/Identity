@@ -33,9 +33,9 @@ subprojects {
     }
 
     ext {
-        // This is the primary version for the app
-        // which does not include pub, client, senders.
+        // This is the primary version for the app which does not include pub & client
         identityAppVersion = "1.0.0"
+        // This is the primary version for the public APIs
         identityPubVersion = "1.0.0"
 
         pomProjectDescription = "Tioga Solutions"

@@ -10,9 +10,9 @@ import org.tiogasolutions.identity.engine.resources.domain.SystemsResource;
 import org.tiogasolutions.identity.engine.resources.domain.UsersResource;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
-import org.tiogasolutions.identity.kernel.domain.ClientEo;
-import org.tiogasolutions.identity.kernel.store.ClientStore;
-import org.tiogasolutions.identity.pub.client.PubToken;
+import org.tiogasolutions.identity.kernel.domain.DomainProfileEo;
+import org.tiogasolutions.identity.kernel.store.DomainStore;
+import org.tiogasolutions.identity.pub.PubToken;
 import org.tiogasolutions.identity.pub.core.PubItem;
 import org.tiogasolutions.identity.pub.core.PubLinks;
 
@@ -25,13 +25,13 @@ import static org.tiogasolutions.identity.kernel.constants.Paths.*;
 
 public class ApiResource {
 
-    private final ClientStore clientStore;
+    private final DomainStore domainStore;
     private final PubUtils pubUtils;
     private final ExecutionManager<IdentityKernel> executionManager;
 
-    public ApiResource(ExecutionManager<IdentityKernel> executionManager, PubUtils pubUtils, ClientStore clientStore) {
+    public ApiResource(ExecutionManager<IdentityKernel> executionManager, PubUtils pubUtils, DomainStore domainStore) {
         this.pubUtils = pubUtils;
-        this.clientStore = clientStore;
+        this.domainStore = domainStore;
         this.executionManager = executionManager;
     }
 
@@ -53,29 +53,29 @@ public class ApiResource {
     @POST
     @Path($authenticate)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCreateToken(@FormParam("clientName") String clientName,
+    public Response getCreateToken(@FormParam("username") String domainName,
                                    @FormParam("password") String password) {
 
-        ClientEo clientEo = clientStore.findByName(clientName);
-        if (clientEo == null || objectsNotEqual(password, clientEo.getPassword())) {
+        DomainProfileEo domainProfile = domainStore.findByName(domainName);
+        if (domainProfile == null || objectsNotEqual(password, domainProfile.getPassword())) {
             throw ApiException.unauthorized("Invalid username or password.");
         }
 
-        clientEo.generateAccessToken(PubToken.DEFAULT);
-        clientStore.update(clientEo);
+        domainProfile.generateAccessToken(PubToken.DEFAULT);
+        domainStore.update(domainProfile);
 
-        PubToken pubToken = pubUtils.toToken(HttpStatusCode.CREATED, clientEo, PubToken.DEFAULT);
+        PubToken pubToken = pubUtils.toToken(HttpStatusCode.CREATED, domainProfile, PubToken.DEFAULT);
         return pubUtils.toResponse(pubToken).build();
     }
 
     @Path($admin)
     public AdminResource getAdminResource() {
-        return new AdminResource(executionManager, pubUtils, clientStore);
+        return new AdminResource(executionManager, pubUtils, domainStore);
     }
 
     @Path($client)
     public ClientResource getClientResource() {
-        return new ClientResource(executionManager, clientStore, pubUtils);
+        return new ClientResource(executionManager, pubUtils);
     }
 
     @Path($users)

@@ -5,9 +5,8 @@ import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
-import org.tiogasolutions.identity.kernel.domain.ClientEo;
 import org.tiogasolutions.identity.kernel.domain.RealmEo;
-import org.tiogasolutions.identity.pub.client.PubRealm;
+import org.tiogasolutions.identity.pub.PubRealm;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -34,7 +33,7 @@ public class RealmsResource {
 //                             @QueryParam("limit") String limit,
 //                             @QueryParam("include") List<String> includes) {
 //
-//        PubSystems pubSystems = pubUtils.toSystems(HttpStatusCode.OK, getClient(), includes, offset, limit);
+//        PubSystems pubSystems = pubUtils.toSystems(HttpStatusCode.OK, getDomainProfile(), includes, offset, limit);
 //        return pubUtils.toResponse(pubSystems).build();
 //    }
 
@@ -42,7 +41,7 @@ public class RealmsResource {
     @Path("{realmId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(@PathParam("realmId") String realmId) {
-        RealmEo realm = getKernel().getClient().findRealmById(realmId);
+        RealmEo realm = getKernel().getDomainProfile().findRealmById(realmId);
         if (realm == null) {
             throw ApiException.notFound("The specified realm was not found.");
         }

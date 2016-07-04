@@ -24,11 +24,9 @@ import org.tiogasolutions.identity.engine.support.IdentityRequestFilterDomainRes
 import org.tiogasolutions.identity.engine.support.IdentityTokenRequestFilterAuthenticator;
 import org.tiogasolutions.identity.kernel.CouchServersConfig;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
-import org.tiogasolutions.identity.kernel.domain.ClientEo;
-import org.tiogasolutions.identity.kernel.store.ClientStore;
+import org.tiogasolutions.identity.kernel.store.DomainStore;
 import org.tiogasolutions.identity.kernel.store.InMemoryStore;
 import org.tiogasolutions.identity.kernel.store.UserStore;
-import org.tiogasolutions.lib.couchace.DefaultCouchServer;
 import org.tiogasolutions.notify.notifier.Notifier;
 import org.tiogasolutions.notify.notifier.send.LoggingNotificationSender;
 import org.tiogasolutions.runners.grizzly.GrizzlyServer;
@@ -84,7 +82,7 @@ public class IdentityEngineHostedSpringConfig {
     }
 
     @Bean
-    public ClientStore clientStore(InMemoryStore store) {
+    public DomainStore domainStore(InMemoryStore store) {
         return store;
     }
 
@@ -104,7 +102,7 @@ public class IdentityEngineHostedSpringConfig {
     }
 
     @Bean
-    public StandardRequestFilterConfig standardRequestFilterConfig(ClientStore clientStore, UserStore userStore) {
+    public StandardRequestFilterConfig standardRequestFilterConfig(DomainStore domainStore, UserStore userStore) {
         StandardRequestFilterConfig config = new StandardRequestFilterConfig();
 
         // The first list is everything that is unsecured.
@@ -118,7 +116,7 @@ public class IdentityEngineHostedSpringConfig {
                 "^"+ $api_v1 + "/" + $authenticate
         );
 
-        config.registerAuthenticator(new IdentityTokenRequestFilterAuthenticator(clientStore, userStore), "^"+ $api_v1 + "/.*");
+        config.registerAuthenticator(new IdentityTokenRequestFilterAuthenticator(domainStore, userStore), "^"+ $api_v1 + "/.*");
 
         return config;
     }

@@ -1,4 +1,4 @@
-package org.tiogasolutions.identity.pub.client;
+package org.tiogasolutions.identity.pub;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.tiogasolutions.identity.pub.core.PubItem;
@@ -16,7 +16,7 @@ public class PubRole extends PubItem {
     private final String roleName;
     private final String realmName;
     private final String systemName;
-    private final String clientName;
+    private final String domainName;
 
     private final List<PubPermission> permissions = new ArrayList<>();
 
@@ -24,7 +24,7 @@ public class PubRole extends PubItem {
                    @JsonProperty("_links") PubLinks _links,
                    @JsonProperty("id") String id,
                    @JsonProperty("roleName") String roleName,
-                   @JsonProperty("clientName") String clientName,
+                   @JsonProperty("domainName") String domainName,
                    @JsonProperty("systemName") String systemName,
                    @JsonProperty("realmName") String realmName,
                    @JsonProperty("permissions") List<PubPermission> permissions) {
@@ -35,7 +35,7 @@ public class PubRole extends PubItem {
         this.roleName = roleName;
         this.realmName = realmName;
         this.systemName = systemName;
-        this.clientName = clientName;
+        this.domainName = domainName;
 
         if (permissions != null) this.permissions.addAll(permissions);
     }
@@ -56,8 +56,8 @@ public class PubRole extends PubItem {
         return systemName;
     }
 
-    public String getClientName() {
-        return clientName;
+    public String getDomainName() {
+        return domainName;
     }
 
     public List<PubPermission> getPermissions() {

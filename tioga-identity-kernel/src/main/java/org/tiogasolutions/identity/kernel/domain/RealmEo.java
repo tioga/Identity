@@ -67,7 +67,7 @@ public class RealmEo {
     }
 
     public String getIdPath() {
-        return getSystem().getClient().getClientName() + ":" + getSystem().getSystemName() + ":" + getRealmName();
+        return getSystem().getDomainProfile().getDomainName() + ":" + getSystem().getSystemName() + ":" + getRealmName();
     }
 
     public String toString() {

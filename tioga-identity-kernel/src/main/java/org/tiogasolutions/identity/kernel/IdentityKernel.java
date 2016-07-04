@@ -1,30 +1,30 @@
 package org.tiogasolutions.identity.kernel;
 
-import org.tiogasolutions.identity.kernel.domain.ClientEo;
+import org.tiogasolutions.identity.kernel.domain.DomainProfileEo;
 import org.tiogasolutions.identity.kernel.domain.UserEo;
-import org.tiogasolutions.identity.kernel.store.ClientStore;
+import org.tiogasolutions.identity.kernel.store.DomainStore;
 import org.tiogasolutions.identity.kernel.store.UserStore;
 
 import java.util.List;
 
 public class IdentityKernel {
 
-    private final ClientStore clientStore;
+    private final DomainStore domainStore;
     private final UserStore userStore;
-    private final ClientEo client;
+    private final DomainProfileEo domainProfile;
 
-    public IdentityKernel(ClientStore clientStore, UserStore userStore, ClientEo client) {
-        this.client = client;
+    public IdentityKernel(DomainStore domainStore, UserStore userStore, DomainProfileEo domainProfile) {
+        this.domainProfile = domainProfile;
         this.userStore = userStore;
-        this.clientStore = clientStore;
+        this.domainStore = domainStore;
     }
 
-    public ClientEo getClient() {
-        throw new UnsupportedOperationException();
+    public DomainProfileEo getDomainProfile() {
+        return domainProfile;
     }
 
-    public List<UserEo> findUserByName(String username) {
-        throw new UnsupportedOperationException();
+    public UserEo findUserByName(String username) {
+        return userStore.findUserByName(username);
     }
 
     public UserEo findUserById(String userId) {
@@ -32,6 +32,6 @@ public class IdentityKernel {
     }
 
     public String getDomainName() {
-        return client.getClientName();
+        return domainProfile.getDomainName();
     }
 }

@@ -1,4 +1,4 @@
-package org.tiogasolutions.identity.pub.client;
+package org.tiogasolutions.identity.pub;
 
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.pub.core.PubItem;

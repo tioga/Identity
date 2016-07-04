@@ -1,4 +1,4 @@
-package org.tiogasolutions.identity.pub.client;
+package org.tiogasolutions.identity.pub;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.tiogasolutions.identity.pub.core.PubItem;
@@ -6,7 +6,6 @@ import org.tiogasolutions.identity.pub.core.PubLinks;
 import org.tiogasolutions.identity.pub.core.PubStatus;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import static java.util.Collections.*;
@@ -15,7 +14,7 @@ public class PubRealm extends PubItem {
 
     private final String id;
     private final String realmName;
-    private final String clientName;
+    private final String domainName;
     private final String systemName;
 
     private final List<PubRole> roles = new ArrayList<>();
@@ -24,7 +23,7 @@ public class PubRealm extends PubItem {
                     @JsonProperty("_links") PubLinks _links,
                     @JsonProperty("id") String id,
                     @JsonProperty("realmName") String realmName,
-                    @JsonProperty("clientName") String clientName,
+                    @JsonProperty("domainName") String domainName,
                     @JsonProperty("systemName") String systemName,
                     @JsonProperty("roles") List<PubRole> roles) {
 
@@ -32,7 +31,7 @@ public class PubRealm extends PubItem {
 
         this.id = id;
         this.realmName = realmName;
-        this.clientName = clientName;
+        this.domainName = domainName;
         this.systemName = systemName;
         if (roles != null) this.roles.addAll(roles);
     }
@@ -45,8 +44,8 @@ public class PubRealm extends PubItem {
         return realmName;
     }
 
-    public String getClientName() {
-        return clientName;
+    public String getDomainName() {
+        return domainName;
     }
 
     public String getSystemName() {

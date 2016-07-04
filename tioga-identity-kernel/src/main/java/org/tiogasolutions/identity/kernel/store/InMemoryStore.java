@@ -13,11 +13,11 @@ import java.util.List;
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
 import static org.tiogasolutions.dev.common.EqualsUtils.objectsEqual;
-import static org.tiogasolutions.identity.kernel.constants.Roles.$ADMIN_CLIENT;
+import static org.tiogasolutions.identity.kernel.domain.DomainProfileEo.INTERNAL_DOMAIN;
 
-public class InMemoryStore implements ClientStore, UserStore {
+public class InMemoryStore implements DomainStore, UserStore {
 
-    private final List<ClientEo> clients = new ArrayList<>();
+    private final List<DomainProfileEo> domainProfiles = new ArrayList<>();
     private final List<UserEo> users = new ArrayList<>();
 
     public InMemoryStore() {
@@ -29,30 +29,30 @@ public class InMemoryStore implements ClientStore, UserStore {
 
     private void createDefault() {
 
-        // Within "Identity", the "admin" client is used to
+        // Within "Identity", the "admin" domain is used to
         // administer this application and is hard coded into the filter.
-        ClientEo client = ClientEo.create($ADMIN_CLIENT, "password-123");
+        DomainProfileEo domainProfile = DomainProfileEo.create(INTERNAL_DOMAIN, "password-123");
 
-        RealmEo defaultRealm = client.addSystem("system").addRealm("realm");
+        RealmEo defaultRealm = domainProfile.addSystem("system").addRealm("realm");
         RoleEo adminRole = defaultRealm.createRole("administrator");
 
-        addUser(client, "me@jacobparr.com", "password-123").assign(adminRole);
-        addUser(client, "harlan.work@gmail.com", "password-123").assign(adminRole);
+        addUser(domainProfile, "me@jacobparr.com", "password-123").assign(adminRole);
+        addUser(domainProfile, "harlan.work@gmail.com", "password-123").assign(adminRole);
 
-        this.clients.add(client);
+        this.domainProfiles.add(domainProfile);
     }
 
-    private UserEo addUser(ClientEo client, String username, String password) {
-        UserEo user = UserEo.create(client, username, password);
+    private UserEo addUser(DomainProfileEo domainProfile, String username, String password) {
+        UserEo user = UserEo.create(domainProfile, username, password);
         users.add(user);
         return user;
     }
 
     private void createSpending() {
-        ClientEo client = ClientEo.create("spending-fyi", "password-123");
+        DomainProfileEo domainProfile = DomainProfileEo.create("spending-fyi", "password-123");
 
         // Spending-FYI has only one system and one realm
-        RealmEo defaultRealm = client.addSystem("system").addRealm("realm");
+        RealmEo defaultRealm = domainProfile.addSystem("system").addRealm("realm");
         // We have two roles, admin and user.
         RoleEo adminRole = defaultRealm.createRole("administrator");
         adminRole.addPermission("delete");
@@ -61,33 +61,33 @@ public class InMemoryStore implements ClientStore, UserStore {
         userRole.addPermission("edit");
 
         // Admin users
-        addUser(client, "me@jacobparr.com", "password-123").assign(adminRole, userRole);
+        addUser(domainProfile, "me@jacobparr.com", "password-123").assign(adminRole, userRole);
 
         // Regular users
-        addUser(client, "angieparr@gmail.com", "password-123").assign(userRole);
-        addUser(client, "tigerspanda1994@gmail.com", "password-123").assign(userRole);
-        addUser(client, "jedijes@gmail.com", "password-123").assign(userRole);
+        addUser(domainProfile, "angieparr@gmail.com", "password-123").assign(userRole);
+        addUser(domainProfile, "tigerspanda1994@gmail.com", "password-123").assign(userRole);
+        addUser(domainProfile, "jedijes@gmail.com", "password-123").assign(userRole);
 
-        this.clients.add(client);
+        this.domainProfiles.add(domainProfile);
     }
 
     private void createTioga() {
-        // The "tioga" client is possibly the most complex. This client brings
+        // The "tioga" domain profile is possibly the most complex. This profile brings
         // together Tioga Solution's various micro-services under one roof. The
         // idea being that one username/password can be used to use all these APIs
-        ClientEo client = ClientEo.create("tioga", "password-123");
+        DomainProfileEo domainProfile = DomainProfileEo.create("tioga", "password-123");
 
-        // Create the users of this client
-        UserEo jacob = addUser(client, "me@jacobparr.com", "password-123");
-        UserEo harlan = addUser(client, "harlan.work@gmail.com", "password-123");
-        UserEo chris = addUser(client, "chrisjasp@gmail.com", "password-123");
+        // Create the users of this profile
+        UserEo jacob = addUser(domainProfile, "me@jacobparr.com", "password-123");
+        UserEo harlan = addUser(domainProfile, "harlan.work@gmail.com", "password-123");
+        UserEo chris = addUser(domainProfile, "chrisjasp@gmail.com", "password-123");
 
         // We have one system for each micro-service
         List<SystemEo> systems = Arrays.asList(
-                client.addSystem("notify"),
-                client.addSystem("push"),
-                client.addSystem("identity"),
-                client.addSystem("ack-im")
+                domainProfile.addSystem("notify"),
+                domainProfile.addSystem("push"),
+                domainProfile.addSystem("identity"),
+                domainProfile.addSystem("ack-im")
         );
 
         // Create the "admin" realm and admin roles for each system
@@ -107,26 +107,26 @@ public class InMemoryStore implements ClientStore, UserStore {
             chris.assign(role);
         }
 
-        this.clients.add(client);
+        this.domainProfiles.add(domainProfile);
     }
 
     private void createPhotoLab() {
-        ClientEo client = ClientEo.create("photo-lab", "password-123");
+        DomainProfileEo domainProfile = DomainProfileEo.create("photo-lab", "password-123");
 
-        // Create the users of this client
-        UserEo jacob = addUser(client, "me@jacobparr.com", "password-123");
-        UserEo harlan = addUser(client, "harlan.work@gmail.com", "password-123");
-        UserEo rich = addUser(client, "rich@westcoastimaging.com", "password-123");
-        UserEo angie = addUser(client, "angieparr@gmail.com", "password-123");
-        UserEo brit = addUser(client, "tigerspanda1994@gmail.com", "password-123");
-        UserEo jesse = addUser(client, "jedijes@gmail.com", "password-123");
-        UserEo joe = addUser(client, "joseph2jsh@gmail.com", "password-123");
-        UserEo hannah = addUser(client, "hn.noon@gmail.com", "password-123");
+        // Create the users of this profile
+        UserEo jacob = addUser(domainProfile, "me@jacobparr.com", "password-123");
+        UserEo harlan = addUser(domainProfile, "harlan.work@gmail.com", "password-123");
+        UserEo rich = addUser(domainProfile, "rich@westcoastimaging.com", "password-123");
+        UserEo angie = addUser(domainProfile, "angieparr@gmail.com", "password-123");
+        UserEo brit = addUser(domainProfile, "tigerspanda1994@gmail.com", "password-123");
+        UserEo jesse = addUser(domainProfile, "jedijes@gmail.com", "password-123");
+        UserEo joe = addUser(domainProfile, "joseph2jsh@gmail.com", "password-123");
+        UserEo hannah = addUser(domainProfile, "hn.noon@gmail.com", "password-123");
 
         // Photo Lab is not multi-tenant, so we addRealm the one "default" realm.
-        RealmEo glacierRealm = client.addSystem("glacier").addRealm("realm");
-        RealmEo tenayaRealm = client.addSystem("tenaya").addRealm("realm");
-        RealmEo basecampRealm = client.addSystem("basecamp").addRealm("realm");
+        RealmEo glacierRealm = domainProfile.addSystem("glacier").addRealm("realm");
+        RealmEo tenayaRealm = domainProfile.addSystem("tenaya").addRealm("realm");
+        RealmEo basecampRealm = domainProfile.addSystem("basecamp").addRealm("realm");
 
         // Assign all the admin roles
         for (RealmEo realm : Arrays.asList(glacierRealm, tenayaRealm, basecampRealm)) {
@@ -148,25 +148,25 @@ public class InMemoryStore implements ClientStore, UserStore {
             user.assign(consumer);
         }
 
-        this.clients.add(client);
+        this.domainProfiles.add(domainProfile);
     }
 
     @Override
-    public ClientEo findByName(String name) {
-        for (ClientEo client : clients) {
-            if (EqualsUtils.objectsEqual(name, client.getClientName())) {
-                return client;
+    public DomainProfileEo findByName(String name) {
+        for (DomainProfileEo domainProfile : domainProfiles) {
+            if (EqualsUtils.objectsEqual(name, domainProfile.getDomainName())) {
+                return domainProfile;
             }
         }
         return null;
     }
 
     @Override
-    public ClientEo findByToken(String test) {
-        for (ClientEo client : clients) {
-            for (String token : client.getAuthorizationTokens().values()) {
+    public DomainProfileEo findByToken(String test) {
+        for (DomainProfileEo domainProfile : domainProfiles) {
+            for (String token : domainProfile.getAuthorizationTokens().values()) {
                 if (EqualsUtils.objectsEqual(token, test)) {
-                    return client;
+                    return domainProfile;
                 }
             }
         }
@@ -174,12 +174,12 @@ public class InMemoryStore implements ClientStore, UserStore {
     }
 
     @Override
-    public void update(ClientEo clientEo) {
+    public void update(DomainProfileEo domainProfile) {
     }
 
     @Override
-    public List<ClientEo> getAll() {
-        return Collections.unmodifiableList(clients);
+    public List<DomainProfileEo> getAll() {
+        return Collections.unmodifiableList(domainProfiles);
     }
 
     @Override

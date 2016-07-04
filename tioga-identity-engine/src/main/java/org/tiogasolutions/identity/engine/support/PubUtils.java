@@ -3,7 +3,7 @@ package org.tiogasolutions.identity.engine.support;
 import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.kernel.domain.*;
-import org.tiogasolutions.identity.pub.client.*;
+import org.tiogasolutions.identity.pub.*;
 import org.tiogasolutions.identity.pub.core.PubItem;
 import org.tiogasolutions.identity.pub.core.PubLink;
 import org.tiogasolutions.identity.pub.core.PubLinks;
@@ -21,7 +21,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.tiogasolutions.identity.kernel.constants.Paths.*;
 import static org.tiogasolutions.identity.kernel.constants.Roles.$ADMIN;
-import static org.tiogasolutions.identity.kernel.constants.Roles.$ADMIN_CLIENT;
+import static org.tiogasolutions.identity.kernel.domain.DomainProfileEo.INTERNAL_DOMAIN;
 
 public class PubUtils {
 
@@ -44,18 +44,18 @@ public class PubUtils {
 
 
 
-    public PubToken toToken(HttpStatusCode statusCode, ClientEo client, String tokenName) {
+    public PubToken toToken(HttpStatusCode statusCode, DomainProfileEo domainProfile, String tokenName) {
         PubLinks links = new PubLinks();
         links.add("self", uriToken());
 
         links.add("client", uriClient());
 
         // We cannot check the security context because we may have just authenticated in
-        // which case the SC thinks we are anonymous even though this *IS* the admin client.
-        if ($ADMIN_CLIENT.equals(client.getClientName())) {
+        // which case the SC thinks we are anonymous even though this *IS* the admin domainProfile.
+        if (INTERNAL_DOMAIN.equals(domainProfile.getDomainName())) {
             links.add("admin",   uriAdmin());
-            links.add("admin-clients", uriClients(null, null, null));
-            links.add("admin-clients-links", uriClients(singletonList("links"), null, null));
+            links.add("admin-domains", uriDomains(null, null, null));
+            links.add("admin-domains-links", uriDomains(singletonList("links"), null, null));
         }
 
         links.add("systems",       uriSystems(null, null, null));
@@ -70,8 +70,8 @@ public class PubUtils {
                 toStatus(statusCode),
                 links,
                 tokenName,
-                client.getClientName(),
-                client.getAuthorizationTokens().get(PubToken.DEFAULT)
+                domainProfile.getDomainName(),
+                domainProfile.getAuthorizationTokens().get(PubToken.DEFAULT)
         );
     }
 
@@ -80,14 +80,14 @@ public class PubUtils {
 
 
 
-    public PubClient toClient(SecurityContext sc, HttpStatusCode statusCode, ClientEo client) {
+    public PubDomain toDomainProfile(SecurityContext sc, HttpStatusCode statusCode, DomainProfileEo domainProfile) {
 
         PubLinks links = new PubLinks();
         links.add("self", uriClient());
 
         if (sc != null && sc.isUserInRole($ADMIN)) {
             links.add("admin",   uriAdmin());
-            links.add("admin-clients", uriClients(null, null, null));
+            links.add("admin-domains", uriDomains(null, null, null));
         }
 
         links.add("systems",       uriSystems(null, null, null));
@@ -99,43 +99,43 @@ public class PubUtils {
         links.add("users-items", uriUsers(singletonList("items"), null, null, null));
 
         List<PubSystem> pubSystems = new ArrayList<>();
-        for (SystemEo system : client.getSystems()) {
+        for (SystemEo system : domainProfile.getSystems()) {
             PubSystem pubSystem = toSystem(null, system);
             pubSystems.add(pubSystem);
         }
 
-        return new PubClient(
+        return new PubDomain(
                 toStatus(statusCode),
                 links,
-                client.getClientName(),
-                client.getRevision(),
-                client.getStatus(),
-                client.getAuthorizationTokens(),
-                client.getPassword(),
-                client.getDbName(),
+                domainProfile.getDomainName(),
+                domainProfile.getRevision(),
+                domainProfile.getStatus(),
+                domainProfile.getAuthorizationTokens(),
+                domainProfile.getPassword(),
+                domainProfile.getDbName(),
                 pubSystems);
     }
 
-    public PubClients toClients(SecurityContext sc, HttpStatusCode statusCode, List<ClientEo> clients, List<String> includes, Object offset, Object limit) {
+    public PubDomains toDomains(HttpStatusCode statusCode, List<DomainProfileEo> domainProfiles, List<String> includes, Object offset, Object limit) {
         if (includes == null) includes = emptyList();
 
         PubLinks links = new PubLinks();
 
-        links.add("self",       uriClients(includes, offset, limit));
-        links.add("self-links", uriClients(singletonList("links"), offset, limit));
+        links.add("self",       uriDomains(includes, offset, limit));
+        links.add("self-links", uriDomains(singletonList("links"), offset, limit));
 
-        links.add("first", uriClients(includes, offset, limit));
-        links.add("prev",  uriClients(includes, offset, limit));
-        links.add("next",  uriClients(includes, offset, limit));
-        links.add("last",  uriClients(includes, offset, limit));
+        links.add("first", uriDomains(includes, offset, limit));
+        links.add("prev",  uriDomains(includes, offset, limit));
+        links.add("next",  uriDomains(includes, offset, limit));
+        links.add("last",  uriDomains(includes, offset, limit));
 
         List<PubLink> linksList = new ArrayList<>();
-        for (ClientEo client : clients) {
-            linksList.add(new PubLink(client.getClientName(), uriAdminClient(client)));
-            linksList.add(new PubLink("impersonate-"+client.getClientName(), uriImpersonate(client)));
+        for (DomainProfileEo domainProfile : domainProfiles) {
+            linksList.add(new PubLink(domainProfile.getDomainName(), uriAdminDomain(domainProfile)));
+            linksList.add(new PubLink("impersonate-" + domainProfile.getDomainName(), uriImpersonate(domainProfile)));
         }
 
-        return new PubClients(
+        return new PubDomains(
                 toStatus(statusCode),
                 links,
                 linksList.size(),
@@ -161,7 +161,7 @@ public class PubUtils {
                 links,
                 system.getId(),
                 system.getSystemName(),
-                system.getClient().getClientName(),
+                system.getDomainProfile().getDomainName(),
                 realms
         );
     }
@@ -182,7 +182,7 @@ public class PubUtils {
                 links,
                 realm.getId(),
                 realm.getRealmName(),
-                realm.getSystem().getClient().getClientName(),
+                realm.getSystem().getDomainProfile().getDomainName(),
                 realm.getSystem().getSystemName(),
                 roles);
     }
@@ -203,7 +203,7 @@ public class PubUtils {
                 links,
                 role.getId(),
                 role.getRoleName(),
-                role.getRealm().getSystem().getClient().getClientName(),
+                role.getRealm().getSystem().getDomainProfile().getDomainName(),
                 role.getRealm().getSystem().getSystemName(),
                 role.getRealm().getRealmName(),
                 permissions);
@@ -213,17 +213,17 @@ public class PubUtils {
 
         return new PubPermission(
                 permission.getPermissionName(),
-                permission.getRole().getRealm().getSystem().getClient().getClientName(),
+                permission.getRole().getRealm().getSystem().getDomainProfile().getDomainName(),
                 permission.getRole().getRealm().getSystem().getSystemName(),
                 permission.getRole().getRealm().getRealmName(),
                 permission.getRole().getRoleName());
     }
 
-    public PubSystems toSystems(HttpStatusCode statusCode, ClientEo client, List<String> includes, Object offset, Object limit) {
+    public PubSystems toSystems(HttpStatusCode statusCode, DomainProfileEo domainProfile, List<String> includes, Object offset, Object limit) {
         if (includes == null) includes = emptyList();
 
         PubLinks links = new PubLinks();
-        List<SystemEo> systems = client.getSystems();
+        List<SystemEo> systems = domainProfile.getSystems();
 
         links.add("self",       uriSystems(includes, offset, limit));
         links.add("self-items", uriSystems(singletonList("items"), offset, limit));
@@ -242,8 +242,7 @@ public class PubUtils {
 
         List<PubSystem> itemsList = new ArrayList<>();
         List<PubLink> linksList = new ArrayList<>();
-        for (int i = 0; i < systems.size(); i++) {
-            SystemEo system = systems.get(i);
+        for (SystemEo system : systems) {
             PubSystem pubSystem = toSystem(null, system);
             itemsList.add(pubSystem);
             linksList.add(pubSystem.get_links().get("self").clone(pubSystem.getSystemName()));
@@ -276,7 +275,7 @@ public class PubUtils {
                 user.getRevision(),
                 user.getUsername(),
                 user.getPassword(),
-                user.getClientName(),
+                user.getDomainName(),
                 user.getAssignedRoles()
         );
     }
@@ -352,32 +351,32 @@ public class PubUtils {
                 .toTemplate();
     }
 
-    private String uriAdminClient(ClientEo client) {
+    private String uriAdminDomain(DomainProfileEo domainProfile) {
         return uriInfo.getBaseUriBuilder()
                 .path($api_v1)
                 .path($admin)
-                .path($clients)
-                .path(client.getClientName())
+                .path($domains)
+                .path(domainProfile.getDomainName())
                 .toTemplate();
     }
 
-    private String uriImpersonate(ClientEo client) {
+    private String uriImpersonate(DomainProfileEo domainProfile) {
         return uriInfo.getBaseUriBuilder()
                 .path($api_v1)
                 .path($admin)
-                .path($clients)
-                .path(client.getClientName())
+                .path($domains)
+                .path(domainProfile.getDomainName())
                 .path($impersonate)
                 .toTemplate();
     }
 
-    public String uriClients(List<String> includes, Object offset, Object limit) {
+    public String uriDomains(List<String> includes, Object offset, Object limit) {
         if (includes == null || includes.isEmpty()) includes = emptyList();
 
         UriBuilder builder = uriInfo.getBaseUriBuilder()
                 .path($api_v1)
                 .path($admin)
-                .path($clients);
+                .path($domains);
 
         for (String include : includes) {
             builder.queryParam("include", include);

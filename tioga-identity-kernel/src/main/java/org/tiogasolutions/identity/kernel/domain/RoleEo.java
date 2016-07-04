@@ -73,7 +73,7 @@ public class RoleEo {
     }
 
     public String getIdPath() {
-        return getRealm().getSystem().getClient().getClientName() + ":" + getRealm().getSystem().getSystemName() + ":" + getRealm().getRealmName() + ":" + getRoleName();
+        return getRealm().getSystem().getDomainProfile().getDomainName() + ":" + getRealm().getSystem().getSystemName() + ":" + getRealm().getRealmName() + ":" + getRoleName();
     }
 
     public String toString() {

@@ -17,7 +17,7 @@ import org.tiogasolutions.dev.jackson.TiogaJacksonModule;
 import org.tiogasolutions.identity.engine.support.IdentityAuthenticationResponseFactory;
 import org.tiogasolutions.identity.kernel.CouchServersConfig;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
-import org.tiogasolutions.identity.kernel.store.ClientStore;
+import org.tiogasolutions.identity.kernel.store.DomainStore;
 import org.tiogasolutions.identity.kernel.store.InMemoryStore;
 import org.tiogasolutions.identity.kernel.store.UserStore;
 import org.tiogasolutions.lib.couchace.DefaultCouchServer;
@@ -61,7 +61,7 @@ public class IdentityEngineTestSpringConfig {
     }
 
     @Bean
-    public ClientStore clientStore(InMemoryStore store) {
+    public DomainStore domainStore(InMemoryStore store) {
         return store;
     }
 

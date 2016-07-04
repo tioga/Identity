@@ -1,4 +1,4 @@
-package org.tiogasolutions.identity.pub.client;
+package org.tiogasolutions.identity.pub;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,7 +15,7 @@ public class PubSystem extends PubItem {
 
     private final String id;
     private final String systemName;
-    private final String clientName;
+    private final String domainName;
 
     private final List<PubRealm> realms = new ArrayList<>();
 
@@ -24,14 +24,14 @@ public class PubSystem extends PubItem {
                      @JsonProperty("_links") PubLinks _links,
                      @JsonProperty("id") String id,
                      @JsonProperty("systemName") String systemName,
-                     @JsonProperty("clientName") String clientName,
+                     @JsonProperty("domainName") String domainName,
                      @JsonProperty("realms") List<PubRealm> realms) {
 
         super(_status, _links);
 
         this.id = id;
         this.systemName = systemName;
-        this.clientName = clientName;
+        this.domainName = domainName;
 
         if (realms != null) this.realms.addAll(realms);
     }
@@ -44,8 +44,8 @@ public class PubSystem extends PubItem {
         return systemName;
     }
 
-    public String getClientName() {
-        return clientName;
+    public String getDomainName() {
+        return domainName;
     }
 
     public List<PubRealm> getRealms() {

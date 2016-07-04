@@ -14,10 +14,9 @@ import org.tiogasolutions.app.standard.execution.ExecutionManager;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
-import org.tiogasolutions.identity.kernel.domain.ClientEo;
-import org.tiogasolutions.identity.kernel.store.ClientStore;
+import org.tiogasolutions.identity.kernel.store.DomainStore;
 import org.tiogasolutions.identity.pub.core.PubLinks;
-import org.tiogasolutions.identity.pub.client.PubInfo;
+import org.tiogasolutions.identity.pub.PubInfo;
 
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -50,7 +49,7 @@ public class RootResource extends RootResourceSupport {
     private ExecutionManager<IdentityKernel> executionManager;
 
     @Autowired
-    private ClientStore clientStore;
+    private DomainStore domainStore;
 
     public RootResource() {
         log.info("Created ");
@@ -87,7 +86,7 @@ public class RootResource extends RootResourceSupport {
 
     @Path($api_v1)
     public ApiResource getApiV1() throws Exception {
-        return new ApiResource(executionManager, getPubUtils(), clientStore);
+        return new ApiResource(executionManager, getPubUtils(), domainStore);
     }
 
     private PubUtils getPubUtils() {

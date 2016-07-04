@@ -1,4 +1,4 @@
-package org.tiogasolutions.identity.pub.client;
+package org.tiogasolutions.identity.pub;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.tiogasolutions.identity.pub.core.PubItem;
@@ -10,25 +10,25 @@ public class PubToken extends PubItem {
     public static final String DEFAULT = "default";
     public static final String ADMIN = "admin";
 
-    private final String clientName;
+    private final String domainName;
     private final String tokenName;
     private final String authorizationToken;
 
     public PubToken(@JsonProperty("_status")PubStatus _status,
                     @JsonProperty("_links") PubLinks _links,
                     @JsonProperty("tokenName") String tokenName,
-                    @JsonProperty("clientName") String clientName,
+                    @JsonProperty("domainName") String domainName,
                     @JsonProperty("authorizationToken") String authorizationToken) {
 
         super(_status, _links);
 
-        this.clientName = clientName;
+        this.domainName = domainName;
         this.tokenName = tokenName;
         this.authorizationToken = authorizationToken;
     }
 
-    public String getClientName() {
-        return clientName;
+    public String getDomainName() {
+        return domainName;
     }
 
     public String getTokenName() {

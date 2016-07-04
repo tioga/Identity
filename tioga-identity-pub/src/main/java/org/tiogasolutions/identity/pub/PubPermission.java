@@ -1,9 +1,6 @@
-package org.tiogasolutions.identity.pub.client;
+package org.tiogasolutions.identity.pub;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.tiogasolutions.identity.pub.core.PubItem;
-import org.tiogasolutions.identity.pub.core.PubLinks;
-import org.tiogasolutions.identity.pub.core.PubStatus;
 
 public class PubPermission {
 
@@ -11,10 +8,10 @@ public class PubPermission {
     private final String roleName;
     private final String realmName;
     private final String systemName;
-    private final String clientName;
+    private final String domainName;
 
     public PubPermission(@JsonProperty("permissionName") String permissionName,
-                         @JsonProperty("clientName") String clientName,
+                         @JsonProperty("domainName") String domainName,
                          @JsonProperty("systemName") String systemName,
                          @JsonProperty("realmName") String realmName,
                          @JsonProperty("roleName") String roleName) {
@@ -23,7 +20,7 @@ public class PubPermission {
         this.roleName = roleName;
         this.realmName = realmName;
         this.systemName = systemName;
-        this.clientName = clientName;
+        this.domainName = domainName;
     }
 
     public String getPermissionName() {
@@ -42,7 +39,7 @@ public class PubPermission {
         return systemName;
     }
 
-    public String getClientName() {
-        return clientName;
+    public String getDomainName() {
+        return domainName;
     }
 }
