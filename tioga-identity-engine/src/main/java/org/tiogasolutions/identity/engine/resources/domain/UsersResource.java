@@ -1,10 +1,10 @@
-package org.tiogasolutions.identity.engine.resources;
+package org.tiogasolutions.identity.engine.resources.domain;
 
 import org.tiogasolutions.app.standard.execution.ExecutionManager;
 import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.support.PubUtils;
-import org.tiogasolutions.identity.kernel.domain.ClientEo;
+import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.domain.UserEo;
 import org.tiogasolutions.identity.pub.client.PubUser;
 import org.tiogasolutions.identity.pub.client.PubUsers;
@@ -17,14 +17,14 @@ import java.util.List;
 public class UsersResource {
 
     private final PubUtils pubUtils;
-    private final ExecutionManager<ClientEo> executionManager;
+    private final ExecutionManager<IdentityKernel> executionManager;
 
-    public UsersResource(ExecutionManager<ClientEo> executionManager, PubUtils pubUtils) {
+    public UsersResource(ExecutionManager<IdentityKernel> executionManager, PubUtils pubUtils) {
         this.pubUtils = pubUtils;
         this.executionManager = executionManager;
     }
 
-    private ClientEo getClient() {
+    private IdentityKernel getKernel() {
         return executionManager.getContext().getDomain();
     }
 
@@ -35,7 +35,7 @@ public class UsersResource {
                              @QueryParam("limit") String limit,
                              @QueryParam("include") List<String> includes) {
 
-        PubUsers pubUsers = pubUtils.toUsers(HttpStatusCode.OK, getClient().getUsers(username), includes, username, offset, limit);
+        PubUsers pubUsers = pubUtils.toUsers(HttpStatusCode.OK, getKernel().findUserByName(username), includes, username, offset, limit);
         return pubUtils.toResponse(pubUsers).build();
     }
 
@@ -43,7 +43,7 @@ public class UsersResource {
     @Path("{userId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUser(@PathParam("userId") String userId) {
-        UserEo user = getClient().findUserById(userId);
+        UserEo user = getKernel().findUserById(userId);
         if (user == null) {
             throw ApiException.notFound("The specified user was not found.");
         }

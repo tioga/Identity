@@ -276,7 +276,7 @@ public class PubUtils {
                 user.getRevision(),
                 user.getUsername(),
                 user.getPassword(),
-                user.getClient().getClientName(),
+                user.getClientName(),
                 user.getAssignedRoles()
         );
     }

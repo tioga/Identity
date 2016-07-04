@@ -19,18 +19,17 @@ public class UserEo {
     private String password;
     private Set<String> assignedRoles = new TreeSet<>();
 
-    @JsonManagedReference
-    private final ClientEo client;
+    private String clientName;
 
     @JsonCreator
-    private UserEo(ClientEo client,
-                   @JsonProperty("id") String id,
+    private UserEo(@JsonProperty("id") String id,
                    @JsonProperty("revision") String revision,
+                   @JsonProperty("clientName") String clientName,
                    @JsonProperty("username") String username,
                    @JsonProperty("password") String password,
                    @JsonProperty("assignedRoles") List<String> assignedRoles) {
 
-        this.client = client;
+        this.clientName = clientName;
 
         this.id = id;
         this.revision = revision;
@@ -63,8 +62,8 @@ public class UserEo {
         return unmodifiableSet(assignedRoles);
     }
 
-    public ClientEo getClient() {
-        return client;
+    public String getClientName() {
+        return clientName;
     }
 
     public UserEo assign(RoleEo...roles) {
@@ -79,9 +78,9 @@ public class UserEo {
         String id = client.getClientName() + ":" + username;
 
         return new UserEo(
-            client,
             id,
             null,
+            client.getClientName(),
             username,
             password,
             emptyList()

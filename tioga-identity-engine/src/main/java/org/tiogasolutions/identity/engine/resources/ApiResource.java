@@ -4,7 +4,12 @@ import org.tiogasolutions.app.standard.execution.ExecutionManager;
 import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.resources.admin.AdminResource;
+import org.tiogasolutions.identity.engine.resources.domain.RealmsResource;
+import org.tiogasolutions.identity.engine.resources.domain.RolesResource;
+import org.tiogasolutions.identity.engine.resources.domain.SystemsResource;
+import org.tiogasolutions.identity.engine.resources.domain.UsersResource;
 import org.tiogasolutions.identity.engine.support.PubUtils;
+import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.domain.ClientEo;
 import org.tiogasolutions.identity.kernel.store.ClientStore;
 import org.tiogasolutions.identity.pub.client.PubToken;
@@ -22,9 +27,9 @@ public class ApiResource {
 
     private final ClientStore clientStore;
     private final PubUtils pubUtils;
-    private final ExecutionManager<ClientEo> executionManager;
+    private final ExecutionManager<IdentityKernel> executionManager;
 
-    public ApiResource(ExecutionManager<ClientEo> executionManager, PubUtils pubUtils, ClientStore clientStore) {
+    public ApiResource(ExecutionManager<IdentityKernel> executionManager, PubUtils pubUtils, ClientStore clientStore) {
         this.pubUtils = pubUtils;
         this.clientStore = clientStore;
         this.executionManager = executionManager;

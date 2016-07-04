@@ -23,8 +23,11 @@ import org.tiogasolutions.identity.engine.support.IdentityAuthenticationResponse
 import org.tiogasolutions.identity.engine.support.IdentityRequestFilterDomainResolver;
 import org.tiogasolutions.identity.engine.support.IdentityTokenRequestFilterAuthenticator;
 import org.tiogasolutions.identity.kernel.CouchServersConfig;
+import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.domain.ClientEo;
 import org.tiogasolutions.identity.kernel.store.ClientStore;
+import org.tiogasolutions.identity.kernel.store.InMemoryStore;
+import org.tiogasolutions.identity.kernel.store.UserStore;
 import org.tiogasolutions.lib.couchace.DefaultCouchServer;
 import org.tiogasolutions.notify.notifier.Notifier;
 import org.tiogasolutions.notify.notifier.send.LoggingNotificationSender;
@@ -71,13 +74,23 @@ public class IdentityEngineHostedSpringConfig {
     }
 
     @Bean
-    public ExecutionManager<ClientEo> executionManager() {
+    public ExecutionManager<IdentityKernel> executionManager() {
         return new ExecutionManager<>();
     }
 
     @Bean
-    public ClientStore accountStore() {
-        return new ClientStore();
+    public InMemoryStore inMemoryStore() {
+        return new InMemoryStore();
+    }
+
+    @Bean
+    public ClientStore clientStore(InMemoryStore store) {
+        return store;
+    }
+
+    @Bean
+    public UserStore userStore(InMemoryStore store) {
+        return store;
     }
 
     @Bean
@@ -91,7 +104,7 @@ public class IdentityEngineHostedSpringConfig {
     }
 
     @Bean
-    public StandardRequestFilterConfig standardRequestFilterConfig(ClientStore clientStore) {
+    public StandardRequestFilterConfig standardRequestFilterConfig(ClientStore clientStore, UserStore userStore) {
         StandardRequestFilterConfig config = new StandardRequestFilterConfig();
 
         // The first list is everything that is unsecured.
@@ -105,7 +118,7 @@ public class IdentityEngineHostedSpringConfig {
                 "^"+ $api_v1 + "/" + $authenticate
         );
 
-        config.registerAuthenticator(new IdentityTokenRequestFilterAuthenticator(clientStore), "^"+ $api_v1 + "/.*");
+        config.registerAuthenticator(new IdentityTokenRequestFilterAuthenticator(clientStore, userStore), "^"+ $api_v1 + "/.*");
 
         return config;
     }

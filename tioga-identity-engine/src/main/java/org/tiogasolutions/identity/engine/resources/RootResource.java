@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import org.tiogasolutions.app.standard.execution.ExecutionManager;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.support.PubUtils;
+import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.domain.ClientEo;
 import org.tiogasolutions.identity.kernel.store.ClientStore;
 import org.tiogasolutions.identity.pub.core.PubLinks;
@@ -46,7 +47,7 @@ public class RootResource extends RootResourceSupport {
     private ContainerRequestContext requestContext;
 
     @Autowired
-    private ExecutionManager<ClientEo> executionManager;
+    private ExecutionManager<IdentityKernel> executionManager;
 
     @Autowired
     private ClientStore clientStore;
