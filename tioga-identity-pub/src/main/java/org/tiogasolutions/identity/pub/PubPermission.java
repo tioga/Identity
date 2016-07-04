@@ -7,19 +7,19 @@ public class PubPermission {
     private final String permissionName;
     private final String roleName;
     private final String realmName;
-    private final String systemName;
+    private final String policyName;
     private final String domainName;
 
     public PubPermission(@JsonProperty("permissionName") String permissionName,
                          @JsonProperty("domainName") String domainName,
-                         @JsonProperty("systemName") String systemName,
+                         @JsonProperty("policyName") String policyName,
                          @JsonProperty("realmName") String realmName,
                          @JsonProperty("roleName") String roleName) {
 
         this.permissionName = permissionName;
         this.roleName = roleName;
         this.realmName = realmName;
-        this.systemName = systemName;
+        this.policyName = policyName;
         this.domainName = domainName;
     }
 
@@ -35,8 +35,8 @@ public class PubPermission {
         return realmName;
     }
 
-    public String getSystemName() {
-        return systemName;
+    public String getPolicyName() {
+        return policyName;
     }
 
     public String getDomainName() {

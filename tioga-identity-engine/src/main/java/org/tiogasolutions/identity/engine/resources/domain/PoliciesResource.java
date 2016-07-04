@@ -5,21 +5,21 @@ import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
-import org.tiogasolutions.identity.kernel.domain.SystemEo;
-import org.tiogasolutions.identity.pub.PubSystem;
-import org.tiogasolutions.identity.pub.PubSystems;
+import org.tiogasolutions.identity.kernel.domain.PolicyEo;
+import org.tiogasolutions.identity.pub.PubPolicies;
+import org.tiogasolutions.identity.pub.PubPolicy;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
 
-public class SystemsResource {
+public class PoliciesResource {
 
     private final PubUtils pubUtils;
     private final ExecutionManager<IdentityKernel> executionManager;
 
-    public SystemsResource(ExecutionManager<IdentityKernel> executionManager, PubUtils pubUtils) {
+    public PoliciesResource(ExecutionManager<IdentityKernel> executionManager, PubUtils pubUtils) {
         this.pubUtils = pubUtils;
         this.executionManager = executionManager;
     }
@@ -35,19 +35,19 @@ public class SystemsResource {
                              @QueryParam("limit") String limit,
                              @QueryParam("include") List<String> includes) {
 
-        PubSystems pubSystems = pubUtils.toSystems(HttpStatusCode.OK, getKernel().getDomainProfile(), includes, offset, limit);
-        return pubUtils.toResponse(pubSystems).build();
+        PubPolicies pubPolicies = pubUtils.toPolicies(HttpStatusCode.OK, getKernel().getDomainProfile(), includes, offset, limit);
+        return pubUtils.toResponse(pubPolicies).build();
     }
 
     @GET
-    @Path("{systemId}")
+    @Path("{policyId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUser(@PathParam("systemId") String systemId) {
-        SystemEo system = getKernel().getDomainProfile().findSystemById(systemId);
-        if (system == null) {
-            throw ApiException.notFound("The specified system was not found.");
+    public Response getUser(@PathParam("policyId") String policyId) {
+        PolicyEo policy = getKernel().getDomainProfile().findPolicyById(policyId);
+        if (policy == null) {
+            throw ApiException.notFound("The specified policy was not found.");
         }
-        PubSystem pubSystem = pubUtils.toSystem(HttpStatusCode.OK, system);
-        return pubUtils.toResponse(pubSystem).build();
+        PubPolicy pubPolicy = pubUtils.toPolicy(HttpStatusCode.OK, policy);
+        return pubUtils.toResponse(pubPolicy).build();
     }
 }

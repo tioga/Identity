@@ -15,7 +15,7 @@ public class PubRealm extends PubItem {
     private final String id;
     private final String realmName;
     private final String domainName;
-    private final String systemName;
+    private final String policyName;
 
     private final List<PubRole> roles = new ArrayList<>();
 
@@ -24,7 +24,7 @@ public class PubRealm extends PubItem {
                     @JsonProperty("id") String id,
                     @JsonProperty("realmName") String realmName,
                     @JsonProperty("domainName") String domainName,
-                    @JsonProperty("systemName") String systemName,
+                    @JsonProperty("policyName") String policyName,
                     @JsonProperty("roles") List<PubRole> roles) {
 
         super(_status, _links);
@@ -32,7 +32,7 @@ public class PubRealm extends PubItem {
         this.id = id;
         this.realmName = realmName;
         this.domainName = domainName;
-        this.systemName = systemName;
+        this.policyName = policyName;
         if (roles != null) this.roles.addAll(roles);
     }
 
@@ -48,8 +48,8 @@ public class PubRealm extends PubItem {
         return domainName;
     }
 
-    public String getSystemName() {
-        return systemName;
+    public String getPolicyName() {
+        return policyName;
     }
 
     public List<PubRole> getRoles() {

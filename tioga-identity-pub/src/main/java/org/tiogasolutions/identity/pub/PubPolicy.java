@@ -11,26 +11,26 @@ import java.util.List;
 
 import static java.util.Collections.unmodifiableList;
 
-public class PubSystem extends PubItem {
+public class PubPolicy extends PubItem {
 
     private final String id;
-    private final String systemName;
+    private final String policyName;
     private final String domainName;
 
     private final List<PubRealm> realms = new ArrayList<>();
 
     @JsonCreator
-    public PubSystem(@JsonProperty("_status") PubStatus _status,
+    public PubPolicy(@JsonProperty("_status") PubStatus _status,
                      @JsonProperty("_links") PubLinks _links,
                      @JsonProperty("id") String id,
-                     @JsonProperty("systemName") String systemName,
+                     @JsonProperty("policyName") String policyName,
                      @JsonProperty("domainName") String domainName,
                      @JsonProperty("realms") List<PubRealm> realms) {
 
         super(_status, _links);
 
         this.id = id;
-        this.systemName = systemName;
+        this.policyName = policyName;
         this.domainName = domainName;
 
         if (realms != null) this.realms.addAll(realms);
@@ -40,8 +40,8 @@ public class PubSystem extends PubItem {
         return id;
     }
 
-    public String getSystemName() {
-        return systemName;
+    public String getPolicyName() {
+        return policyName;
     }
 
     public String getDomainName() {

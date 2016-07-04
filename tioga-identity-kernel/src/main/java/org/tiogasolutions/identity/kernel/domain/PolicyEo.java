@@ -9,10 +9,10 @@ import java.util.List;
 
 import static java.util.Collections.emptyList;
 
-public class SystemEo {
+public class PolicyEo {
 
     private final String id;
-    private final String systemName;
+    private final String policyName;
 
     @JsonBackReference
     private final List<RealmEo> realms = new ArrayList<>();
@@ -20,15 +20,15 @@ public class SystemEo {
     @JsonManagedReference
     private final DomainProfileEo domainProfile;
 
-    private SystemEo(DomainProfileEo domainProfile,
+    private PolicyEo(DomainProfileEo domainProfile,
                      @JsonProperty("id") String id,
-                     @JsonProperty("systemName") String systemName,
+                     @JsonProperty("policyName") String policyName,
                      @JsonProperty("realms") List<RealmEo> realms) {
 
         this.domainProfile = domainProfile;
 
         this.id = id;
-        this.systemName = systemName;
+        this.policyName = policyName;
         if (realms != null) this.realms.addAll(realms);
     }
 
@@ -36,8 +36,8 @@ public class SystemEo {
         return id;
     }
 
-    public String getSystemName() {
-        return systemName;
+    public String getPolicyName() {
+        return policyName;
     }
 
     public DomainProfileEo getDomainProfile() {
@@ -54,19 +54,19 @@ public class SystemEo {
         return realm;
     }
 
-    public static SystemEo createSystem(DomainProfileEo domainProfile, String systemName) {
+    public static PolicyEo createPolicy(DomainProfileEo domainProfile, String policyName) {
 
-        String id = domainProfile.getDomainName() + ":" + systemName;
+        String id = domainProfile.getDomainName() + ":" + policyName;
 
-        return new SystemEo(
+        return new PolicyEo(
                 domainProfile,
                 id,
-                systemName,
+                policyName,
                 emptyList());
     }
 
     public String getIdPath() {
-        return getDomainProfile().getDomainName() + ":" + getSystemName();
+        return getDomainProfile().getDomainName() + ":" + getPolicyName();
     }
 
     public String toString() {

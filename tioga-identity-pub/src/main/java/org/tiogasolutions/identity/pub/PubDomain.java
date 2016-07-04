@@ -20,7 +20,7 @@ public class PubDomain extends PubItem {
     private final String password;
     private final String dbName;
 
-    private final List<PubSystem> systems = new ArrayList<>();
+    private final List<PubPolicy> policies = new ArrayList<>();
 
     public PubDomain(@JsonProperty("_status")PubStatus _status,
                      @JsonProperty("_links") PubLinks _links,
@@ -30,7 +30,7 @@ public class PubDomain extends PubItem {
                      @JsonProperty("authorizationToken") Map<String,String> authorizationTokens,
                      @JsonProperty("password") String password,
                      @JsonProperty("dbName") String dbName,
-                     @JsonProperty("systems") List<PubSystem> systems) {
+                     @JsonProperty("policies") List<PubPolicy> policies) {
 
         super(_status, _links);
 
@@ -41,7 +41,7 @@ public class PubDomain extends PubItem {
         this.dbName = dbName;
 
         if (authorizationTokens != null) this.authorizationTokens.putAll(authorizationTokens);
-        if (systems != null) this.systems.addAll(systems);
+        if (policies != null) this.policies.addAll(policies);
     }
 
     public Map<String, String> getAuthorizationTokens() {
@@ -68,7 +68,7 @@ public class PubDomain extends PubItem {
         return dbName;
     }
 
-    public List<PubSystem> getSystems() {
-        return systems;
+    public List<PubPolicy> getPolicies() {
+        return policies;
     }
 }

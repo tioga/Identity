@@ -18,14 +18,14 @@ public class RealmEo {
     private final List<RoleEo> roles = new ArrayList<>();
 
     @JsonManagedReference
-    private final SystemEo system;
+    private final PolicyEo policy;
 
-    private RealmEo(SystemEo system,
+    private RealmEo(PolicyEo policy,
                     @JsonProperty("id") String id,
                     @JsonProperty("realmName") String realmName,
                     @JsonProperty("roles") List<RoleEo> roles) {
 
-        this.system = system;
+        this.policy = policy;
 
         this.id = id;
         this.realmName = realmName;
@@ -40,8 +40,8 @@ public class RealmEo {
         return realmName;
     }
 
-    public SystemEo getSystem() {
-        return system;
+    public PolicyEo getPolicy() {
+        return policy;
     }
 
     public List<RoleEo> getRoles() {
@@ -54,12 +54,12 @@ public class RealmEo {
         return role;
     }
 
-    public static RealmEo createRealm(SystemEo system, String realmName) {
+    public static RealmEo createRealm(PolicyEo policy, String realmName) {
 
-        String id = system.getIdPath() + ":" + realmName;
+        String id = policy.getIdPath() + ":" + realmName;
 
         return new RealmEo(
-                system,
+                policy,
                 id,
                 realmName,
                 Collections.emptyList()
@@ -67,7 +67,7 @@ public class RealmEo {
     }
 
     public String getIdPath() {
-        return getSystem().getDomainProfile().getDomainName() + ":" + getSystem().getSystemName() + ":" + getRealmName();
+        return getPolicy().getDomainProfile().getDomainName() + ":" + getPolicy().getPolicyName() + ":" + getRealmName();
     }
 
     public String toString() {

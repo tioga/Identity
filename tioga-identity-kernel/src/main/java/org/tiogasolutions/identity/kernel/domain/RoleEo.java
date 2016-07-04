@@ -50,7 +50,7 @@ public class RoleEo {
 
     public String toAssignedRole() {
         return String.format("%s:%s:%s",
-                realm.getSystem().getSystemName(),
+                realm.getPolicy().getPolicyName(),
                 realm.getRealmName(),
                 roleName);
     }
@@ -73,7 +73,7 @@ public class RoleEo {
     }
 
     public String getIdPath() {
-        return getRealm().getSystem().getDomainProfile().getDomainName() + ":" + getRealm().getSystem().getSystemName() + ":" + getRealm().getRealmName() + ":" + getRoleName();
+        return getRealm().getPolicy().getDomainProfile().getDomainName() + ":" + getRealm().getPolicy().getPolicyName() + ":" + getRealm().getRealmName() + ":" + getRoleName();
     }
 
     public String toString() {

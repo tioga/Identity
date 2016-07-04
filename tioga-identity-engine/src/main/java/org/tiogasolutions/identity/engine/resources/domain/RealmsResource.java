@@ -26,17 +26,6 @@ public class RealmsResource {
         return executionManager.getContext().getDomain();
     }
 
-//    @GET
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public Response findUserByName(@QueryParam("username") String username,
-//                             @QueryParam("offset") String offset,
-//                             @QueryParam("limit") String limit,
-//                             @QueryParam("include") List<String> includes) {
-//
-//        PubSystems pubSystems = pubUtils.toSystems(HttpStatusCode.OK, getDomainProfile(), includes, offset, limit);
-//        return pubUtils.toResponse(pubSystems).build();
-//    }
-
     @GET
     @Path("{realmId}")
     @Produces(MediaType.APPLICATION_JSON)

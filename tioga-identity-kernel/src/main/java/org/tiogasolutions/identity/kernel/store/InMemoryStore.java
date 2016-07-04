@@ -33,7 +33,7 @@ public class InMemoryStore implements DomainStore, UserStore {
         // administer this application and is hard coded into the filter.
         DomainProfileEo domainProfile = DomainProfileEo.create(INTERNAL_DOMAIN, "password-123");
 
-        RealmEo defaultRealm = domainProfile.addSystem("system").addRealm("realm");
+        RealmEo defaultRealm = domainProfile.addPolicy("policy").addRealm("realm");
         RoleEo adminRole = defaultRealm.createRole("administrator");
 
         addUser(domainProfile, "me@jacobparr.com", "password-123").assign(adminRole);
@@ -51,8 +51,8 @@ public class InMemoryStore implements DomainStore, UserStore {
     private void createSpending() {
         DomainProfileEo domainProfile = DomainProfileEo.create("spending-fyi", "password-123");
 
-        // Spending-FYI has only one system and one realm
-        RealmEo defaultRealm = domainProfile.addSystem("system").addRealm("realm");
+        // Spending-FYI has only one policy and one realm
+        RealmEo defaultRealm = domainProfile.addPolicy("policy").addRealm("realm");
         // We have two roles, admin and user.
         RoleEo adminRole = defaultRealm.createRole("administrator");
         adminRole.addPermission("delete");
@@ -82,26 +82,26 @@ public class InMemoryStore implements DomainStore, UserStore {
         UserEo harlan = addUser(domainProfile, "harlan.work@gmail.com", "password-123");
         UserEo chris = addUser(domainProfile, "chrisjasp@gmail.com", "password-123");
 
-        // We have one system for each micro-service
-        List<SystemEo> systems = Arrays.asList(
-                domainProfile.addSystem("notify"),
-                domainProfile.addSystem("push"),
-                domainProfile.addSystem("identity"),
-                domainProfile.addSystem("ack-im")
+        // We have one policy for each micro-service
+        List<PolicyEo> policies = Arrays.asList(
+                domainProfile.addPolicy("notify"),
+                domainProfile.addPolicy("push"),
+                domainProfile.addPolicy("identity"),
+                domainProfile.addPolicy("ack-im")
         );
 
-        // Create the "admin" realm and admin roles for each system
-        for (SystemEo system : systems) {
-            RoleEo role = system.addRealm("admin").createRole("administrator");
+        // Create the "admin" realm and admin roles for each policy
+        for (PolicyEo policy : policies) {
+            RoleEo role = policy.addRealm("admin").createRole("administrator");
             // Jacob and Harlan get admin rights
             jacob.assign(role);
             harlan.assign(role);
         }
 
         // The "test" realm is a real realm/domain/space used strictly for testing
-        for (SystemEo system : systems) {
-            RoleEo role = system.addRealm("test").createRole("user");
-            // Let Chris play with the test system...
+        for (PolicyEo policy : policies) {
+            RoleEo role = policy.addRealm("test").createRole("user");
+            // Let Chris play with the test policy...
             jacob.assign(role);
             harlan.assign(role);
             chris.assign(role);
@@ -124,9 +124,9 @@ public class InMemoryStore implements DomainStore, UserStore {
         UserEo hannah = addUser(domainProfile, "hn.noon@gmail.com", "password-123");
 
         // Photo Lab is not multi-tenant, so we addRealm the one "default" realm.
-        RealmEo glacierRealm = domainProfile.addSystem("glacier").addRealm("realm");
-        RealmEo tenayaRealm = domainProfile.addSystem("tenaya").addRealm("realm");
-        RealmEo basecampRealm = domainProfile.addSystem("basecamp").addRealm("realm");
+        RealmEo glacierRealm = domainProfile.addPolicy("glacier").addRealm("realm");
+        RealmEo tenayaRealm = domainProfile.addPolicy("tenaya").addRealm("realm");
+        RealmEo basecampRealm = domainProfile.addPolicy("basecamp").addRealm("realm");
 
         // Assign all the admin roles
         for (RealmEo realm : Arrays.asList(glacierRealm, tenayaRealm, basecampRealm)) {

@@ -6,7 +6,7 @@ import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.resources.admin.AdminResource;
 import org.tiogasolutions.identity.engine.resources.domain.RealmsResource;
 import org.tiogasolutions.identity.engine.resources.domain.RolesResource;
-import org.tiogasolutions.identity.engine.resources.domain.SystemsResource;
+import org.tiogasolutions.identity.engine.resources.domain.PoliciesResource;
 import org.tiogasolutions.identity.engine.resources.domain.UsersResource;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
@@ -83,9 +83,9 @@ public class ApiResource {
         return new UsersResource(executionManager, pubUtils);
     }
 
-    @Path($systems)
-    public SystemsResource getSystemsResource() {
-        return new SystemsResource(executionManager, pubUtils);
+    @Path($policies)
+    public PoliciesResource getPoliciesResource() {
+        return new PoliciesResource(executionManager, pubUtils);
     }
 
     @Path($realms)

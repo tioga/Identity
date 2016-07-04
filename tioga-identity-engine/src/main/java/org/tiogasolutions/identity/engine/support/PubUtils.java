@@ -58,9 +58,9 @@ public class PubUtils {
             links.add("admin-domains-links", uriDomains(singletonList("links"), null, null));
         }
 
-        links.add("systems",       uriSystems(null, null, null));
-        links.add("systems-links", uriSystems(singletonList("links"), null, null));
-        links.add("systems-items", uriSystems(singletonList("items"), null, null));
+        links.add("policies",       uriPolicies(null, null, null));
+        links.add("policies-links", uriPolicies(singletonList("links"), null, null));
+        links.add("policies-items", uriPolicies(singletonList("items"), null, null));
 
         links.add("users",       uriUsers(null, null, null, null));
         links.add("users-links", uriUsers(singletonList("links"), null, null, null));
@@ -90,18 +90,18 @@ public class PubUtils {
             links.add("admin-domains", uriDomains(null, null, null));
         }
 
-        links.add("systems",       uriSystems(null, null, null));
-        links.add("systems-links", uriSystems(singletonList("links"), null, null));
-        links.add("systems-items", uriSystems(singletonList("items"), null, null));
+        links.add("policies",       uriPolicies(null, null, null));
+        links.add("policies-links", uriPolicies(singletonList("links"), null, null));
+        links.add("policies-items", uriPolicies(singletonList("items"), null, null));
 
         links.add("users",       uriUsers(null, null, null, null));
         links.add("users-links", uriUsers(singletonList("links"), null, null, null));
         links.add("users-items", uriUsers(singletonList("items"), null, null, null));
 
-        List<PubSystem> pubSystems = new ArrayList<>();
-        for (SystemEo system : domainProfile.getSystems()) {
-            PubSystem pubSystem = toSystem(null, system);
-            pubSystems.add(pubSystem);
+        List<PubPolicy> pubPolicies = new ArrayList<>();
+        for (PolicyEo policy : domainProfile.getPolicies()) {
+            PubPolicy pubPolicy = toPolicy(null, policy);
+            pubPolicies.add(pubPolicy);
         }
 
         return new PubDomain(
@@ -113,7 +113,7 @@ public class PubUtils {
                 domainProfile.getAuthorizationTokens(),
                 domainProfile.getPassword(),
                 domainProfile.getDbName(),
-                pubSystems);
+                pubPolicies);
     }
 
     public PubDomains toDomains(HttpStatusCode statusCode, List<DomainProfileEo> domainProfiles, List<String> includes, Object offset, Object limit) {
@@ -145,23 +145,23 @@ public class PubUtils {
                 includes.contains("links") ? linksList : null);
     }
 
-    public PubSystem toSystem(HttpStatusCode statusCode, SystemEo system) {
+    public PubPolicy toPolicy(HttpStatusCode statusCode, PolicyEo policy) {
 
         PubLinks links = new PubLinks();
-        links.add("self", uriSystemById(system));
+        links.add("self", uriPolicyById(policy));
 
         List<PubRealm> realms = new ArrayList<>();
-        for (RealmEo realm : system.getRealms()) {
+        for (RealmEo realm : policy.getRealms()) {
             PubRealm pubRealm = toRealm(null, realm);
             realms.add(pubRealm);
         }
 
-        return new PubSystem(
+        return new PubPolicy(
                 toStatus(statusCode),
                 links,
-                system.getId(),
-                system.getSystemName(),
-                system.getDomainProfile().getDomainName(),
+                policy.getId(),
+                policy.getPolicyName(),
+                policy.getDomainProfile().getDomainName(),
                 realms
         );
     }
@@ -182,8 +182,8 @@ public class PubUtils {
                 links,
                 realm.getId(),
                 realm.getRealmName(),
-                realm.getSystem().getDomainProfile().getDomainName(),
-                realm.getSystem().getSystemName(),
+                realm.getPolicy().getDomainProfile().getDomainName(),
+                realm.getPolicy().getPolicyName(),
                 roles);
     }
 
@@ -203,8 +203,8 @@ public class PubUtils {
                 links,
                 role.getId(),
                 role.getRoleName(),
-                role.getRealm().getSystem().getDomainProfile().getDomainName(),
-                role.getRealm().getSystem().getSystemName(),
+                role.getRealm().getPolicy().getDomainProfile().getDomainName(),
+                role.getRealm().getPolicy().getPolicyName(),
                 role.getRealm().getRealmName(),
                 permissions);
     }
@@ -213,42 +213,36 @@ public class PubUtils {
 
         return new PubPermission(
                 permission.getPermissionName(),
-                permission.getRole().getRealm().getSystem().getDomainProfile().getDomainName(),
-                permission.getRole().getRealm().getSystem().getSystemName(),
+                permission.getRole().getRealm().getPolicy().getDomainProfile().getDomainName(),
+                permission.getRole().getRealm().getPolicy().getPolicyName(),
                 permission.getRole().getRealm().getRealmName(),
                 permission.getRole().getRoleName());
     }
 
-    public PubSystems toSystems(HttpStatusCode statusCode, DomainProfileEo domainProfile, List<String> includes, Object offset, Object limit) {
+    public PubPolicies toPolicies(HttpStatusCode statusCode, DomainProfileEo domainProfile, List<String> includes, Object offset, Object limit) {
         if (includes == null) includes = emptyList();
 
         PubLinks links = new PubLinks();
-        List<SystemEo> systems = domainProfile.getSystems();
+        List<PolicyEo> policies = domainProfile.getPolicies();
 
-        links.add("self",       uriSystems(includes, offset, limit));
-        links.add("self-items", uriSystems(singletonList("items"), offset, limit));
-        links.add("self-links", uriSystems(singletonList("links"), offset, limit));
+        links.add("self",       uriPolicies(includes, offset, limit));
+        links.add("self-items", uriPolicies(singletonList("items"), offset, limit));
+        links.add("self-links", uriPolicies(singletonList("links"), offset, limit));
 
+        links.add("first", uriPolicies(null, 0, limit));
+        links.add("prev",  uriPolicies(null, 0, limit));
+        links.add("next",  uriPolicies(null, 0, limit));
+        links.add("last",  uriPolicies(null, 0, limit));
 
-        if (systems.size() > 0) {
-            SystemEo first = systems.get(0);
-            links.add("first-system", uriSystemById(first));
-        }
-
-        links.add("first", uriSystems(null, 0, limit));
-        links.add("prev",  uriSystems(null, 0, limit));
-        links.add("next",  uriSystems(null, 0, limit));
-        links.add("last",  uriSystems(null, 0, limit));
-
-        List<PubSystem> itemsList = new ArrayList<>();
+        List<PubPolicy> itemsList = new ArrayList<>();
         List<PubLink> linksList = new ArrayList<>();
-        for (SystemEo system : systems) {
-            PubSystem pubSystem = toSystem(null, system);
-            itemsList.add(pubSystem);
-            linksList.add(pubSystem.get_links().get("self").clone(pubSystem.getSystemName()));
+        for (PolicyEo policy : policies) {
+            PubPolicy pubPolicy = toPolicy(null, policy);
+            itemsList.add(pubPolicy);
+            linksList.add(pubPolicy.get_links().get("self").clone(pubPolicy.getPolicyName()));
         }
 
-        return new PubSystems(
+        return new PubPolicies(
                 toStatus(statusCode),
                 links,
                 itemsList.size(),
@@ -400,11 +394,11 @@ public class PubUtils {
                 .toTemplate();
     }
 
-    public String uriSystemById(SystemEo system) {
+    public String uriPolicyById(PolicyEo policy) {
         return uriInfo.getBaseUriBuilder()
                 .path($api_v1)
-                .path($systems)
-                .path(system.getId())
+                .path($policies)
+                .path(policy.getId())
                 .toTemplate();
     }
 
@@ -424,7 +418,7 @@ public class PubUtils {
                 .toTemplate();
     }
 
-    private String uriSystems(List<String> includes, Object offsetObj, Object limitObj) {
+    private String uriPolicies(List<String> includes, Object offsetObj, Object limitObj) {
         if (includes == null || includes.isEmpty()) includes = emptyList();
 
         int offset = toInt(offsetObj, 0, "offset");
@@ -433,7 +427,7 @@ public class PubUtils {
         UriBuilder builder = uriInfo.getBaseUriBuilder()
                 .path($api_v1)
                 .path($client)
-                .path($systems)
+                .path($policies)
                 .queryParam("offset", offset)
                 .queryParam("limit", limit);
 

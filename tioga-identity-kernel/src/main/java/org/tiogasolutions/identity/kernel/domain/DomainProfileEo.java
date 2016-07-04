@@ -25,7 +25,7 @@ public class DomainProfileEo {
     private Map<String,String> authorizationTokens = new HashMap<>();
 
     @JsonBackReference
-    private final List<SystemEo> systems = new ArrayList<>();
+    private final List<PolicyEo> policies = new ArrayList<>();
 
     public DomainProfileEo(@JsonProperty("domainName") String domainName,
                            @JsonProperty("revision") String revision,
@@ -33,7 +33,7 @@ public class DomainProfileEo {
                            @JsonProperty("authorizationTokens") Map<String,String> authorizationTokens,
                            @JsonProperty("password") String password,
                            @JsonProperty("dbName") String dbName,
-                           @JsonProperty("systems") List<SystemEo> systems) {
+                           @JsonProperty("policies") List<PolicyEo> policies) {
 
         this.domainName = ExceptionUtils.assertNotZeroLength(domainName, "name").toLowerCase();
         this.revision = revision;
@@ -42,7 +42,7 @@ public class DomainProfileEo {
         this.password = password;
         this.dbName = dbName;
 
-        if (systems != null) this.systems.addAll(systems);
+        if (policies != null) this.policies.addAll(policies);
     }
 
     public String getPassword() {
@@ -65,8 +65,8 @@ public class DomainProfileEo {
         return status;
     }
 
-    public List<SystemEo> getSystems() {
-        return systems;
+    public List<PolicyEo> getPolicies() {
+        return policies;
     }
 
     public Map<String, String> getAuthorizationTokens() {
@@ -77,18 +77,18 @@ public class DomainProfileEo {
         this.authorizationTokens.put(name, UUID.randomUUID().toString());
     }
 
-    public SystemEo findSystemById(String id) {
-        for (SystemEo system : systems) {
-            if (objectsEqual(id, system.getId())) {
-                return system;
+    public PolicyEo findPolicyById(String id) {
+        for (PolicyEo policy : policies) {
+            if (objectsEqual(id, policy.getId())) {
+                return policy;
             }
         }
-        throw ApiException.notFound("The specified system was not found.");
+        throw ApiException.notFound("The specified policy was not found.");
     }
 
     public RealmEo findRealmById(String id) {
-        for (SystemEo system : systems) {
-            for (RealmEo realm : system.getRealms()) {
+        for (PolicyEo policy : policies) {
+            for (RealmEo realm : policy.getRealms()) {
                 if (objectsEqual(id, realm.getId())) {
                     return realm;
                 }
@@ -98,8 +98,8 @@ public class DomainProfileEo {
     }
 
     public RoleEo findRoleById(String id) {
-        for (SystemEo system : systems) {
-            for (RealmEo realm : system.getRealms()) {
+        for (PolicyEo policy : policies) {
+            for (RealmEo realm : policy.getRealms()) {
                 for (RoleEo role : realm.getRoles())
                     if (objectsEqual(id, role.getId())) {
                         return role;
@@ -109,10 +109,10 @@ public class DomainProfileEo {
         throw ApiException.notFound("The specified role was not found.");
     }
 
-    public SystemEo addSystem(String systemName) {
-        SystemEo system = SystemEo.createSystem(this, systemName);
-        systems.add(system);
-        return system;
+    public PolicyEo addPolicy(String policyName) {
+        PolicyEo policy = PolicyEo.createPolicy(this, policyName);
+        policies.add(policy);
+        return policy;
     }
 
     public static DomainProfileEo create(String name, String password) {
