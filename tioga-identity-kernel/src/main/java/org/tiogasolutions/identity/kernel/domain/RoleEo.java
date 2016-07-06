@@ -15,21 +15,16 @@ public class RoleEo {
     private final String roleName;
 
     @JsonManagedReference
-    private final List<Permission> permissions = new ArrayList<>();
+    private final PolicyEo policy;
 
-    @JsonManagedReference
-    private final RealmEo realm;
-
-    private RoleEo(RealmEo realm,
+    private RoleEo(PolicyEo policy,
                    @JsonProperty("id") String id,
-                   @JsonProperty("roleName") String roleName,
-                   @JsonProperty("permissions") List<Permission> permissions) {
+                   @JsonProperty("roleName") String roleName) {
 
-        this.realm = realm;
+        this.policy = policy;
 
         this.id = id;
         this.roleName = roleName;
-        if (permissions != null) this.permissions.addAll(permissions);
     }
 
     public String getId() {
@@ -40,43 +35,16 @@ public class RoleEo {
         return roleName;
     }
 
-    public RealmEo getRealm() {
-        return realm;
-    }
-
-    public List<Permission> getPermissions() {
-        return unmodifiableList(permissions);
-    }
-
-    public String toAssignedRole() {
-        return String.format("%s:%s:%s",
-                realm.getPolicy().getPolicyName(),
-                realm.getRealmName(),
-                roleName);
-    }
-
-    public static RoleEo create(RealmEo realm, String roleName) {
-
-        String id = realm.getIdPath() + ":" + roleName;
-
-        return new RoleEo(
-                realm,
-                id,
-                roleName,
-                emptyList()
-        );
-    }
-
-    public void addPermission(String permissionName) {
-        Permission permission = Permission.create(this, permissionName);
-        this.permissions.add(permission);
-    }
-
-    public String getIdPath() {
-        return getRealm().getPolicy().getDomainProfile().getDomainName() + ":" + getRealm().getPolicy().getPolicyName() + ":" + getRealm().getRealmName() + ":" + getRoleName();
+    public PolicyEo getPolicy() {
+        return policy;
     }
 
     public String toString() {
-        return getIdPath();
+        return getId();
+    }
+
+    public static RoleEo createRole(PolicyEo policy, String roleName) {
+        String id = policy.getIdPath() + ":" + roleName;
+        return new RoleEo(policy, id, roleName);
     }
 }

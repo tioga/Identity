@@ -16,7 +16,6 @@ public class UserEo {
     private String revision;
     private String username;
     private String password;
-    private Set<String> assignedRoles = new TreeSet<>();
 
     private String domainName;
 
@@ -25,8 +24,7 @@ public class UserEo {
                    @JsonProperty("revision") String revision,
                    @JsonProperty("domainName") String domainName,
                    @JsonProperty("username") String username,
-                   @JsonProperty("password") String password,
-                   @JsonProperty("assignedRoles") List<String> assignedRoles) {
+                   @JsonProperty("password") String password) {
 
         this.domainName = domainName;
 
@@ -34,7 +32,6 @@ public class UserEo {
         this.revision = revision;
         this.username = username;
         this.password = password;
-        if (assignedRoles != null) this.assignedRoles.addAll(assignedRoles);
     }
 
     public String getRevision() {
@@ -57,19 +54,8 @@ public class UserEo {
         this.password = password;
     }
 
-    public Set<String> getAssignedRoles() {
-        return unmodifiableSet(assignedRoles);
-    }
-
     public String getDomainName() {
         return domainName;
-    }
-
-    public UserEo assign(RoleEo...roles) {
-        for (RoleEo role : roles) {
-            assignedRoles.add(role.toAssignedRole());
-        }
-        return this;
     }
 
     public static UserEo create(DomainProfileEo domainProfile, String username, String password) {
@@ -81,8 +67,10 @@ public class UserEo {
             null,
             domainProfile.getDomainName(),
             username,
-            password,
-            emptyList()
-        );
+            password);
+    }
+
+    public UserEo assign(RealmEo defaultRealm, RoleEo adminRole) {
+        return this;
     }
 }

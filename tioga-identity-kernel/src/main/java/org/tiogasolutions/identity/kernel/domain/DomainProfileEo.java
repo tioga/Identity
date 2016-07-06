@@ -99,11 +99,21 @@ public class DomainProfileEo {
 
     public RoleEo findRoleById(String id) {
         for (PolicyEo policy : policies) {
-            for (RealmEo realm : policy.getRealms()) {
-                for (RoleEo role : realm.getRoles())
-                    if (objectsEqual(id, role.getId())) {
-                        return role;
-                    }
+            for (RoleEo role : policy.getRoles()) {
+                if (objectsEqual(id, role.getId())) {
+                    return role;
+                }
+            }
+        }
+        throw ApiException.notFound("The specified role was not found.");
+    }
+
+    public PermissionEo findPermissionById(String id) {
+        for (PolicyEo policy : policies) {
+            for (PermissionEo permission : policy.getPermissions()) {
+                if (objectsEqual(id, permission.getId())) {
+                    return permission;
+                }
             }
         }
         throw ApiException.notFound("The specified role was not found.");

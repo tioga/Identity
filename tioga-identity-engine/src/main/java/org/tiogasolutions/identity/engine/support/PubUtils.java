@@ -193,7 +193,7 @@ public class PubUtils {
         links.add("self", uriRoleById(role));
 
         List<PubPermission> permissions = new ArrayList<>();
-        for (Permission permission : role.getPermissions()) {
+        for (PermissionEo permission : role.getPermissions()) {
             PubPermission pubPermission = toPermission(null, permission);
             permissions.add(pubPermission);
         }
@@ -209,7 +209,7 @@ public class PubUtils {
                 permissions);
     }
 
-    private PubPermission toPermission(HttpStatusCode statusCode, Permission permission) {
+    private PubPermission toPermission(HttpStatusCode statusCode, PermissionEo permission) {
 
         return new PubPermission(
                 permission.getPermissionName(),

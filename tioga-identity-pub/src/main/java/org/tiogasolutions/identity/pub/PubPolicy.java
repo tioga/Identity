@@ -17,7 +17,9 @@ public class PubPolicy extends PubItem {
     private final String policyName;
     private final String domainName;
 
+    private final List<PubRole> roles = new ArrayList<>();
     private final List<PubRealm> realms = new ArrayList<>();
+    private final List<PubPermission> permissions = new ArrayList<>();
 
     @JsonCreator
     public PubPolicy(@JsonProperty("_status") PubStatus _status,
@@ -25,7 +27,9 @@ public class PubPolicy extends PubItem {
                      @JsonProperty("id") String id,
                      @JsonProperty("policyName") String policyName,
                      @JsonProperty("domainName") String domainName,
-                     @JsonProperty("realms") List<PubRealm> realms) {
+                     @JsonProperty("roles") List<PubRole> roles,
+                     @JsonProperty("realms") List<PubRealm> realms,
+                     @JsonProperty("permissions") List<PubPermission> permissions) {
 
         super(_status, _links);
 
@@ -33,7 +37,9 @@ public class PubPolicy extends PubItem {
         this.policyName = policyName;
         this.domainName = domainName;
 
+        if (roles != null) this.roles.addAll(roles);
         if (realms != null) this.realms.addAll(realms);
+        if (permissions != null) this.permissions.addAll(permissions);
     }
 
     public String getId() {
@@ -48,7 +54,15 @@ public class PubPolicy extends PubItem {
         return domainName;
     }
 
+    public List<PubRole> getRoles() {
+        return unmodifiableList(roles);
+    }
+
     public List<PubRealm> getRealms() {
         return unmodifiableList(realms);
+    }
+
+    public List<PubPermission> getPermissions() {
+        return unmodifiableList(permissions);
     }
 }
