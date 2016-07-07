@@ -21,11 +21,13 @@ public class InMemoryStore implements DomainStore, IdentityStore {
     private static final String TIME_AND_BILLING = "time-and-billing";
     private static final String SPENDING_FYI_DOMAIN = "spending-fyi";
     private static final String PHOTO_LAB_DOMAIN = "photo-lab";
+    private static final String ACK_IM_DOMAIN = "ack-im";
 
     public InMemoryStore() {
         createInternal();
         createPhotoLab();
         createSpending();
+        createAckIm();
         createTimeAndBilling();
     }
 
@@ -51,6 +53,30 @@ public class InMemoryStore implements DomainStore, IdentityStore {
         findIdentityByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
         findIdentityByName(domain, "harlan.work@gmail.com").assign(realm, ownerRole);
         addUser(domain, "photo-lab-client", "password-123").assign(realm, apiRole);
+
+        realm = policy.addRealm(ACK_IM_DOMAIN);
+        findIdentityByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        addUser(domain, "chrisjasp@gmail.com", "password-123").assign(realm, ownerRole);
+        addUser(domain, "ack-im-client", "password-123").assign(realm, ownerRole);
+
+        this.domainProfiles.add(domain);
+    }
+
+    private void createAckIm() {
+
+        DomainProfileEo domain = DomainProfileEo.create(ACK_IM_DOMAIN);
+        // Hack the access tokens for testability
+        domain.setAccessToken("me@jacobparr.com", "9876543210");
+        domain.setAccessToken("chrisjasp@gmail.com", "9876543210");
+        domain.setAccessToken("ack-im-client", "9876543210");
+
+        PolicyEo policy = domain.addPolicy("default-policy");
+        RealmEo realm = policy.addRealm("default-realm");
+        RoleEo role = policy.addRole("default-role");
+
+        addUser(domain, "me@jacobparr.com", "password-123").assign(realm, role);
+        addUser(domain, "chrisjasp@gmail.com", "password-123").assign(realm, role);
+        addUser(domain, "ack-im-client", "password-123").assign(realm, role);
 
         this.domainProfiles.add(domain);
     }
@@ -120,12 +146,8 @@ public class InMemoryStore implements DomainStore, IdentityStore {
         RoleEo role = policy.addRole("user");
 
         addUser(domain, "harlan.work@gmail.com", "password-123").assign(realm, role);
-    }
 
-    private IdentityEo addUser(DomainProfileEo domainProfile, String username, String password) {
-        IdentityEo user = IdentityEo.create(domainProfile, username, password);
-        identities.add(user);
-        return user;
+        this.domainProfiles.add(domain);
     }
 
     private void createPhotoLab() {
@@ -177,6 +199,12 @@ public class InMemoryStore implements DomainStore, IdentityStore {
         for (IdentityEo identity : Arrays.asList(jacob, harlan, rich, angie, hannah, brit, jesse, joe)) {
             identity.assign(tenayaRealm, consumer);
         }
+    }
+
+    private IdentityEo addUser(DomainProfileEo domainProfile, String username, String password) {
+        IdentityEo user = IdentityEo.create(domainProfile, username, password);
+        identities.add(user);
+        return user;
     }
 
     @Override

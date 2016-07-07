@@ -8,8 +8,8 @@ import org.tiogasolutions.identity.client.core.PubLinks;
 import org.tiogasolutions.identity.client.domain.AuthenticationRequest;
 import org.tiogasolutions.identity.client.domain.IdentityToken;
 import org.tiogasolutions.identity.engine.resources.admin.AdminResource;
-import org.tiogasolutions.identity.engine.resources.domain.PoliciesResource;
 import org.tiogasolutions.identity.engine.resources.domain.IdentitiesResource;
+import org.tiogasolutions.identity.engine.resources.domain.PoliciesResource;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.domain.DomainProfileEo;
@@ -18,10 +18,7 @@ import org.tiogasolutions.identity.kernel.domain.RealmEo;
 import org.tiogasolutions.identity.kernel.store.DomainStore;
 import org.tiogasolutions.identity.kernel.store.IdentityStore;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -60,6 +57,18 @@ public class ApiResource {
     @POST
     @Path($authenticate)
     @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+    public Response getCreateToken(@FormParam("domain") String domain,
+                                   @FormParam("username") String username,
+                                   @FormParam("password") String password) {
+
+        return getCreateToken(new AuthenticationRequest(domain, username, password));
+    }
+
+    @POST
+    @Path($authenticate)
+    @Produces(MediaType.APPLICATION_JSON)
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response getCreateToken(AuthenticationRequest request) {
 
         // We use our internal domain to authenticate you.
@@ -83,12 +92,12 @@ public class ApiResource {
 
         // The realm name that the user logged into is the domain
         // name that we are actually updating the api key for.
-        DomainProfileEo domain = domainStore.findByName(request.getDomain());
+        DomainProfileEo realDomain = domainStore.findByName(request.getDomain());
         String tokenName = request.getUsername();
-        domain.generateAccessToken(tokenName);
-        domainStore.update(domain);
+        realDomain.generateAccessToken(tokenName);
+        domainStore.update(realDomain);
 
-        IdentityToken pubToken = pubUtils.toToken(HttpStatusCode.CREATED, domain, tokenName);
+        IdentityToken pubToken = pubUtils.toToken(HttpStatusCode.CREATED, realDomain, tokenName);
         return pubUtils.toResponse(pubToken).build();
     }
 

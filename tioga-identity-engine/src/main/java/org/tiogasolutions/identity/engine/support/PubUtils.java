@@ -267,14 +267,6 @@ public class PubUtils {
         links.add("self-items", uriIdentities(singletonList("items"), username, offset, limit));
         links.add("self-links", uriIdentities(singletonList("links"), username, offset, limit));
 
-        links.add("identity",   uriUserById(null));
-        links.add("api",    uriApi());
-
-        if (identities.size() > 0) {
-            IdentityEo first = identities.get(0);
-            links.add("first-identity", uriUserById(first));
-        }
-
         links.add("first", uriIdentities(null, username, 0, limit));
         links.add("prev",  uriIdentities(null, username, 0, limit));
         links.add("next",  uriIdentities(null, username, 0, limit));
