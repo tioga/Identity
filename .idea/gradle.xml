@@ -11,9 +11,9 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/tioga-identity-client" />
             <option value="$PROJECT_DIR$/tioga-identity-engine" />
             <option value="$PROJECT_DIR$/tioga-identity-kernel" />
-            <option value="$PROJECT_DIR$/tioga-identity-pub" />
           </set>
         </option>
       </GradleProjectSettings>

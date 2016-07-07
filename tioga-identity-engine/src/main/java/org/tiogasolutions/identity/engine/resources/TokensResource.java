@@ -4,7 +4,7 @@ import org.tiogasolutions.app.standard.execution.ExecutionManager;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
-import org.tiogasolutions.identity.pub.PubToken;
+import org.tiogasolutions.identity.client.domain.IdentityToken;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -30,7 +30,7 @@ public class TokensResource {
     @Path("{name}")
     public Response getToken(@PathParam("name") String name) {
         SecurityContext sc = executionManager.getContext().getSecurityContext();
-        PubToken pubToken = pubUtils.toToken(HttpStatusCode.OK, getKernel().getDomainProfile(), name);
+        IdentityToken pubToken = pubUtils.toToken(HttpStatusCode.OK, getKernel().getDomainProfile(), name);
         return pubUtils.toResponse(pubToken).build();
     }
 }

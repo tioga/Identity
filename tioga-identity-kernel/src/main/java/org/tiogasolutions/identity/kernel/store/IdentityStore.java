@@ -3,11 +3,15 @@ package org.tiogasolutions.identity.kernel.store;
 import org.tiogasolutions.identity.kernel.domain.DomainProfileEo;
 import org.tiogasolutions.identity.kernel.domain.IdentityEo;
 
+import java.util.List;
+
 public interface IdentityStore {
 
-    void addUser(IdentityEo user);
+    void addIdentity(IdentityEo identity);
 
-    IdentityEo findUserById(String userId);
+    IdentityEo findIdentityById(String identityId);
 
-    IdentityEo findUserByName(DomainProfileEo domainProfile, String username);
+    IdentityEo findIdentityByName(DomainProfileEo domainProfile, String username);
+
+    List<IdentityEo> getAllIdentities(DomainProfileEo domainProfile, int offset, int limit);
 }

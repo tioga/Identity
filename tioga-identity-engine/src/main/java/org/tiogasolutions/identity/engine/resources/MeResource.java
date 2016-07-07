@@ -3,11 +3,10 @@ package org.tiogasolutions.identity.engine.resources;
 import org.tiogasolutions.app.standard.execution.ExecutionManager;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.resources.domain.PoliciesResource;
-import org.tiogasolutions.identity.engine.resources.domain.UsersResource;
+import org.tiogasolutions.identity.engine.resources.domain.IdentitiesResource;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
-import org.tiogasolutions.identity.pub.IdentityDomain;
-import org.tiogasolutions.identity.pub.PubToken;
+import org.tiogasolutions.identity.client.domain.IdentityDomain;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -15,9 +14,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import java.util.List;
 
+import static org.tiogasolutions.identity.kernel.constants.Paths.$identities;
 import static org.tiogasolutions.identity.kernel.constants.Paths.$policies;
 import static org.tiogasolutions.identity.kernel.constants.Paths.$tokens;
-import static org.tiogasolutions.identity.kernel.constants.Paths.$users;
 
 public class MeResource {
 
@@ -46,9 +45,9 @@ public class MeResource {
         return new TokensResource(executionManager, pubUtils);
     }
 
-    @Path($users)
-    public UsersResource getUsersResource() {
-        return new UsersResource(executionManager, pubUtils);
+    @Path($identities)
+    public IdentitiesResource getIdentitiesResource() {
+        return new IdentitiesResource(executionManager, pubUtils);
     }
 
     @Path($policies)

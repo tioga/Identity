@@ -3,7 +3,7 @@ project(":tioga-identity-kernel") {
     version = identityAppVersion
 
     dependencies {
-        compile(project(":tioga-identity-pub"))
+        compile(project(":tioga-identity-client"))
 
         compile("org.tiogasolutions.lib:tioga-lib-couchace:+")
         compile("org.tiogasolutions.notify:tioga-notify-sender-couch:+")

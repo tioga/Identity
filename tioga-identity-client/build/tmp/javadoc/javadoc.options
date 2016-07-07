@@ -1,0 +1,11 @@
+-classpath 'D:\\dvlp\\tioga\\Identity\\tioga-identity-pub\\build\\classes\\main;D:\\dvlp\\tioga\\Identity\\tioga-identity-pub\\build\\resources\\main;C:\\Users\\jacob\\.gradle\\caches\\modules-2\\files-2.1\\org.tiogasolutions.dev\\tioga-dev-common\\5.2.1\\7058e245fe9ad07c916deb5e72d84b043505a534\\tioga-dev-common-5.2.1.jar;C:\\Users\\jacob\\.gradle\\caches\\modules-2\\files-2.1\\com.fasterxml.jackson.core\\jackson-annotations\\2.5.0\\a2a55a3375bc1cef830ca426d68d2ea22961190e\\jackson-annotations-2.5.0.jar;C:\\Users\\jacob\\.gradle\\caches\\modules-2\\files-2.1\\org.slf4j\\log4j-over-slf4j\\1.7.7\\d521cb26a9c4407caafcec302e7804b048b07cea\\log4j-over-slf4j-1.7.7.jar;C:\\Users\\jacob\\.gradle\\caches\\modules-2\\files-2.1\\org.slf4j\\slf4j-api\\1.7.7\\2b8019b6249bb05d81d3a3094e468753e2b21311\\slf4j-api-1.7.7.jar;C:\\Users\\jacob\\.gradle\\caches\\modules-2\\files-2.1\\org.slf4j\\jul-to-slf4j\\1.7.7\\def21bc1a6e648ee40b41a84f1db443132913105\\jul-to-slf4j-1.7.7.jar;C:\\Users\\jacob\\.gradle\\caches\\modules-2\\files-2.1\\ch.qos.logback\\logback-classic\\1.1.3\\d90276fff414f06cb375f2057f6778cd63c6082f\\logback-classic-1.1.3.jar;C:\\Users\\jacob\\.gradle\\caches\\modules-2\\files-2.1\\ch.qos.logback\\logback-core\\1.1.3\\e3c02049f2dbbc764681b40094ecf0dcbc99b157\\logback-core-1.1.3.jar'
+-d 'D:\\dvlp\\tioga\\Identity\\tioga-identity-pub\\build\\docs\\javadoc'
+-doctitle 'tioga-identity-pub 1.0.0 API'
+-quiet 
+-windowtitle 'tioga-identity-pub 1.0.0 API'
+'D:\\dvlp\\tioga\\Identity\\tioga-identity-pub\\src\\main\\java\\org\\tiogasolutions\\identity\\pub\\PubAccount.java'
+'D:\\dvlp\\tioga\\Identity\\tioga-identity-pub\\src\\main\\java\\org\\tiogasolutions\\identity\\pub\\PubAccounts.java'
+'D:\\dvlp\\tioga\\Identity\\tioga-identity-pub\\src\\main\\java\\org\\tiogasolutions\\identity\\pub\\PubEmbedded.java'
+'D:\\dvlp\\tioga\\Identity\\tioga-identity-pub\\src\\main\\java\\org\\tiogasolutions\\identity\\pub\\PubItem.java'
+'D:\\dvlp\\tioga\\Identity\\tioga-identity-pub\\src\\main\\java\\org\\tiogasolutions\\identity\\pub\\PubLink.java'
+'D:\\dvlp\\tioga\\Identity\\tioga-identity-pub\\src\\main\\java\\org\\tiogasolutions\\identity\\pub\\PubLinks.java'

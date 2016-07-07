@@ -2,10 +2,9 @@ package org.tiogasolutions.identity.kernel.domain;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import org.tiogasolutions.dev.common.BeanUtils;
 import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.dev.common.exceptions.ExceptionUtils;
-import org.tiogasolutions.identity.pub.core.DomainStatus;
+import org.tiogasolutions.identity.client.domain.DomainStatus;
 
 import java.util.*;
 

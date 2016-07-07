@@ -3,6 +3,7 @@ package org.tiogasolutions.identity.kernel.domain;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.tiogasolutions.dev.common.exceptions.ApiException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
+import static org.tiogasolutions.dev.common.EqualsUtils.objectsEqual;
 
 public class PolicyEo {
 
@@ -99,6 +101,24 @@ public class PolicyEo {
 
     public String toString() {
         return getIdPath();
+    }
+
+    public RealmEo findRealmById(String id) {
+        for (RealmEo realm : realms) {
+            if (objectsEqual(id, realm.getId())) {
+                return realm;
+            }
+        }
+        throw ApiException.notFound("The specified realm was not found.");
+    }
+
+    public RoleEo findRoleById(String id) {
+        for (RoleEo role : roles) {
+            if (objectsEqual(id, role.getId())) {
+                return role;
+            }
+        }
+        throw ApiException.notFound("The specified role was not found.");
     }
 
     public static PolicyEo createPolicy(DomainProfileEo domainProfile, String policyName) {

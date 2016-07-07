@@ -5,8 +5,8 @@ import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.store.DomainStore;
-import org.tiogasolutions.identity.pub.core.PubItem;
-import org.tiogasolutions.identity.pub.core.PubLinks;
+import org.tiogasolutions.identity.client.core.PubItem;
+import org.tiogasolutions.identity.client.core.PubLinks;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

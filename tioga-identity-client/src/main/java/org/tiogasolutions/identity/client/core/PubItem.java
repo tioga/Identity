@@ -1,0 +1,35 @@
+package org.tiogasolutions.identity.client.core;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import org.tiogasolutions.dev.common.net.HttpStatusCode;
+
+public class PubItem {
+
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private final PubStatus _status;
+
+    private final PubLinks _links;
+
+    public PubItem(PubStatus _status) {
+        this._links = new PubLinks();
+        this._status = _status;
+    }
+
+    public PubItem(PubStatus _status, PubLinks _links) {
+        this._links = _links;
+        this._status = _status;
+    }
+
+    public PubItem(HttpStatusCode statusCode, PubLinks _links) {
+        this._links = _links;
+        this._status = statusCode == null ? null : new PubStatus(statusCode);
+    }
+
+    public PubLinks get_links() {
+        return _links;
+    }
+
+    public PubStatus get_status() {
+        return _status;
+    }
+}

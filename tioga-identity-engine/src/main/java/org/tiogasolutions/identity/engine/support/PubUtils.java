@@ -2,12 +2,12 @@ package org.tiogasolutions.identity.engine.support;
 
 import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
+import org.tiogasolutions.identity.client.domain.*;
 import org.tiogasolutions.identity.kernel.domain.*;
-import org.tiogasolutions.identity.pub.*;
-import org.tiogasolutions.identity.pub.core.PubItem;
-import org.tiogasolutions.identity.pub.core.PubLink;
-import org.tiogasolutions.identity.pub.core.PubLinks;
-import org.tiogasolutions.identity.pub.core.PubStatus;
+import org.tiogasolutions.identity.client.core.PubItem;
+import org.tiogasolutions.identity.client.core.PubLink;
+import org.tiogasolutions.identity.client.core.PubLinks;
+import org.tiogasolutions.identity.client.core.PubStatus;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;
@@ -44,7 +44,7 @@ public class PubUtils {
 
 
 
-    public PubToken toToken(HttpStatusCode statusCode, DomainProfileEo domainProfile, String tokenName) {
+    public IdentityToken toToken(HttpStatusCode statusCode, DomainProfileEo domainProfile, String tokenName) {
         PubLinks links = new PubLinks();
         links.add("self", uriToken(tokenName));
 
@@ -58,15 +58,15 @@ public class PubUtils {
             links.add("admin-domains-links", uriDomains(singletonList("links"), null, null));
         }
 
-        links.add("policies",       uriPolicies(null, null, null));
-        links.add("policies-links", uriPolicies(singletonList("links"), null, null));
-        links.add("policies-items", uriPolicies(singletonList("items"), null, null));
+        links.add("policies",       uriPolicies(null));
+        links.add("policies-links", uriPolicies(singletonList("links")));
+        links.add("policies-items", uriPolicies(singletonList("items")));
 
-        links.add("users",       uriUsers(null, null, null, null));
-        links.add("users-links", uriUsers(singletonList("links"), null, null, null));
-        links.add("users-items", uriUsers(singletonList("items"), null, null, null));
+        links.add("identities",       uriIdentities(null, null, null, null));
+        links.add("identities-links", uriIdentities(singletonList("links"), null, null, null));
+        links.add("identities-items", uriIdentities(singletonList("items"), null, null, null));
 
-        return new PubToken(
+        return new IdentityToken(
                 toStatus(statusCode),
                 links,
                 tokenName,
@@ -90,13 +90,13 @@ public class PubUtils {
             links.add("admin-domains", uriDomains(null, null, null));
         }
 
-        links.add("policies",       uriPolicies(null, null, null));
-        links.add("policies-links", uriPolicies(singletonList("links"), null, null));
-        links.add("policies-items", uriPolicies(singletonList("items"), null, null));
+        links.add("policies",       uriPolicies(null));
+        links.add("policies-links", uriPolicies(singletonList("links")));
+        links.add("policies-items", uriPolicies(singletonList("items")));
 
-        links.add("users",       uriUsers(null, null, null, null));
-        links.add("users-links", uriUsers(singletonList("links"), null, null, null));
-        links.add("users-items", uriUsers(singletonList("items"), null, null, null));
+        links.add("identities",       uriIdentities(null, null, null, null));
+        links.add("identities-links", uriIdentities(singletonList("links"), null, null, null));
+        links.add("identities-items", uriIdentities(singletonList("items"), null, null, null));
 
         List<IdentityPolicy> pubPolicies = new ArrayList<>();
         for (PolicyEo policy : domainProfile.getPolicies()) {
@@ -151,13 +151,13 @@ public class PubUtils {
 
         List<IdentityRole> roles = new ArrayList<>();
         for (RoleEo role : policy.getRoles()) {
-            IdentityRole identityRole = toRole(null, role);
+            IdentityRole identityRole = toRole(role);
             roles.add(identityRole);
         }
 
         List<IdentityRealm> realms = new ArrayList<>();
         for (RealmEo realm : policy.getRealms()) {
-            IdentityRealm identityRealm = toRealm(null, realm);
+            IdentityRealm identityRealm = toRealm(realm);
             realms.add(identityRealm);
         }
 
@@ -177,51 +177,33 @@ public class PubUtils {
         );
     }
 
-    public IdentityRealm toRealm(HttpStatusCode statusCode, RealmEo realm) {
-
-        PubLinks links = new PubLinks();
-        links.add("self", uriRealmById(realm));
+    public IdentityRealm toRealm(RealmEo realm) {
 
         return new IdentityRealm(
-                toStatus(statusCode),
-                links,
                 realm.getId(),
-                realm.getRealmName(),
-                realm.getPolicy().getPolicyName());
+                realm.getRealmName());
     }
 
-    public IdentityRole toRole(HttpStatusCode statusCode, RoleEo role) {
-
-        PubLinks links = new PubLinks();
-        links.add("self", uriRoleById(role));
+    public IdentityRole toRole(RoleEo role) {
 
         Set<String> permissions = role.getPermissions().stream()
                 .map(PermissionEo::getPermissionName)
                 .collect(Collectors.toSet());
 
         return new IdentityRole(
-                toStatus(statusCode),
-                links,
-                role.getId(),
                 role.getRoleName(),
-                role.getPolicy().getPolicyName(),
                 permissions);
     }
 
-    public IdentityPolicies toPolicies(HttpStatusCode statusCode, DomainProfileEo domainProfile, List<String> includes, Object offset, Object limit) {
+    public IdentityPolicies toPolicies(HttpStatusCode statusCode, DomainProfileEo domainProfile, List<String> includes) {
         if (includes == null) includes = emptyList();
 
         PubLinks links = new PubLinks();
         List<PolicyEo> policies = domainProfile.getPolicies();
 
-        links.add("self",       uriPolicies(includes, offset, limit));
-        links.add("self-items", uriPolicies(singletonList("items"), offset, limit));
-        links.add("self-links", uriPolicies(singletonList("links"), offset, limit));
-
-        links.add("first", uriPolicies(null, 0, limit));
-        links.add("prev",  uriPolicies(null, 0, limit));
-        links.add("next",  uriPolicies(null, 0, limit));
-        links.add("last",  uriPolicies(null, 0, limit));
+        links.add("self",       uriPolicies(includes));
+        links.add("self-items", uriPolicies(singletonList("items")));
+        links.add("self-links", uriPolicies(singletonList("links")));
 
         List<IdentityPolicy> itemsList = new ArrayList<>();
         List<PubLink> linksList = new ArrayList<>();
@@ -235,9 +217,6 @@ public class PubUtils {
                 toStatus(statusCode),
                 links,
                 itemsList.size(),
-                itemsList.size(),
-                0,
-                999999999,
                 includes.contains("items") ? itemsList : null,
                 includes.contains("links") ? linksList : null);
     }
@@ -246,14 +225,26 @@ public class PubUtils {
 
 
 
-    public Identity toIdentity(HttpStatusCode statusCode, IdentityEo identity) {
+    public Identity toIdentity(HttpStatusCode statusCode, DomainProfileEo domain, IdentityEo identity) {
 
         PubLinks links = new PubLinks();
         links.add("self", uriUserById(identity));
 
-        Map<String, IdentityGrant> grants = new HashMap<>();
+        Set<IdentityGrant> grants = new HashSet<>();
+        Set<IdentityRole> roles = new HashSet<>();
 
-        Map<String, IdentityRole> roles = new HashMap<>();
+        for (AssignedRoleEo assignedRole : identity.getAssignedRoles()) {
+            PolicyEo policy = domain.findPolicyById(assignedRole.getPolicyId());
+            RealmEo realm = policy.findRealmById(assignedRole.getRealmId());
+            RoleEo role = policy.findRoleById(assignedRole.getRoleId());
+
+            List<String> permissions = role.getPermissions().stream()
+                    .map(PermissionEo::getPermissionName)
+                    .collect(Collectors.toList());
+
+            grants.add(new IdentityGrant(realm.getRealmName(), permissions));
+            roles.add(new IdentityRole(role.getRoleName(), permissions));
+        }
 
         return new Identity(
                 toStatus(statusCode),
@@ -267,39 +258,38 @@ public class PubUtils {
                 roles);
     }
 
-    public PubUsers toUsers(HttpStatusCode statusCode, List<IdentityEo> users, List<String> includes, String username, Object offset, Object limit) {
+    public Identities toIdentities(HttpStatusCode statusCode, DomainProfileEo domain, List<IdentityEo> identities, List<String> includes, String username, Object offset, Object limit) {
         if (includes == null) includes = emptyList();
 
         PubLinks links = new PubLinks();
 
-        links.add("self",       uriUsers(includes, username, offset, limit));
-        links.add("self-items", uriUsers(singletonList("items"), username, offset, limit));
-        links.add("self-links", uriUsers(singletonList("links"), username, offset, limit));
+        links.add("self",       uriIdentities(includes, username, offset, limit));
+        links.add("self-items", uriIdentities(singletonList("items"), username, offset, limit));
+        links.add("self-links", uriIdentities(singletonList("links"), username, offset, limit));
 
-        links.add("user",   uriUserById(null));
+        links.add("identity",   uriUserById(null));
         links.add("api",    uriApi());
 
-        if (users.size() > 0) {
-            IdentityEo first = users.get(0);
-            links.add("first-user", uriUserById(first));
+        if (identities.size() > 0) {
+            IdentityEo first = identities.get(0);
+            links.add("first-identity", uriUserById(first));
         }
 
-        links.add("first", uriUsers(null, username, 0, limit));
-        links.add("prev",  uriUsers(null, username, 0, limit));
-        links.add("next",  uriUsers(null, username, 0, limit));
-        links.add("last",  uriUsers(null, username, 0, limit));
+        links.add("first", uriIdentities(null, username, 0, limit));
+        links.add("prev",  uriIdentities(null, username, 0, limit));
+        links.add("next",  uriIdentities(null, username, 0, limit));
+        links.add("last",  uriIdentities(null, username, 0, limit));
 
         List<Identity> usersList = new ArrayList<>();
         List<PubLink> linksList = new ArrayList<>();
-        for (int i = 0; i < users.size(); i++) {
-            IdentityEo user = users.get(i);
-            Identity pubUser = toIdentity(null, user);
+        for (IdentityEo user : identities) {
+            Identity pubUser = toIdentity(null, domain, user);
             usersList.add(pubUser);
 
             linksList.add(pubUser.get_links().get("self").clone(pubUser.getUsername()));
         }
 
-        return new PubUsers(
+        return new Identities(
                 toStatus(statusCode),
                 links,
                 usersList.size(),
@@ -396,34 +386,29 @@ public class PubUtils {
                 .toTemplate();
     }
 
-    public String uriRealmById(RealmEo realm) {
-        return uriInfo.getBaseUriBuilder()
-                .path($api_v1)
-                .path($realms)
-                .path(realm.getId())
-                .toTemplate();
-    }
+//    public String uriRealmById(RealmEo realm) {
+//        return uriInfo.getBaseUriBuilder()
+//                .path($api_v1)
+//                .path($realms)
+//                .path(realm.getId())
+//                .toTemplate();
+//    }
 
-    public String uriRoleById(RoleEo role) {
-        return uriInfo.getBaseUriBuilder()
-                .path($api_v1)
-                .path($roles)
-                .path(role.getId())
-                .toTemplate();
-    }
+//    public String uriRoleById(RoleEo role) {
+//        return uriInfo.getBaseUriBuilder()
+//                .path($api_v1)
+//                .path($roles)
+//                .path(role.getId())
+//                .toTemplate();
+//    }
 
-    private String uriPolicies(List<String> includes, Object offsetObj, Object limitObj) {
+    private String uriPolicies(List<String> includes) {
         if (includes == null || includes.isEmpty()) includes = emptyList();
-
-        int offset = toInt(offsetObj, 0, "offset");
-        int limit = toInt(limitObj, PubUsers.DEFAULT_LIMIT, "limit");
 
         UriBuilder builder = uriInfo.getBaseUriBuilder()
                 .path($api_v1)
                 .path($me)
-                .path($policies)
-                .queryParam("offset", offset)
-                .queryParam("limit", limit);
+                .path($policies);
 
         for (String include : includes) {
             builder.queryParam("include", include);
@@ -432,17 +417,17 @@ public class PubUtils {
         return builder.toTemplate();
     }
 
-    public String uriUsers(List<String> includes, String username, Object offsetObj, Object limitObj) {
+    public String uriIdentities(List<String> includes, String username, Object offsetObj, Object limitObj) {
         if (includes == null) includes = emptyList();
 
         int offset = toInt(offsetObj, 0, "offset");
-        int limit = toInt(limitObj, PubUsers.DEFAULT_LIMIT, "limit");
+        int limit = toInt(limitObj, Identities.DEFAULT_LIMIT, "limit");
         if (username == null) username = "";
 
         UriBuilder builder = uriInfo.getBaseUriBuilder()
                 .path($api_v1)
                 .path($me)
-                .path($users)
+                .path($identities)
                 .queryParam("username", username)
                 .queryParam("offset", offset)
                 .queryParam("limit", limit);
@@ -457,12 +442,12 @@ public class PubUtils {
     public String uriUserById(IdentityEo user) {
         return uriInfo.getBaseUriBuilder()
                 .path($api_v1)
-                .path($users)
+                .path($identities)
                 .path(user == null ? "{id}" : user.getId())
                 .toTemplate();
     }
 
-    private int toInt(Object value, Object defaultValue, String paramName) {
+    public static int toInt(Object value, Object defaultValue, String paramName) {
         if (value == null && defaultValue == null) {
             throw ApiException.badRequest(String.format("The parameter %s must be specified.", paramName));
 

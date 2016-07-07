@@ -3,15 +3,15 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Identity.iml" filepath="$PROJECT_DIR$/.idea/modules/Identity.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tioga-identity-client/tioga-identity-client.iml" filepath="$PROJECT_DIR$/.idea/modules/tioga-identity-client/tioga-identity-client.iml" group="tioga-identity-client" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tioga-identity-client/tioga-identity-client_main.iml" filepath="$PROJECT_DIR$/.idea/modules/tioga-identity-client/tioga-identity-client_main.iml" group="tioga-identity-client" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tioga-identity-client/tioga-identity-client_test.iml" filepath="$PROJECT_DIR$/.idea/modules/tioga-identity-client/tioga-identity-client_test.iml" group="tioga-identity-client" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/tioga-identity-engine/tioga-identity-engine.iml" filepath="$PROJECT_DIR$/.idea/modules/tioga-identity-engine/tioga-identity-engine.iml" group="tioga-identity-engine" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/tioga-identity-engine/tioga-identity-engine_main.iml" filepath="$PROJECT_DIR$/.idea/modules/tioga-identity-engine/tioga-identity-engine_main.iml" group="tioga-identity-engine" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/tioga-identity-engine/tioga-identity-engine_test.iml" filepath="$PROJECT_DIR$/.idea/modules/tioga-identity-engine/tioga-identity-engine_test.iml" group="tioga-identity-engine" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/tioga-identity-kernel/tioga-identity-kernel.iml" filepath="$PROJECT_DIR$/.idea/modules/tioga-identity-kernel/tioga-identity-kernel.iml" group="tioga-identity-kernel" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/tioga-identity-kernel/tioga-identity-kernel_main.iml" filepath="$PROJECT_DIR$/.idea/modules/tioga-identity-kernel/tioga-identity-kernel_main.iml" group="tioga-identity-kernel" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/tioga-identity-kernel/tioga-identity-kernel_test.iml" filepath="$PROJECT_DIR$/.idea/modules/tioga-identity-kernel/tioga-identity-kernel_test.iml" group="tioga-identity-kernel" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tioga-identity-pub/tioga-identity-pub.iml" filepath="$PROJECT_DIR$/.idea/modules/tioga-identity-pub/tioga-identity-pub.iml" group="tioga-identity-pub" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tioga-identity-pub/tioga-identity-pub_main.iml" filepath="$PROJECT_DIR$/.idea/modules/tioga-identity-pub/tioga-identity-pub_main.iml" group="tioga-identity-pub" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/tioga-identity-pub/tioga-identity-pub_test.iml" filepath="$PROJECT_DIR$/.idea/modules/tioga-identity-pub/tioga-identity-pub_test.iml" group="tioga-identity-pub" />
     </modules>
   </component>
 </project>

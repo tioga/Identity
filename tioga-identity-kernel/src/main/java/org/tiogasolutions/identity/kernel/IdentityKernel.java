@@ -5,6 +5,8 @@ import org.tiogasolutions.identity.kernel.domain.IdentityEo;
 import org.tiogasolutions.identity.kernel.store.DomainStore;
 import org.tiogasolutions.identity.kernel.store.IdentityStore;
 
+import java.util.List;
+
 public class IdentityKernel {
 
     private final DomainStore domainStore;
@@ -22,11 +24,15 @@ public class IdentityKernel {
     }
 
     public IdentityEo findUserByName(String username) {
-        return identityStore.findUserByName(domainProfile, username);
+        return identityStore.findIdentityByName(domainProfile, username);
     }
 
     public IdentityEo findUserById(String userId) {
-        return identityStore.findUserById(userId);
+        return identityStore.findIdentityById(userId);
+    }
+
+    public List<IdentityEo> getAllIdentities(int offset, int limit) {
+        return identityStore.getAllIdentities(domainProfile, offset, limit);
     }
 
     public String getDomainName() {

@@ -1,22 +1,22 @@
 package org.tiogasolutions.identity.kernel.store;
 
-import org.tiogasolutions.dev.common.BeanUtils;
 import org.tiogasolutions.dev.common.EqualsUtils;
-import org.tiogasolutions.dev.common.StringUtils;
 import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.identity.kernel.domain.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
 
-import static java.util.Collections.unmodifiableList;
-import static java.util.stream.Collectors.toList;
 import static org.tiogasolutions.dev.common.EqualsUtils.objectsEqual;
 import static org.tiogasolutions.identity.kernel.domain.DomainProfileEo.INTERNAL_DOMAIN;
 
 public class InMemoryStore implements DomainStore, IdentityStore {
 
     private final List<DomainProfileEo> domainProfiles = new ArrayList<>();
-    private final List<IdentityEo> users = new ArrayList<>();
+    private final List<IdentityEo> identities = new ArrayList<>();
 
     private static final String TIME_AND_BILLING = "time-and-billing";
     private static final String SPENDING_FYI_DOMAIN = "spending-fyi";
@@ -34,7 +34,7 @@ public class InMemoryStore implements DomainStore, IdentityStore {
         // Within "Identity", the "admin" domain is used to
         // administer this application and is hard coded into the filter.
         DomainProfileEo domain = DomainProfileEo.create(INTERNAL_DOMAIN);
-        PolicyEo policy = domain.addPolicy("default");
+        PolicyEo policy = domain.addPolicy("default-policy");
 
         RoleEo ownerRole = policy.addRole("owner");
         RoleEo apiRole = policy.addRole("api");
@@ -48,8 +48,8 @@ public class InMemoryStore implements DomainStore, IdentityStore {
         addUser(domain, "time-and-billing-client", "password-123").assign(realm, apiRole);
 
         realm = policy.addRealm(PHOTO_LAB_DOMAIN);
-        findUserByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
-        findUserByName(domain, "harlan.work@gmail.com").assign(realm, ownerRole);
+        findIdentityByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        findIdentityByName(domain, "harlan.work@gmail.com").assign(realm, ownerRole);
         addUser(domain, "photo-lab-client", "password-123").assign(realm, apiRole);
 
         this.domainProfiles.add(domain);
@@ -62,7 +62,7 @@ public class InMemoryStore implements DomainStore, IdentityStore {
         domain.setAccessToken("spending-client", "9876543210");
         domain.setAccessToken("me@jacobparr.com", "9876543210");
 
-        PolicyEo policy = domain.addPolicy("default");
+        PolicyEo policy = domain.addPolicy("default-policy");
 
         RoleEo adminRole = policy.addRole("admin");
         RoleEo ownerRole = policy.addRole("owner");
@@ -75,48 +75,48 @@ public class InMemoryStore implements DomainStore, IdentityStore {
 
 
         // These are Jacob & Angela's checking & savings accounts
-        RealmEo realm = RealmEo.createRealm(policy, "xxxx-2162");
-        findUserByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        RealmEo realm = policy.addRealm("xxxx-2162");
+        findIdentityByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
         addUser(domain, "angieparr@gmail.com", "password-123").assign(realm, ownerRole);
 
-        realm = RealmEo.createRealm(policy, "xxxx-0510");
-        findUserByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
-        findUserByName(domain, "angieparr@gmail.com").assign(realm, ownerRole);
+        realm = policy.addRealm("xxxx-0510");
+        findIdentityByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        findIdentityByName(domain, "angieparr@gmail.com").assign(realm, ownerRole);
 
-        realm = RealmEo.createRealm(policy, "xxxx-3100");
-        findUserByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
-        findUserByName(domain, "angieparr@gmail.com").assign(realm, ownerRole);
+        realm = policy.addRealm("xxxx-3100");
+        findIdentityByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        findIdentityByName(domain, "angieparr@gmail.com").assign(realm, ownerRole);
 
-        realm = RealmEo.createRealm(policy, "xxxx-1196");
-        findUserByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
-        findUserByName(domain, "angieparr@gmail.com").assign(realm, ownerRole);
+        realm = policy.addRealm("xxxx-1196");
+        findIdentityByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        findIdentityByName(domain, "angieparr@gmail.com").assign(realm, ownerRole);
 
-        realm = RealmEo.createRealm(policy, "xxxx-3730");
-        findUserByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
-        findUserByName(domain, "angieparr@gmail.com").assign(realm, ownerRole);
+        realm = policy.addRealm("xxxx-3730");
+        findIdentityByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        findIdentityByName(domain, "angieparr@gmail.com").assign(realm, ownerRole);
 
 
         // This is Brittany's checking account
-        realm = RealmEo.createRealm(policy, "xxxx-9186");
+        realm = policy.addRealm("xxxx-9186");
         addUser(domain, "tigerspanda1994@gmail.com", "password-123").assign(realm, ownerRole);
-        findUserByName(domain, "angieparr@gmail.com").assign(realm, guestRole);
+        findIdentityByName(domain, "angieparr@gmail.com").assign(realm, guestRole);
 
 
         // This is Jesse's checking account
         addUser(domain, "jedijes@gmail.com", "password-123").assign(realm, ownerRole);
-        findUserByName(domain, "me@jacobparr.com").assign(realm, guestRole);
+        findIdentityByName(domain, "me@jacobparr.com").assign(realm, guestRole);
 
         this.domainProfiles.add(domain);
     }
 
     private void createTimeAndBilling() {
-        DomainProfileEo domain = DomainProfileEo.create(SPENDING_FYI_DOMAIN);
+        DomainProfileEo domain = DomainProfileEo.create(TIME_AND_BILLING);
         // Hack the access tokens for testability
         domain.setAccessToken("harlan.work@gmail.com", "9876543210");
         domain.setAccessToken("time-and-billing-client", "9876543210");
 
-        PolicyEo policy = domain.addPolicy("default");
-        RealmEo realm = policy.addRealm("default");
+        PolicyEo policy = domain.addPolicy("default-policy");
+        RealmEo realm = policy.addRealm("default-realm");
         RoleEo role = policy.addRole("user");
 
         addUser(domain, "harlan.work@gmail.com", "password-123").assign(realm, role);
@@ -124,7 +124,7 @@ public class InMemoryStore implements DomainStore, IdentityStore {
 
     private IdentityEo addUser(DomainProfileEo domainProfile, String username, String password) {
         IdentityEo user = IdentityEo.create(domainProfile, username, password);
-        users.add(user);
+        identities.add(user);
         return user;
     }
 
@@ -145,7 +145,6 @@ public class InMemoryStore implements DomainStore, IdentityStore {
         IdentityEo joe = addUser(domain, "joseph2jsh@gmail.com", "password-123");
         IdentityEo hannah = addUser(domain, "hn.noon@gmail.com", "password-123");
 
-        // Photo Lab is not multi-tenant, so we addRealm the one "default" realm.
         PolicyEo tenayaPolicy = domain.addPolicy("tenaya");
         PolicyEo glacierPolicy = domain.addPolicy("glacier");
         PolicyEo basecampPolicy = domain.addPolicy("basecamp");
@@ -212,39 +211,41 @@ public class InMemoryStore implements DomainStore, IdentityStore {
     }
 
     @Override
-    public void addUser(IdentityEo user) {
-        users.add(user);
-    }
-
-    public List<IdentityEo> getUsers(String username) {
-        if (StringUtils.isBlank(username)) {
-            return unmodifiableList(users);
-
-        } else {
-            List<IdentityEo> usersList = users.stream().filter(user -> objectsEqual(username, user.getUsername())).collect(toList());
-            return unmodifiableList(usersList);
-        }
+    public void addIdentity(IdentityEo identity) {
+        identities.add(identity);
     }
 
     @Override
-    public IdentityEo findUserByName(DomainProfileEo domainProfile, String username) {
+    public IdentityEo findIdentityByName(DomainProfileEo domainProfile, String username) {
         String domainName = domainProfile.getDomainName();
-        for (IdentityEo user : users) {
-            if (objectsEqual(domainName, user.getDomainName()) &&
-                objectsEqual(username, user.getUsername())) {
+        for (IdentityEo identity : identities) {
+            if (objectsEqual(domainName, identity.getDomainName()) &&
+                objectsEqual(username, identity.getUsername())) {
 
-                return user;
+                return identity;
             }
         }
         throw ApiException.notFound("The specified user was not found.");
     }
 
-    public IdentityEo findUserById(String id) {
-        for (IdentityEo user : users) {
-            if (objectsEqual(id, user.getId())) {
-                return user;
+    public IdentityEo findIdentityById(String id) {
+        for (IdentityEo identity : identities) {
+            if (objectsEqual(id, identity.getId())) {
+                return identity;
             }
         }
         throw ApiException.notFound("The specified user was not found.");
+    }
+
+    @Override
+    public List<IdentityEo> getAllIdentities(DomainProfileEo domainProfile, int offset, int limit) {
+        List<IdentityEo> list = new ArrayList<>();
+
+        String domainName = domainProfile.getDomainName();
+        list.addAll(identities.stream()
+                .filter(identity -> objectsEqual(domainName, identity.getDomainName()))
+                .collect(Collectors.toList()));
+
+        return list;
     }
 }

@@ -6,8 +6,8 @@ import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.domain.PolicyEo;
-import org.tiogasolutions.identity.pub.IdentityPolicies;
-import org.tiogasolutions.identity.pub.IdentityPolicy;
+import org.tiogasolutions.identity.client.domain.IdentityPolicies;
+import org.tiogasolutions.identity.client.domain.IdentityPolicy;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -31,11 +31,9 @@ public class PoliciesResource {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getUsers(@QueryParam("username") String username,
-                             @QueryParam("offset") String offset,
-                             @QueryParam("limit") String limit,
                              @QueryParam("include") List<String> includes) {
 
-        IdentityPolicies pubPolicies = pubUtils.toPolicies(HttpStatusCode.OK, getKernel().getDomainProfile(), includes, offset, limit);
+        IdentityPolicies pubPolicies = pubUtils.toPolicies(HttpStatusCode.OK, getKernel().getDomainProfile(), includes);
         return pubUtils.toResponse(pubPolicies).build();
     }
 

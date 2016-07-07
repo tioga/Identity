@@ -7,9 +7,9 @@ import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.domain.DomainProfileEo;
 import org.tiogasolutions.identity.kernel.store.DomainStore;
-import org.tiogasolutions.identity.pub.IdentityDomain;
-import org.tiogasolutions.identity.pub.IdentityDomains;
-import org.tiogasolutions.identity.pub.PubToken;
+import org.tiogasolutions.identity.client.domain.IdentityDomain;
+import org.tiogasolutions.identity.client.domain.IdentityDomains;
+import org.tiogasolutions.identity.client.domain.IdentityToken;
 
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.*;
@@ -71,7 +71,7 @@ public class DomainsResource {
         domainProfile.generateAccessToken(tokenName);
         domainStore.update(domainProfile);
 
-        PubToken pubToken = pubUtils.toToken(HttpStatusCode.CREATED, domainProfile, tokenName);
+        IdentityToken pubToken = pubUtils.toToken(HttpStatusCode.CREATED, domainProfile, tokenName);
         return pubUtils.toResponse(pubToken).build();
     }
 }

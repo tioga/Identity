@@ -3,11 +3,13 @@ package org.tiogasolutions.identity.engine.resources;
 import org.tiogasolutions.app.standard.execution.ExecutionManager;
 import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
+import org.tiogasolutions.identity.client.core.PubItem;
+import org.tiogasolutions.identity.client.core.PubLinks;
+import org.tiogasolutions.identity.client.domain.AuthenticationRequest;
+import org.tiogasolutions.identity.client.domain.IdentityToken;
 import org.tiogasolutions.identity.engine.resources.admin.AdminResource;
-import org.tiogasolutions.identity.engine.resources.domain.RealmsResource;
-import org.tiogasolutions.identity.engine.resources.domain.RolesResource;
 import org.tiogasolutions.identity.engine.resources.domain.PoliciesResource;
-import org.tiogasolutions.identity.engine.resources.domain.UsersResource;
+import org.tiogasolutions.identity.engine.resources.domain.IdentitiesResource;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.domain.DomainProfileEo;
@@ -15,11 +17,11 @@ import org.tiogasolutions.identity.kernel.domain.IdentityEo;
 import org.tiogasolutions.identity.kernel.domain.RealmEo;
 import org.tiogasolutions.identity.kernel.store.DomainStore;
 import org.tiogasolutions.identity.kernel.store.IdentityStore;
-import org.tiogasolutions.identity.pub.PubToken;
-import org.tiogasolutions.identity.pub.core.PubItem;
-import org.tiogasolutions.identity.pub.core.PubLinks;
 
-import javax.ws.rs.*;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -58,20 +60,18 @@ public class ApiResource {
     @POST
     @Path($authenticate)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCreateToken(@FormParam("realm") String realmName,
-                                   @FormParam("username") String username,
-                                   @FormParam("password") String password) {
+    public Response getCreateToken(AuthenticationRequest request) {
 
         // We use our internal domain to authenticate you.
         DomainProfileEo internalDomain = domainStore.findByName(DomainProfileEo.INTERNAL_DOMAIN);
 
         // Now let's see if this user exists within our domain.
-        IdentityEo identity = identityStore.findUserByName(internalDomain, username);
-        if (identity == null || objectsNotEqual(password, identity.getPassword())) {
+        IdentityEo identity = identityStore.findIdentityByName(internalDomain, request.getUsername());
+        if (identity == null || objectsNotEqual(request.getPassword(), identity.getPassword())) {
             throw ApiException.unauthorized("Invalid username or password.");
         }
 
-        RealmEo realmEo = internalDomain.findRealmByName(realmName);
+        RealmEo realmEo = internalDomain.findRealmByName(request.getDomain());
         if (realmEo == null) {
             // You don't have access because it doesn't exist.
             throw ApiException.forbidden("Access to this realm is forbidden.");
@@ -83,12 +83,12 @@ public class ApiResource {
 
         // The realm name that the user logged into is the domain
         // name that we are actually updating the api key for.
-        DomainProfileEo domain = domainStore.findByName(realmName);
-        String tokenName = username;
+        DomainProfileEo domain = domainStore.findByName(request.getDomain());
+        String tokenName = request.getUsername();
         domain.generateAccessToken(tokenName);
         domainStore.update(domain);
 
-        PubToken pubToken = pubUtils.toToken(HttpStatusCode.CREATED, domain, tokenName);
+        IdentityToken pubToken = pubUtils.toToken(HttpStatusCode.CREATED, domain, tokenName);
         return pubUtils.toResponse(pubToken).build();
     }
 
@@ -102,24 +102,14 @@ public class ApiResource {
         return new MeResource(executionManager, pubUtils);
     }
 
-    @Path($users)
-    public UsersResource getUsersResource() {
-        return new UsersResource(executionManager, pubUtils);
+    @Path($identities)
+    public IdentitiesResource getUsersResource() {
+        return new IdentitiesResource(executionManager, pubUtils);
     }
 
     @Path($policies)
     public PoliciesResource getPoliciesResource() {
         return new PoliciesResource(executionManager, pubUtils);
-    }
-
-    @Path($realms)
-    public RealmsResource getRealmsResource() {
-        return new RealmsResource(executionManager, pubUtils);
-    }
-
-    @Path($roles)
-    public RolesResource getRolesResource() {
-        return new RolesResource(executionManager, pubUtils);
     }
 }
 

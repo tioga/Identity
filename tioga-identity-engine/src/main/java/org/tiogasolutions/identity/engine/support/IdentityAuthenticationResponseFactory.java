@@ -2,8 +2,8 @@ package org.tiogasolutions.identity.engine.support;
 
 import org.tiogasolutions.app.standard.jaxrs.auth.StandardAuthenticationResponseFactory;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
-import org.tiogasolutions.identity.pub.core.PubItem;
-import org.tiogasolutions.identity.pub.core.PubStatus;
+import org.tiogasolutions.identity.client.core.PubItem;
+import org.tiogasolutions.identity.client.core.PubStatus;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.Response;

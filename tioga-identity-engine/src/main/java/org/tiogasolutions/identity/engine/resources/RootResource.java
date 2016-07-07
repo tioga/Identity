@@ -16,8 +16,8 @@ import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.store.DomainStore;
 import org.tiogasolutions.identity.kernel.store.IdentityStore;
-import org.tiogasolutions.identity.pub.core.PubLinks;
-import org.tiogasolutions.identity.pub.IdentityInfo;
+import org.tiogasolutions.identity.client.core.PubLinks;
+import org.tiogasolutions.identity.client.domain.IdentityInfo;
 
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
