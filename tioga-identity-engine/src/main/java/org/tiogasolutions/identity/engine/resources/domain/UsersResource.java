@@ -5,8 +5,8 @@ import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
-import org.tiogasolutions.identity.kernel.domain.UserEo;
-import org.tiogasolutions.identity.pub.PubUser;
+import org.tiogasolutions.identity.kernel.domain.IdentityEo;
+import org.tiogasolutions.identity.pub.Identity;
 import org.tiogasolutions.identity.pub.PubUsers;
 
 import javax.ws.rs.*;
@@ -36,7 +36,7 @@ public class UsersResource {
                              @QueryParam("limit") String limit,
                              @QueryParam("include") List<String> includes) {
 
-        ArrayList<UserEo> users = new ArrayList<>();
+        ArrayList<IdentityEo> users = new ArrayList<>();
         users.add(getKernel().findUserByName(username));
 
         PubUsers pubUsers = pubUtils.toUsers(HttpStatusCode.OK, users, includes, username, offset, limit);
@@ -44,14 +44,14 @@ public class UsersResource {
     }
 
     @GET
-    @Path("{userId}")
+    @Path("{identityId}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getUser(@PathParam("userId") String userId) {
-        UserEo user = getKernel().findUserById(userId);
+    public Response getIdentity(@PathParam("identityId") String userId) {
+        IdentityEo user = getKernel().findUserById(userId);
         if (user == null) {
             throw ApiException.notFound("The specified user was not found.");
         }
-        PubUser pubUser = pubUtils.toUser(HttpStatusCode.OK, user);
+        Identity pubUser = pubUtils.toIdentity(HttpStatusCode.OK, user);
         return pubUtils.toResponse(pubUser).build();
     }
 }

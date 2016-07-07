@@ -6,8 +6,8 @@ import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.domain.PolicyEo;
-import org.tiogasolutions.identity.pub.PubPolicies;
-import org.tiogasolutions.identity.pub.PubPolicy;
+import org.tiogasolutions.identity.pub.IdentityPolicies;
+import org.tiogasolutions.identity.pub.IdentityPolicy;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -35,7 +35,7 @@ public class PoliciesResource {
                              @QueryParam("limit") String limit,
                              @QueryParam("include") List<String> includes) {
 
-        PubPolicies pubPolicies = pubUtils.toPolicies(HttpStatusCode.OK, getKernel().getDomainProfile(), includes, offset, limit);
+        IdentityPolicies pubPolicies = pubUtils.toPolicies(HttpStatusCode.OK, getKernel().getDomainProfile(), includes, offset, limit);
         return pubUtils.toResponse(pubPolicies).build();
     }
 
@@ -47,7 +47,7 @@ public class PoliciesResource {
         if (policy == null) {
             throw ApiException.notFound("The specified policy was not found.");
         }
-        PubPolicy pubPolicy = pubUtils.toPolicy(HttpStatusCode.OK, policy);
-        return pubUtils.toResponse(pubPolicy).build();
+        IdentityPolicy identityPolicy = pubUtils.toPolicy(HttpStatusCode.OK, policy);
+        return pubUtils.toResponse(identityPolicy).build();
     }
 }

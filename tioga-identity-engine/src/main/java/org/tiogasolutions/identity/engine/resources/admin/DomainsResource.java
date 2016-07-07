@@ -7,8 +7,8 @@ import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.domain.DomainProfileEo;
 import org.tiogasolutions.identity.kernel.store.DomainStore;
-import org.tiogasolutions.identity.pub.PubDomain;
-import org.tiogasolutions.identity.pub.PubDomains;
+import org.tiogasolutions.identity.pub.IdentityDomain;
+import org.tiogasolutions.identity.pub.IdentityDomains;
 import org.tiogasolutions.identity.pub.PubToken;
 
 import javax.annotation.security.RolesAllowed;
@@ -41,7 +41,7 @@ public class DomainsResource {
                                @QueryParam("include") List<String> includes) {
         List<DomainProfileEo> domains = domainStore.getAll();
         SecurityContext sc = executionManager.getContext().getSecurityContext();
-        PubDomains pubDomains = pubUtils.toDomains(HttpStatusCode.OK, domains, includes, offset, limit);
+        IdentityDomains pubDomains = pubUtils.toDomains(HttpStatusCode.OK, domains, includes, offset, limit);
         return pubUtils.toResponse(pubDomains).build();
     }
 
@@ -51,8 +51,8 @@ public class DomainsResource {
     public Response getDomain(@PathParam("name") String name) {
         DomainProfileEo domainEo = domainStore.findByName(name);
         SecurityContext sc = executionManager.getContext().getSecurityContext();
-        PubDomain pubDomain = pubUtils.toDomainProfile(sc, HttpStatusCode.OK, domainEo);
-        return pubUtils.toResponse(pubDomain).build();
+        IdentityDomain identityDomain = pubUtils.toDomainProfile(sc, HttpStatusCode.OK, domainEo);
+        return pubUtils.toResponse(identityDomain).build();
     }
 
     @POST
@@ -66,10 +66,12 @@ public class DomainsResource {
             throw ApiException.notFound(msg);
         }
 
-        domainProfile.generateAccessToken(PubToken.ADMIN);
+        String tokenName = "tioga-solutions-admin";
+
+        domainProfile.generateAccessToken(tokenName);
         domainStore.update(domainProfile);
 
-        PubToken pubToken = pubUtils.toToken(HttpStatusCode.CREATED, domainProfile, PubToken.ADMIN);
+        PubToken pubToken = pubUtils.toToken(HttpStatusCode.CREATED, domainProfile, tokenName);
         return pubUtils.toResponse(pubToken).build();
     }
 }

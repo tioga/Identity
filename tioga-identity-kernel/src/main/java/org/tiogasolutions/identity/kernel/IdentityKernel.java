@@ -1,21 +1,19 @@
 package org.tiogasolutions.identity.kernel;
 
 import org.tiogasolutions.identity.kernel.domain.DomainProfileEo;
-import org.tiogasolutions.identity.kernel.domain.UserEo;
+import org.tiogasolutions.identity.kernel.domain.IdentityEo;
 import org.tiogasolutions.identity.kernel.store.DomainStore;
-import org.tiogasolutions.identity.kernel.store.UserStore;
-
-import java.util.List;
+import org.tiogasolutions.identity.kernel.store.IdentityStore;
 
 public class IdentityKernel {
 
     private final DomainStore domainStore;
-    private final UserStore userStore;
+    private final IdentityStore identityStore;
     private final DomainProfileEo domainProfile;
 
-    public IdentityKernel(DomainStore domainStore, UserStore userStore, DomainProfileEo domainProfile) {
+    public IdentityKernel(DomainStore domainStore, IdentityStore identityStore, DomainProfileEo domainProfile) {
         this.domainProfile = domainProfile;
-        this.userStore = userStore;
+        this.identityStore = identityStore;
         this.domainStore = domainStore;
     }
 
@@ -23,12 +21,12 @@ public class IdentityKernel {
         return domainProfile;
     }
 
-    public UserEo findUserByName(String username) {
-        return userStore.findUserByName(username);
+    public IdentityEo findUserByName(String username) {
+        return identityStore.findUserByName(domainProfile, username);
     }
 
-    public UserEo findUserById(String userId) {
-        return userStore.findUserById(userId);
+    public IdentityEo findUserById(String userId) {
+        return identityStore.findUserById(userId);
     }
 
     public String getDomainName() {

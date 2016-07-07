@@ -6,7 +6,7 @@ import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.domain.RoleEo;
-import org.tiogasolutions.identity.pub.PubRole;
+import org.tiogasolutions.identity.pub.IdentityRole;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -38,7 +38,7 @@ public class RolesResource {
             throw ApiException.notFound("The specified role was not found.");
         }
 
-        PubRole pubRole = pubUtils.toRole(HttpStatusCode.OK, role);
-        return pubUtils.toResponse(pubRole).build();
+        IdentityRole identityRole = pubUtils.toRole(HttpStatusCode.OK, role);
+        return pubUtils.toResponse(identityRole).build();
     }
 }

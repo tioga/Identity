@@ -7,29 +7,32 @@ import org.tiogasolutions.identity.pub.core.PubLinks;
 import org.tiogasolutions.identity.pub.core.PubStatus;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static java.util.Collections.unmodifiableList;
+import static java.util.Collections.unmodifiableSet;
 
-public class PubPolicy extends PubItem {
+public class IdentityPolicy extends PubItem {
 
     private final String id;
     private final String policyName;
     private final String domainName;
 
-    private final List<PubRole> roles = new ArrayList<>();
-    private final List<PubRealm> realms = new ArrayList<>();
-    private final List<PubPermission> permissions = new ArrayList<>();
+    private final List<IdentityRealm> realms = new ArrayList<>();
+    private final Set<String> permissions = new HashSet<>();
+    private final List<IdentityRole> roles = new ArrayList<>();
 
     @JsonCreator
-    public PubPolicy(@JsonProperty("_status") PubStatus _status,
-                     @JsonProperty("_links") PubLinks _links,
-                     @JsonProperty("id") String id,
-                     @JsonProperty("policyName") String policyName,
-                     @JsonProperty("domainName") String domainName,
-                     @JsonProperty("roles") List<PubRole> roles,
-                     @JsonProperty("realms") List<PubRealm> realms,
-                     @JsonProperty("permissions") List<PubPermission> permissions) {
+    public IdentityPolicy(@JsonProperty("_status") PubStatus _status,
+                          @JsonProperty("_links") PubLinks _links,
+                          @JsonProperty("id") String id,
+                          @JsonProperty("policyName") String policyName,
+                          @JsonProperty("domainName") String domainName,
+                          @JsonProperty("roles") List<IdentityRole> roles,
+                          @JsonProperty("realms") List<IdentityRealm> realms,
+                          @JsonProperty("permissions") Set<String> permissions) {
 
         super(_status, _links);
 
@@ -54,15 +57,15 @@ public class PubPolicy extends PubItem {
         return domainName;
     }
 
-    public List<PubRole> getRoles() {
+    public List<IdentityRole> getRoles() {
         return unmodifiableList(roles);
     }
 
-    public List<PubRealm> getRealms() {
+    public List<IdentityRealm> getRealms() {
         return unmodifiableList(realms);
     }
 
-    public List<PubPermission> getPermissions() {
-        return unmodifiableList(permissions);
+    public Set<String> getPermissions() {
+        return unmodifiableSet(permissions);
     }
 }

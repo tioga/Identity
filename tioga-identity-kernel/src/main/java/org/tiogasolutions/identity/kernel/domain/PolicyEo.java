@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
@@ -78,6 +79,12 @@ public class PolicyEo {
 
     public List<PermissionEo> getPermissions() {
         return unmodifiableList(permissions);
+    }
+
+    public List<PermissionEo> getPermissions(List<String> permissionIds) {
+        return unmodifiableList(permissions.stream()
+                .filter(p -> permissionIds.contains(p.getId()))
+                .collect(Collectors.toList()));
     }
 
     public PermissionEo addPermission(String permissionName) {

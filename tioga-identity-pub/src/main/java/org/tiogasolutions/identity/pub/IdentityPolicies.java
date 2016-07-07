@@ -12,7 +12,7 @@ import java.util.List;
 
 import static java.util.Collections.unmodifiableList;
 
-public class PubDomains extends PubItem {
+public class IdentityPolicies extends PubItem {
 
     public static final String DEFAULT_LIMIT = "10";
 
@@ -22,15 +22,19 @@ public class PubDomains extends PubItem {
     private final int limit;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private final List<IdentityPolicy> items = new ArrayList<>();
+
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final List<PubLink> links = new ArrayList<>();
 
-    public PubDomains(@JsonProperty("_status") PubStatus _status,
-                      @JsonProperty("_links") PubLinks _links,
-                      @JsonProperty("included") int included,
-                      @JsonProperty("total") int total,
-                      @JsonProperty("offset") int offset,
-                      @JsonProperty("limit") int limit,
-                      @JsonProperty("links") List<PubLink> links) {
+    public IdentityPolicies(@JsonProperty("_status") PubStatus _status,
+                            @JsonProperty("_links") PubLinks _links,
+                            @JsonProperty("included") int included,
+                            @JsonProperty("total") int total,
+                            @JsonProperty("offset") int offset,
+                            @JsonProperty("limit") int limit,
+                            @JsonProperty("items") List<IdentityPolicy> items,
+                            @JsonProperty("links") List<PubLink> links) {
 
         super(_status, _links);
 
@@ -39,6 +43,7 @@ public class PubDomains extends PubItem {
         this.offset = offset;
         this.limit = limit;
 
+        if (items != null) this.items.addAll(items);
         if (links != null) this.links.addAll(links);
     }
 
@@ -48,6 +53,10 @@ public class PubDomains extends PubItem {
 
     public int getLimit() {
         return limit;
+    }
+
+    public List<IdentityPolicy> getItems() {
+        return unmodifiableList(items);
     }
 
     public List<PubLink> getLinks() {

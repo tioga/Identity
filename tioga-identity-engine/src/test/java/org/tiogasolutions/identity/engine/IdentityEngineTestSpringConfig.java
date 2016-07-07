@@ -19,7 +19,7 @@ import org.tiogasolutions.identity.kernel.CouchServersConfig;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.store.DomainStore;
 import org.tiogasolutions.identity.kernel.store.InMemoryStore;
-import org.tiogasolutions.identity.kernel.store.UserStore;
+import org.tiogasolutions.identity.kernel.store.IdentityStore;
 import org.tiogasolutions.lib.couchace.DefaultCouchServer;
 import org.tiogasolutions.notify.notifier.Notifier;
 import org.tiogasolutions.notify.notifier.send.LoggingNotificationSender;
@@ -66,7 +66,7 @@ public class IdentityEngineTestSpringConfig {
     }
 
     @Bean
-    public UserStore userStore(InMemoryStore store) {
+    public IdentityStore userStore(InMemoryStore store) {
         return store;
     }
 

@@ -19,10 +19,9 @@ public class DomainProfileEo {
     private String domainName;
     private String revision;
     private DomainStatus status;
-    private String password;
     private String dbName;
 
-    private Map<String,String> authorizationTokens = new HashMap<>();
+    private final Map<String,String> authorizationTokens = new HashMap<>();
 
     @JsonBackReference
     private final List<PolicyEo> policies = new ArrayList<>();
@@ -31,22 +30,16 @@ public class DomainProfileEo {
                            @JsonProperty("revision") String revision,
                            @JsonProperty("status") DomainStatus status,
                            @JsonProperty("authorizationTokens") Map<String,String> authorizationTokens,
-                           @JsonProperty("password") String password,
                            @JsonProperty("dbName") String dbName,
                            @JsonProperty("policies") List<PolicyEo> policies) {
 
         this.domainName = ExceptionUtils.assertNotZeroLength(domainName, "name").toLowerCase();
         this.revision = revision;
         this.status = status;
-        this.authorizationTokens = authorizationTokens;
-        this.password = password;
         this.dbName = dbName;
 
+        if (authorizationTokens != null) this.authorizationTokens.putAll(authorizationTokens);
         if (policies != null) this.policies.addAll(policies);
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public final String getRevision() {
@@ -77,6 +70,10 @@ public class DomainProfileEo {
         this.authorizationTokens.put(name, UUID.randomUUID().toString());
     }
 
+    public void setAccessToken(String name, String token) {
+        this.authorizationTokens.put(name, token);
+    }
+
     public PolicyEo findPolicyById(String id) {
         for (PolicyEo policy : policies) {
             if (objectsEqual(id, policy.getId())) {
@@ -84,6 +81,17 @@ public class DomainProfileEo {
             }
         }
         throw ApiException.notFound("The specified policy was not found.");
+    }
+
+    public RealmEo findRealmByName(String realmName) {
+        for (PolicyEo policy : policies) {
+            for (RealmEo realm : policy.getRealms()) {
+                if (objectsEqual(realmName, realm.getRealmName())) {
+                    return realm;
+                }
+            }
+        }
+        throw ApiException.notFound("The specified realm was not found.");
     }
 
     public RealmEo findRealmById(String id) {
@@ -125,14 +133,13 @@ public class DomainProfileEo {
         return policy;
     }
 
-    public static DomainProfileEo create(String name, String password) {
+    public static DomainProfileEo create(String domainName) {
         return new DomainProfileEo(
-                name,
+                domainName,
                 "0",
                 DomainStatus.ACTIVE,
-                BeanUtils.toMap("default:"+UUID.randomUUID().toString()),
-                password,
-                "identity-"+name,
+                Collections.emptyMap(),
+                "identity-"+domainName,
                 emptyList());
     }
 

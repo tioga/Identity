@@ -11,7 +11,10 @@ import org.tiogasolutions.identity.engine.resources.domain.UsersResource;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.domain.DomainProfileEo;
+import org.tiogasolutions.identity.kernel.domain.IdentityEo;
+import org.tiogasolutions.identity.kernel.domain.RealmEo;
 import org.tiogasolutions.identity.kernel.store.DomainStore;
+import org.tiogasolutions.identity.kernel.store.IdentityStore;
 import org.tiogasolutions.identity.pub.PubToken;
 import org.tiogasolutions.identity.pub.core.PubItem;
 import org.tiogasolutions.identity.pub.core.PubLinks;
@@ -25,12 +28,14 @@ import static org.tiogasolutions.identity.kernel.constants.Paths.*;
 
 public class ApiResource {
 
+    private final IdentityStore identityStore;
     private final DomainStore domainStore;
     private final PubUtils pubUtils;
     private final ExecutionManager<IdentityKernel> executionManager;
 
-    public ApiResource(ExecutionManager<IdentityKernel> executionManager, PubUtils pubUtils, DomainStore domainStore) {
+    public ApiResource(ExecutionManager<IdentityKernel> executionManager, PubUtils pubUtils, DomainStore domainStore, IdentityStore identityStore) {
         this.pubUtils = pubUtils;
+        this.identityStore = identityStore;
         this.domainStore = domainStore;
         this.executionManager = executionManager;
     }
@@ -43,7 +48,7 @@ public class ApiResource {
         links.add("self", pubUtils.uriApi());
         links.add("status", pubUtils.uriRoot());
         links.add("authenticate", pubUtils.uriAuthenticate());
-        links.add("client", pubUtils.uriClient());
+        links.add("me", pubUtils.uriMe());
         links.add("admin", pubUtils.uriAdmin());
 
         PubItem pubItem = new PubItem(HttpStatusCode.OK, links);
@@ -53,18 +58,37 @@ public class ApiResource {
     @POST
     @Path($authenticate)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getCreateToken(@FormParam("username") String domainName,
+    public Response getCreateToken(@FormParam("realm") String realmName,
+                                   @FormParam("username") String username,
                                    @FormParam("password") String password) {
 
-        DomainProfileEo domainProfile = domainStore.findByName(domainName);
-        if (domainProfile == null || objectsNotEqual(password, domainProfile.getPassword())) {
+        // We use our internal domain to authenticate you.
+        DomainProfileEo internalDomain = domainStore.findByName(DomainProfileEo.INTERNAL_DOMAIN);
+
+        // Now let's see if this user exists within our domain.
+        IdentityEo identity = identityStore.findUserByName(internalDomain, username);
+        if (identity == null || objectsNotEqual(password, identity.getPassword())) {
             throw ApiException.unauthorized("Invalid username or password.");
         }
 
-        domainProfile.generateAccessToken(PubToken.DEFAULT);
-        domainStore.update(domainProfile);
+        RealmEo realmEo = internalDomain.findRealmByName(realmName);
+        if (realmEo == null) {
+            // You don't have access because it doesn't exist.
+            throw ApiException.forbidden("Access to this realm is forbidden.");
+        }
 
-        PubToken pubToken = pubUtils.toToken(HttpStatusCode.CREATED, domainProfile, PubToken.DEFAULT);
+        if (identity.permits(realmEo) == false) {
+            throw ApiException.forbidden("Access to this realm is forbidden.");
+        }
+
+        // The realm name that the user logged into is the domain
+        // name that we are actually updating the api key for.
+        DomainProfileEo domain = domainStore.findByName(realmName);
+        String tokenName = username;
+        domain.generateAccessToken(tokenName);
+        domainStore.update(domain);
+
+        PubToken pubToken = pubUtils.toToken(HttpStatusCode.CREATED, domain, tokenName);
         return pubUtils.toResponse(pubToken).build();
     }
 
@@ -73,9 +97,9 @@ public class ApiResource {
         return new AdminResource(executionManager, pubUtils, domainStore);
     }
 
-    @Path($client)
-    public ClientResource getClientResource() {
-        return new ClientResource(executionManager, pubUtils);
+    @Path($me)
+    public MeResource getMeResource() {
+        return new MeResource(executionManager, pubUtils);
     }
 
     @Path($users)

@@ -6,7 +6,7 @@ import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.domain.RealmEo;
-import org.tiogasolutions.identity.pub.PubRealm;
+import org.tiogasolutions.identity.pub.IdentityRealm;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
@@ -35,7 +35,7 @@ public class RealmsResource {
             throw ApiException.notFound("The specified realm was not found.");
         }
 
-        PubRealm pubRealm = pubUtils.toRealm(HttpStatusCode.OK, realm);
-        return pubUtils.toResponse(pubRealm).build();
+        IdentityRealm identityRealm = pubUtils.toRealm(HttpStatusCode.OK, realm);
+        return pubUtils.toResponse(identityRealm).build();
     }
 }

@@ -15,8 +15,9 @@ import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.store.DomainStore;
+import org.tiogasolutions.identity.kernel.store.IdentityStore;
 import org.tiogasolutions.identity.pub.core.PubLinks;
-import org.tiogasolutions.identity.pub.PubInfo;
+import org.tiogasolutions.identity.pub.IdentityInfo;
 
 import javax.ws.rs.*;
 import javax.ws.rs.container.ContainerRequestContext;
@@ -51,6 +52,9 @@ public class RootResource extends RootResourceSupport {
     @Autowired
     private DomainStore domainStore;
 
+    @Autowired
+    private IdentityStore identityStore;
+
     public RootResource() {
         log.info("Created ");
     }
@@ -68,13 +72,13 @@ public class RootResource extends RootResourceSupport {
         links.add("self", getPubUtils().uriRoot());
         links.add("api", getPubUtils().uriApi());
         links.add("authenticate", getPubUtils().uriAuthenticate());
-        links.add("client", getPubUtils().uriClient());
+        links.add("me", getPubUtils().uriMe());
         links.add("admin", getPubUtils().uriAdmin());
 
         long elapsed = System.currentTimeMillis() - startedAt;
-        PubInfo pubInfo = new PubInfo(HttpStatusCode.OK, links, elapsed);
+        IdentityInfo identityInfo = new IdentityInfo(HttpStatusCode.OK, links, elapsed);
 
-        return getPubUtils().toResponse(pubInfo).build();
+        return getPubUtils().toResponse(identityInfo).build();
     }
 
     @GET
@@ -86,7 +90,7 @@ public class RootResource extends RootResourceSupport {
 
     @Path($api_v1)
     public ApiResource getApiV1() throws Exception {
-        return new ApiResource(executionManager, getPubUtils(), domainStore);
+        return new ApiResource(executionManager, getPubUtils(), domainStore, identityStore);
     }
 
     private PubUtils getPubUtils() {

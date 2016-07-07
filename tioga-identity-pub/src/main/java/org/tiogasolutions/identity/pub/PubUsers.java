@@ -22,7 +22,7 @@ public class PubUsers extends PubItem {
     private final int limit;
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private final List<PubUser> items = new ArrayList<>();
+    private final List<Identity> items = new ArrayList<>();
 
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private final List<PubLink> links = new ArrayList<>();
@@ -33,7 +33,7 @@ public class PubUsers extends PubItem {
                     @JsonProperty("total") int total,
                     @JsonProperty("offset") int offset,
                     @JsonProperty("limit") int limit,
-                    @JsonProperty("items") List<PubUser> items,
+                    @JsonProperty("items") List<Identity> items,
                     @JsonProperty("links") List<PubLink> links) {
 
         super(_status, _links);
@@ -55,7 +55,7 @@ public class PubUsers extends PubItem {
         return limit;
     }
 
-    public List<PubUser> getItems() {
+    public List<Identity> getItems() {
         return unmodifiableList(items);
     }
 

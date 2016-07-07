@@ -5,7 +5,7 @@ import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.domain.DomainProfileEo;
 import org.tiogasolutions.identity.kernel.store.DomainStore;
-import org.tiogasolutions.identity.kernel.store.UserStore;
+import org.tiogasolutions.identity.kernel.store.IdentityStore;
 
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.core.SecurityContext;
@@ -18,11 +18,11 @@ import static org.tiogasolutions.identity.kernel.domain.DomainProfileEo.INTERNAL
 
 public class IdentityTokenRequestFilterAuthenticator extends TokenRequestFilterAuthenticator {
 
-    private final UserStore userStore;
+    private final IdentityStore identityStore;
     private final DomainStore domainStore;
 
-    public IdentityTokenRequestFilterAuthenticator(DomainStore domainStore, UserStore userStore) {
-        this.userStore = userStore;
+    public IdentityTokenRequestFilterAuthenticator(DomainStore domainStore, IdentityStore identityStore) {
+        this.identityStore = identityStore;
         this.domainStore = domainStore;
     }
 
@@ -43,7 +43,7 @@ public class IdentityTokenRequestFilterAuthenticator extends TokenRequestFilterA
                 roles.add($ADMIN);
             }
 
-            IdentityKernel identityKernel = new IdentityKernel(domainStore, userStore, domainProfile);
+            IdentityKernel identityKernel = new IdentityKernel(domainStore, identityStore, domainProfile);
 
             return new IdentityTokenBasedSecurityContext(requestContext.getSecurityContext(), identityKernel, roles);
 

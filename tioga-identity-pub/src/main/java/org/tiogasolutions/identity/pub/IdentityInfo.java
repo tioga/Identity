@@ -4,11 +4,11 @@ import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.pub.core.PubItem;
 import org.tiogasolutions.identity.pub.core.PubLinks;
 
-public class PubInfo extends PubItem {
+public class IdentityInfo extends PubItem {
 
     private final String upTime;
 
-    public PubInfo(HttpStatusCode httpStatusCode, PubLinks links, long elapsed) {
+    public IdentityInfo(HttpStatusCode httpStatusCode, PubLinks links, long elapsed) {
         super(httpStatusCode, links);
 
         this.upTime = String.format("%s days, %s hours, %s minutes, %s seconds",

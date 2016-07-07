@@ -1,173 +1,183 @@
 package org.tiogasolutions.identity.kernel.store;
 
+import org.tiogasolutions.dev.common.BeanUtils;
 import org.tiogasolutions.dev.common.EqualsUtils;
 import org.tiogasolutions.dev.common.StringUtils;
 import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.identity.kernel.domain.*;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.stream.Collectors.toList;
 import static org.tiogasolutions.dev.common.EqualsUtils.objectsEqual;
 import static org.tiogasolutions.identity.kernel.domain.DomainProfileEo.INTERNAL_DOMAIN;
 
-public class InMemoryStore implements DomainStore, UserStore {
+public class InMemoryStore implements DomainStore, IdentityStore {
 
     private final List<DomainProfileEo> domainProfiles = new ArrayList<>();
-    private final List<UserEo> users = new ArrayList<>();
+    private final List<IdentityEo> users = new ArrayList<>();
+
+    private static final String TIME_AND_BILLING = "time-and-billing";
+    private static final String SPENDING_FYI_DOMAIN = "spending-fyi";
+    private static final String PHOTO_LAB_DOMAIN = "photo-lab";
 
     public InMemoryStore() {
-        createDefault();
+        createInternal();
         createPhotoLab();
-        // createTioga();
         createSpending();
+        createTimeAndBilling();
     }
 
-    private void createDefault() {
+    private void createInternal() {
 
         // Within "Identity", the "admin" domain is used to
         // administer this application and is hard coded into the filter.
-        DomainProfileEo domainProfile = DomainProfileEo.create(INTERNAL_DOMAIN, "password-123");
+        DomainProfileEo domain = DomainProfileEo.create(INTERNAL_DOMAIN);
+        PolicyEo policy = domain.addPolicy("default");
 
-        PolicyEo defaultPolicy = domainProfile.addPolicy("policy");
-        RealmEo defaultRealm = defaultPolicy.addRealm("realm");
-        RoleEo adminRole = defaultPolicy.addRole("administrator");
+        RoleEo ownerRole = policy.addRole("owner");
+        RoleEo apiRole = policy.addRole("api");
 
-        addUser(domainProfile, "me@jacobparr.com", "password-123").assign(defaultRealm, adminRole);
-        addUser(domainProfile, "harlan.work@gmail.com", "password-123").assign(defaultRealm, adminRole);
+        RealmEo realm = policy.addRealm(SPENDING_FYI_DOMAIN);
+        addUser(domain, "me@jacobparr.com", "password-123").assign(realm, ownerRole);
+        addUser(domain, "spending-client", "password-123").assign(realm, apiRole);
 
-        this.domainProfiles.add(domainProfile);
+        realm = policy.addRealm(TIME_AND_BILLING);
+        addUser(domain, "harlan.work@gmail.com", "password-123").assign(realm, ownerRole);
+        addUser(domain, "time-and-billing-client", "password-123").assign(realm, apiRole);
+
+        realm = policy.addRealm(PHOTO_LAB_DOMAIN);
+        findUserByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        findUserByName(domain, "harlan.work@gmail.com").assign(realm, ownerRole);
+        addUser(domain, "photo-lab-client", "password-123").assign(realm, apiRole);
+
+        this.domainProfiles.add(domain);
     }
 
-    private UserEo addUser(DomainProfileEo domainProfile, String username, String password) {
-        UserEo user = UserEo.create(domainProfile, username, password);
+    private void createSpending() {
+
+        DomainProfileEo domain = DomainProfileEo.create(SPENDING_FYI_DOMAIN);
+        // Hack the access tokens for testability
+        domain.setAccessToken("spending-client", "9876543210");
+        domain.setAccessToken("me@jacobparr.com", "9876543210");
+
+        PolicyEo policy = domain.addPolicy("default");
+
+        RoleEo adminRole = policy.addRole("admin");
+        RoleEo ownerRole = policy.addRole("owner");
+        RoleEo guestRole = policy.addRole("guest");
+
+
+        // This is my system, I get access to everyting!
+        RealmEo globalReal = policy.addRealm("*");
+        addUser(domain, "me@jacobparr.com", "password-123").assign(globalReal, adminRole);
+
+
+        // These are Jacob & Angela's checking & savings accounts
+        RealmEo realm = RealmEo.createRealm(policy, "xxxx-2162");
+        findUserByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        addUser(domain, "angieparr@gmail.com", "password-123").assign(realm, ownerRole);
+
+        realm = RealmEo.createRealm(policy, "xxxx-0510");
+        findUserByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        findUserByName(domain, "angieparr@gmail.com").assign(realm, ownerRole);
+
+        realm = RealmEo.createRealm(policy, "xxxx-3100");
+        findUserByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        findUserByName(domain, "angieparr@gmail.com").assign(realm, ownerRole);
+
+        realm = RealmEo.createRealm(policy, "xxxx-1196");
+        findUserByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        findUserByName(domain, "angieparr@gmail.com").assign(realm, ownerRole);
+
+        realm = RealmEo.createRealm(policy, "xxxx-3730");
+        findUserByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        findUserByName(domain, "angieparr@gmail.com").assign(realm, ownerRole);
+
+
+        // This is Brittany's checking account
+        realm = RealmEo.createRealm(policy, "xxxx-9186");
+        addUser(domain, "tigerspanda1994@gmail.com", "password-123").assign(realm, ownerRole);
+        findUserByName(domain, "angieparr@gmail.com").assign(realm, guestRole);
+
+
+        // This is Jesse's checking account
+        addUser(domain, "jedijes@gmail.com", "password-123").assign(realm, ownerRole);
+        findUserByName(domain, "me@jacobparr.com").assign(realm, guestRole);
+
+        this.domainProfiles.add(domain);
+    }
+
+    private void createTimeAndBilling() {
+        DomainProfileEo domain = DomainProfileEo.create(SPENDING_FYI_DOMAIN);
+        // Hack the access tokens for testability
+        domain.setAccessToken("harlan.work@gmail.com", "9876543210");
+        domain.setAccessToken("time-and-billing-client", "9876543210");
+
+        PolicyEo policy = domain.addPolicy("default");
+        RealmEo realm = policy.addRealm("default");
+        RoleEo role = policy.addRole("user");
+
+        addUser(domain, "harlan.work@gmail.com", "password-123").assign(realm, role);
+    }
+
+    private IdentityEo addUser(DomainProfileEo domainProfile, String username, String password) {
+        IdentityEo user = IdentityEo.create(domainProfile, username, password);
         users.add(user);
         return user;
     }
 
-    private void createSpending() {
-        DomainProfileEo domainProfile = DomainProfileEo.create("spending-fyi", "password-123");
-
-        // Spending-FYI has only one policy and one realm
-        PolicyEo defaultPolicy = domainProfile.addPolicy("policy");
-        RealmEo defaultRealm = defaultPolicy.addRealm("realm");
-        // We have two roles, admin and user.
-        RoleEo adminRole = defaultPolicy.addRole("administrator");
-        // adminRole.addPermission("delete");
-
-        RoleEo userRole = defaultPolicy.addRole("user");
-        // userRole.addPermission("edit");
-
-        // Admin users
-        addUser(domainProfile, "me@jacobparr.com", "password-123")
-                .assign(defaultRealm, userRole)
-                .assign(defaultRealm, adminRole);
-
-        // Regular users
-        addUser(domainProfile, "angieparr@gmail.com", "password-123")
-                .assign(defaultRealm, userRole);
-
-        addUser(domainProfile, "tigerspanda1994@gmail.com", "password-123")
-                .assign(defaultRealm, userRole);
-
-        addUser(domainProfile, "jedijes@gmail.com", "password-123")
-                .assign(defaultRealm, userRole);
-
-        this.domainProfiles.add(domainProfile);
-    }
-
-//    private void createTioga() {
-//        // The "tioga" domain profile is possibly the most complex. This profile brings
-//        // together Tioga Solution's various micro-services under one roof. The
-//        // idea being that one username/password can be used to use all these APIs
-//        DomainProfileEo domainProfile = DomainProfileEo.create("tioga", "password-123");
-//
-//        // Create the users of this profile
-//        UserEo jacob = addUser(domainProfile, "me@jacobparr.com", "password-123");
-//        UserEo harlan = addUser(domainProfile, "harlan.work@gmail.com", "password-123");
-//
-//        UserEo apiGateway = addUser(domainProfile, "api.gateway@tioga.solutions", "password-123");
-//
-//        UserEo netfile = addUser(domainProfile, "boss@netfile.com", "password-123");
-//        UserEo netfileApiClient = addUser(domainProfile, "tioga.client@netfile.com", "password-123");
-//
-//        List<PolicyEo> policies = Arrays.asList(
-//            domainProfile.addPolicy("notify"),
-//            domainProfile.addPolicy("push"),
-//            domainProfile.addPolicy("identity")
-//        );
-//
-//        for (PolicyEo policy : policies) {
-//            // Two realms: /api/v1/admin and /api/v1/client
-//            RealmEo adminRealm = policy.addRealm("admin");
-//            RealmEo clientRealm = policy.addRealm("client");
-//            // The Administrator role is applied within the admin realm.
-//            RoleEo adminRole = policy.addRole("administrator");
-//            // The API role is used within the client realm to work with the microservice
-//            RoleEo apiRole = policy.addRole("api");
-//            // The Owner role is used with the client realm to configure/manage the microservice
-//            RoleEo ownerRole = policy.addRole("owner");
-//
-//            // Jacob & Harlan are both admins and owners.
-//            jacob.assign(adminRealm, adminRole)
-//                 .assign(clientRealm, ownerRole);
-//
-//            harlan.assign(adminRealm, adminRole)
-//                  .assign(clientRealm, ownerRole);
-//
-//            netfile.assign(clientRealm, ownerRole);
-//        }
-//
-//        this.domainProfiles.add(domainProfile);
-//    }
-
     private void createPhotoLab() {
-        DomainProfileEo domainProfile = DomainProfileEo.create("photo-lab", "password-123");
+        DomainProfileEo domain = DomainProfileEo.create(PHOTO_LAB_DOMAIN);
+        // Hack the access tokens for testability
+        domain.setAccessToken("me@jacobparr.com", "9876543210");
+        domain.setAccessToken("harlan.work@gmail.com", "9876543210");
+        domain.setAccessToken("photo-lab-client", "9876543210");
 
         // Create the users of this profile
-        UserEo jacob = addUser(domainProfile, "me@jacobparr.com", "password-123");
-        UserEo harlan = addUser(domainProfile, "harlan.work@gmail.com", "password-123");
-        UserEo rich = addUser(domainProfile, "rich@westcoastimaging.com", "password-123");
-        UserEo angie = addUser(domainProfile, "angieparr@gmail.com", "password-123");
-        UserEo brit = addUser(domainProfile, "tigerspanda1994@gmail.com", "password-123");
-        UserEo jesse = addUser(domainProfile, "jedijes@gmail.com", "password-123");
-        UserEo joe = addUser(domainProfile, "joseph2jsh@gmail.com", "password-123");
-        UserEo hannah = addUser(domainProfile, "hn.noon@gmail.com", "password-123");
+        IdentityEo jacob = addUser(domain, "me@jacobparr.com", "password-123");
+        IdentityEo harlan = addUser(domain, "harlan.work@gmail.com", "password-123");
+        IdentityEo rich = addUser(domain, "rich@westcoastimaging.com", "password-123");
+        IdentityEo angie = addUser(domain, "angieparr@gmail.com", "password-123");
+        IdentityEo brit = addUser(domain, "tigerspanda1994@gmail.com", "password-123");
+        IdentityEo jesse = addUser(domain, "jedijes@gmail.com", "password-123");
+        IdentityEo joe = addUser(domain, "joseph2jsh@gmail.com", "password-123");
+        IdentityEo hannah = addUser(domain, "hn.noon@gmail.com", "password-123");
 
         // Photo Lab is not multi-tenant, so we addRealm the one "default" realm.
-        PolicyEo glacierPolicy = domainProfile.addPolicy("glacier");
-        PolicyEo tenayaPolicy = domainProfile.addPolicy("tenaya");
-        PolicyEo basecampPolicy = domainProfile.addPolicy("basecamp");
+        PolicyEo tenayaPolicy = domain.addPolicy("tenaya");
+        PolicyEo glacierPolicy = domain.addPolicy("glacier");
+        PolicyEo basecampPolicy = domain.addPolicy("basecamp");
 
-//        RealmEo glacierRealm = glacierPolicy.addRealm("realm");
-//        RealmEo tenayaRealm = tenayaPolicy.addRealm("realm");
-//        RealmEo basecampRealm = basecampPolicy.addRealm("realm");
-//
-//        // Assign all the admin roles
-//        for (RealmEo realm : Arrays.asList(glacierRealm, tenayaRealm, basecampRealm)) {
-//            RoleEo role = policy.createRole("administrator");
-//            jacob.assign(role);
-//            harlan.assign(role);
-//            rich.assign(role);
-//        }
-//
-//        // Assign the photographers in Glacier
-//        RoleEo photographer = glacierRealm.createRole("photographer");
-//        for (UserEo user : Arrays.asList(jacob, rich, angie)) {
-//            user.assign(photographer);
-//        }
-//
-//        // Assign the consumer in Tenaya
-//        RoleEo consumer = tenayaRealm.createRole("consumer");
-//        for (UserEo user : Arrays.asList(jacob, rich, angie, brit, jesse, joe, hannah)) {
-//            user.assign(consumer);
-//        }
-//
-//        this.domainProfiles.add(domainProfile);
+        RealmEo tenayaRealm = tenayaPolicy.addRealm("realm");
+        RealmEo glacierRealm = glacierPolicy.addRealm("realm");
+        RealmEo basecampRealm = basecampPolicy.addRealm("realm");
+
+        RoleEo tenayaAdminRole = tenayaPolicy.addRole("admin");
+        RoleEo glacierAdminRole = glacierPolicy.addRole("admin");
+        RoleEo basecampAdminRole = basecampPolicy.addRole("admin");
+
+        RoleEo photographer = glacierPolicy.addRole("photographer");
+
+        RoleEo consumer = tenayaPolicy.addRole("consumer");
+
+        // administrators
+        for (IdentityEo identity : Arrays.asList(jacob, harlan, rich)) {
+            identity.assign(tenayaRealm, tenayaAdminRole);
+            identity.assign(glacierRealm, glacierAdminRole);
+            identity.assign(basecampRealm, basecampAdminRole);
+        }
+
+        // photographers
+        for (IdentityEo identity : Arrays.asList(jacob, harlan, rich, angie, hannah)) {
+            identity.assign(glacierRealm, photographer);
+        }
+
+        // consumers
+        for (IdentityEo identity : Arrays.asList(jacob, harlan, rich, angie, hannah, brit, jesse, joe)) {
+            identity.assign(tenayaRealm, consumer);
+        }
     }
 
     @Override
@@ -202,31 +212,35 @@ public class InMemoryStore implements DomainStore, UserStore {
     }
 
     @Override
-    public void addUser(UserEo user) {
+    public void addUser(IdentityEo user) {
         users.add(user);
     }
 
-    public List<UserEo> getUsers(String username) {
+    public List<IdentityEo> getUsers(String username) {
         if (StringUtils.isBlank(username)) {
             return unmodifiableList(users);
 
         } else {
-            List<UserEo> usersList = users.stream().filter(user -> objectsEqual(username, user.getUsername())).collect(toList());
+            List<IdentityEo> usersList = users.stream().filter(user -> objectsEqual(username, user.getUsername())).collect(toList());
             return unmodifiableList(usersList);
         }
     }
 
-    public UserEo findUserByName(String username) {
-        for (UserEo user : users) {
-            if (objectsEqual(username, user.getUsername())) {
+    @Override
+    public IdentityEo findUserByName(DomainProfileEo domainProfile, String username) {
+        String domainName = domainProfile.getDomainName();
+        for (IdentityEo user : users) {
+            if (objectsEqual(domainName, user.getDomainName()) &&
+                objectsEqual(username, user.getUsername())) {
+
                 return user;
             }
         }
         throw ApiException.notFound("The specified user was not found.");
     }
 
-    public UserEo findUserById(String id) {
-        for (UserEo user : users) {
+    public IdentityEo findUserById(String id) {
+        for (IdentityEo user : users) {
             if (objectsEqual(id, user.getId())) {
                 return user;
             }

@@ -26,7 +26,7 @@ import org.tiogasolutions.identity.kernel.CouchServersConfig;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.store.DomainStore;
 import org.tiogasolutions.identity.kernel.store.InMemoryStore;
-import org.tiogasolutions.identity.kernel.store.UserStore;
+import org.tiogasolutions.identity.kernel.store.IdentityStore;
 import org.tiogasolutions.notify.notifier.Notifier;
 import org.tiogasolutions.notify.notifier.send.LoggingNotificationSender;
 import org.tiogasolutions.runners.grizzly.GrizzlyServer;
@@ -81,15 +81,15 @@ public class IdentityEngineHostedSpringConfig {
         return new InMemoryStore();
     }
 
-    @Bean
-    public DomainStore domainStore(InMemoryStore store) {
-        return store;
-    }
-
-    @Bean
-    public UserStore userStore(InMemoryStore store) {
-        return store;
-    }
+//    @Bean
+//    public DomainStore domainStore(InMemoryStore store) {
+//        return store;
+//    }
+//
+//    @Bean
+//    public IdentityStore userStore(InMemoryStore store) {
+//        return store;
+//    }
 
     @Bean
     public IdentityRequestFilterDomainResolver identityRequestFilterDomainResolver() {
@@ -102,7 +102,7 @@ public class IdentityEngineHostedSpringConfig {
     }
 
     @Bean
-    public StandardRequestFilterConfig standardRequestFilterConfig(DomainStore domainStore, UserStore userStore) {
+    public StandardRequestFilterConfig standardRequestFilterConfig(DomainStore domainStore, IdentityStore identityStore) {
         StandardRequestFilterConfig config = new StandardRequestFilterConfig();
 
         // The first list is everything that is unsecured.
@@ -116,7 +116,7 @@ public class IdentityEngineHostedSpringConfig {
                 "^"+ $api_v1 + "/" + $authenticate
         );
 
-        config.registerAuthenticator(new IdentityTokenRequestFilterAuthenticator(domainStore, userStore), "^"+ $api_v1 + "/.*");
+        config.registerAuthenticator(new IdentityTokenRequestFilterAuthenticator(domainStore, identityStore), "^"+ $api_v1 + "/.*");
 
         return config;
     }

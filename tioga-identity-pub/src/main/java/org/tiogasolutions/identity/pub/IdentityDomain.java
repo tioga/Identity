@@ -11,33 +11,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PubDomain extends PubItem {
+public class IdentityDomain extends PubItem {
 
     private final String domainName;
     private final String revision;
     private final DomainStatus status;
     private final Map<String,String> authorizationTokens = new HashMap<>();
-    private final String password;
     private final String dbName;
 
-    private final List<PubPolicy> policies = new ArrayList<>();
+    private final List<IdentityPolicy> policies = new ArrayList<>();
 
-    public PubDomain(@JsonProperty("_status")PubStatus _status,
-                     @JsonProperty("_links") PubLinks _links,
-                     @JsonProperty("domainName") String domainName,
-                     @JsonProperty("revision") String revision,
-                     @JsonProperty("status") DomainStatus status,
-                     @JsonProperty("authorizationToken") Map<String,String> authorizationTokens,
-                     @JsonProperty("password") String password,
-                     @JsonProperty("dbName") String dbName,
-                     @JsonProperty("policies") List<PubPolicy> policies) {
+    public IdentityDomain(@JsonProperty("_status")PubStatus _status,
+                          @JsonProperty("_links") PubLinks _links,
+                          @JsonProperty("domainName") String domainName,
+                          @JsonProperty("revision") String revision,
+                          @JsonProperty("status") DomainStatus status,
+                          @JsonProperty("authorizationToken") Map<String,String> authorizationTokens,
+                          @JsonProperty("dbName") String dbName,
+                          @JsonProperty("policies") List<IdentityPolicy> policies) {
 
         super(_status, _links);
 
         this.revision = revision;
         this.domainName = domainName;
         this.status = status;
-        this.password = password;
         this.dbName = dbName;
 
         if (authorizationTokens != null) this.authorizationTokens.putAll(authorizationTokens);
@@ -46,10 +43,6 @@ public class PubDomain extends PubItem {
 
     public Map<String, String> getAuthorizationTokens() {
         return authorizationTokens;
-    }
-
-    public String getPassword() {
-        return password;
     }
 
     public String getRevision() {
@@ -68,7 +61,7 @@ public class PubDomain extends PubItem {
         return dbName;
     }
 
-    public List<PubPolicy> getPolicies() {
+    public List<IdentityPolicy> getPolicies() {
         return policies;
     }
 }

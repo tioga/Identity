@@ -14,8 +14,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -46,9 +46,9 @@ public class PubUtils {
 
     public PubToken toToken(HttpStatusCode statusCode, DomainProfileEo domainProfile, String tokenName) {
         PubLinks links = new PubLinks();
-        links.add("self", uriToken());
+        links.add("self", uriToken(tokenName));
 
-        links.add("client", uriClient());
+        links.add("me", uriMe());
 
         // We cannot check the security context because we may have just authenticated in
         // which case the SC thinks we are anonymous even though this *IS* the admin domainProfile.
@@ -71,7 +71,7 @@ public class PubUtils {
                 links,
                 tokenName,
                 domainProfile.getDomainName(),
-                domainProfile.getAuthorizationTokens().get(PubToken.DEFAULT)
+                domainProfile.getAuthorizationTokens().get(tokenName)
         );
     }
 
@@ -80,10 +80,10 @@ public class PubUtils {
 
 
 
-    public PubDomain toDomainProfile(SecurityContext sc, HttpStatusCode statusCode, DomainProfileEo domainProfile) {
+    public IdentityDomain toDomainProfile(SecurityContext sc, HttpStatusCode statusCode, DomainProfileEo domainProfile) {
 
         PubLinks links = new PubLinks();
-        links.add("self", uriClient());
+        links.add("self", uriMe());
 
         if (sc != null && sc.isUserInRole($ADMIN)) {
             links.add("admin",   uriAdmin());
@@ -98,25 +98,24 @@ public class PubUtils {
         links.add("users-links", uriUsers(singletonList("links"), null, null, null));
         links.add("users-items", uriUsers(singletonList("items"), null, null, null));
 
-        List<PubPolicy> pubPolicies = new ArrayList<>();
+        List<IdentityPolicy> pubPolicies = new ArrayList<>();
         for (PolicyEo policy : domainProfile.getPolicies()) {
-            PubPolicy pubPolicy = toPolicy(null, policy);
-            pubPolicies.add(pubPolicy);
+            IdentityPolicy identityPolicy = toPolicy(null, policy);
+            pubPolicies.add(identityPolicy);
         }
 
-        return new PubDomain(
+        return new IdentityDomain(
                 toStatus(statusCode),
                 links,
                 domainProfile.getDomainName(),
                 domainProfile.getRevision(),
                 domainProfile.getStatus(),
                 domainProfile.getAuthorizationTokens(),
-                domainProfile.getPassword(),
                 domainProfile.getDbName(),
                 pubPolicies);
     }
 
-    public PubDomains toDomains(HttpStatusCode statusCode, List<DomainProfileEo> domainProfiles, List<String> includes, Object offset, Object limit) {
+    public IdentityDomains toDomains(HttpStatusCode statusCode, List<DomainProfileEo> domainProfiles, List<String> includes, Object offset, Object limit) {
         if (includes == null) includes = emptyList();
 
         PubLinks links = new PubLinks();
@@ -135,7 +134,7 @@ public class PubUtils {
             linksList.add(new PubLink("impersonate-" + domainProfile.getDomainName(), uriImpersonate(domainProfile)));
         }
 
-        return new PubDomains(
+        return new IdentityDomains(
                 toStatus(statusCode),
                 links,
                 linksList.size(),
@@ -145,81 +144,71 @@ public class PubUtils {
                 includes.contains("links") ? linksList : null);
     }
 
-    public PubPolicy toPolicy(HttpStatusCode statusCode, PolicyEo policy) {
+    public IdentityPolicy toPolicy(HttpStatusCode statusCode, PolicyEo policy) {
 
         PubLinks links = new PubLinks();
         links.add("self", uriPolicyById(policy));
 
-        List<PubRealm> realms = new ArrayList<>();
-        for (RealmEo realm : policy.getRealms()) {
-            PubRealm pubRealm = toRealm(null, realm);
-            realms.add(pubRealm);
+        List<IdentityRole> roles = new ArrayList<>();
+        for (RoleEo role : policy.getRoles()) {
+            IdentityRole identityRole = toRole(null, role);
+            roles.add(identityRole);
         }
 
-        return new PubPolicy(
+        List<IdentityRealm> realms = new ArrayList<>();
+        for (RealmEo realm : policy.getRealms()) {
+            IdentityRealm identityRealm = toRealm(null, realm);
+            realms.add(identityRealm);
+        }
+
+        Set<String> permissions = policy.getPermissions().stream()
+                .map(PermissionEo::getPermissionName)
+                .collect(Collectors.toSet());
+
+        return new IdentityPolicy(
                 toStatus(statusCode),
                 links,
                 policy.getId(),
                 policy.getPolicyName(),
                 policy.getDomainProfile().getDomainName(),
-                realms
+                roles,
+                realms,
+                permissions
         );
     }
 
-    public PubRealm toRealm(HttpStatusCode statusCode, RealmEo realm) {
+    public IdentityRealm toRealm(HttpStatusCode statusCode, RealmEo realm) {
 
         PubLinks links = new PubLinks();
         links.add("self", uriRealmById(realm));
 
-        List<PubRole> roles = new ArrayList<>();
-        for (RoleEo role : realm.getRoles()) {
-            PubRole pubRole = toRole(null, role);
-            roles.add(pubRole);
-        }
-
-        return new PubRealm(
+        return new IdentityRealm(
                 toStatus(statusCode),
                 links,
                 realm.getId(),
                 realm.getRealmName(),
-                realm.getPolicy().getDomainProfile().getDomainName(),
-                realm.getPolicy().getPolicyName(),
-                roles);
+                realm.getPolicy().getPolicyName());
     }
 
-    public PubRole toRole(HttpStatusCode statusCode, RoleEo role) {
+    public IdentityRole toRole(HttpStatusCode statusCode, RoleEo role) {
 
         PubLinks links = new PubLinks();
         links.add("self", uriRoleById(role));
 
-        List<PubPermission> permissions = new ArrayList<>();
-        for (PermissionEo permission : role.getPermissions()) {
-            PubPermission pubPermission = toPermission(null, permission);
-            permissions.add(pubPermission);
-        }
+        Set<String> permissions = role.getPermissions().stream()
+                .map(PermissionEo::getPermissionName)
+                .collect(Collectors.toSet());
 
-        return new PubRole(
+        return new IdentityRole(
                 toStatus(statusCode),
                 links,
                 role.getId(),
                 role.getRoleName(),
-                role.getRealm().getPolicy().getDomainProfile().getDomainName(),
-                role.getRealm().getPolicy().getPolicyName(),
-                role.getRealm().getRealmName(),
+                role.getPolicy().getPolicyName(),
                 permissions);
     }
 
-    private PubPermission toPermission(HttpStatusCode statusCode, PermissionEo permission) {
-
-        return new PubPermission(
-                permission.getPermissionName(),
-                permission.getRole().getRealm().getPolicy().getDomainProfile().getDomainName(),
-                permission.getRole().getRealm().getPolicy().getPolicyName(),
-                permission.getRole().getRealm().getRealmName(),
-                permission.getRole().getRoleName());
-    }
-
-    public PubPolicies toPolicies(HttpStatusCode statusCode, DomainProfileEo domainProfile, List<String> includes, Object offset, Object limit) {
+    public IdentityPolicies toPolicies(HttpStatusCode statusCode, DomainProfileEo domainProfile, List<String> includes, Object offset, Object limit) {
         if (includes == null) includes = emptyList();
 
         PubLinks links = new PubLinks();
@@ -234,15 +223,15 @@ public class PubUtils {
         links.add("next",  uriPolicies(null, 0, limit));
         links.add("last",  uriPolicies(null, 0, limit));
 
-        List<PubPolicy> itemsList = new ArrayList<>();
+        List<IdentityPolicy> itemsList = new ArrayList<>();
         List<PubLink> linksList = new ArrayList<>();
         for (PolicyEo policy : policies) {
-            PubPolicy pubPolicy = toPolicy(null, policy);
-            itemsList.add(pubPolicy);
-            linksList.add(pubPolicy.get_links().get("self").clone(pubPolicy.getPolicyName()));
+            IdentityPolicy identityPolicy = toPolicy(null, policy);
+            itemsList.add(identityPolicy);
+            linksList.add(identityPolicy.get_links().get("self").clone(identityPolicy.getPolicyName()));
         }
 
-        return new PubPolicies(
+        return new IdentityPolicies(
                 toStatus(statusCode),
                 links,
                 itemsList.size(),
@@ -257,24 +246,28 @@ public class PubUtils {
 
 
 
-    public PubUser toUser(HttpStatusCode statusCode, UserEo user) {
+    public Identity toIdentity(HttpStatusCode statusCode, IdentityEo identity) {
 
         PubLinks links = new PubLinks();
-        links.add("self", uriUserById(user));
+        links.add("self", uriUserById(identity));
 
-        return new PubUser(
+        Map<String, IdentityGrant> grants = new HashMap<>();
+
+        Map<String, IdentityRole> roles = new HashMap<>();
+
+        return new Identity(
                 toStatus(statusCode),
                 links,
-                user.getId(),
-                user.getRevision(),
-                user.getUsername(),
-                user.getPassword(),
-                user.getDomainName(),
-                user.getAssignedRoles()
-        );
+                identity.getId(),
+                identity.getRevision(),
+                identity.getUsername(),
+                identity.getPassword(),
+                identity.getDomainName(),
+                grants,
+                roles);
     }
 
-    public PubUsers toUsers(HttpStatusCode statusCode, List<UserEo> users, List<String> includes, String username, Object offset, Object limit) {
+    public PubUsers toUsers(HttpStatusCode statusCode, List<IdentityEo> users, List<String> includes, String username, Object offset, Object limit) {
         if (includes == null) includes = emptyList();
 
         PubLinks links = new PubLinks();
@@ -287,7 +280,7 @@ public class PubUtils {
         links.add("api",    uriApi());
 
         if (users.size() > 0) {
-            UserEo first = users.get(0);
+            IdentityEo first = users.get(0);
             links.add("first-user", uriUserById(first));
         }
 
@@ -296,11 +289,11 @@ public class PubUtils {
         links.add("next",  uriUsers(null, username, 0, limit));
         links.add("last",  uriUsers(null, username, 0, limit));
 
-        List<PubUser> usersList = new ArrayList<>();
+        List<Identity> usersList = new ArrayList<>();
         List<PubLink> linksList = new ArrayList<>();
         for (int i = 0; i < users.size(); i++) {
-            UserEo user = users.get(i);
-            PubUser pubUser = toUser(null, user);
+            IdentityEo user = users.get(i);
+            Identity pubUser = toIdentity(null, user);
             usersList.add(pubUser);
 
             linksList.add(pubUser.get_links().get("self").clone(pubUser.getUsername()));
@@ -379,18 +372,19 @@ public class PubUtils {
         return builder.toTemplate();
     }
 
-    public String uriToken() {
+    public String uriToken(String tokenName) {
         return uriInfo.getBaseUriBuilder()
                 .path($api_v1)
-                .path($client)
-                .path($token)
+                .path($me)
+                .path($tokens)
+                .path(tokenName)
                 .toTemplate();
     }
 
-    public String uriClient() {
+    public String uriMe() {
         return uriInfo.getBaseUriBuilder()
                 .path($api_v1)
-                .path($client)
+                .path($me)
                 .toTemplate();
     }
 
@@ -426,7 +420,7 @@ public class PubUtils {
 
         UriBuilder builder = uriInfo.getBaseUriBuilder()
                 .path($api_v1)
-                .path($client)
+                .path($me)
                 .path($policies)
                 .queryParam("offset", offset)
                 .queryParam("limit", limit);
@@ -447,7 +441,7 @@ public class PubUtils {
 
         UriBuilder builder = uriInfo.getBaseUriBuilder()
                 .path($api_v1)
-                .path($client)
+                .path($me)
                 .path($users)
                 .queryParam("username", username)
                 .queryParam("offset", offset)
@@ -460,7 +454,7 @@ public class PubUtils {
         return builder.toTemplate();
     }
 
-    public String uriUserById(UserEo user) {
+    public String uriUserById(IdentityEo user) {
         return uriInfo.getBaseUriBuilder()
                 .path($api_v1)
                 .path($users)

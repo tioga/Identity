@@ -7,9 +7,6 @@ import org.tiogasolutions.identity.pub.core.PubStatus;
 
 public class PubToken extends PubItem {
 
-    public static final String DEFAULT = "default";
-    public static final String ADMIN = "admin";
-
     private final String domainName;
     private final String tokenName;
     private final String authorizationToken;
