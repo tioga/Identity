@@ -30,7 +30,7 @@ project(":tioga-identity-engine") {
 
     configurations.all({
         resolutionStrategy({
-            force()
+            // force("org.springframework:spring-beans:4.1.6.RELEASE")
         })
     })
 

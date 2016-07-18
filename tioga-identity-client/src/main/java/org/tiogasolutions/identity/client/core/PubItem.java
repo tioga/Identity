@@ -1,6 +1,8 @@
 package org.tiogasolutions.identity.client.core;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
 
 public class PubItem {
@@ -15,7 +17,9 @@ public class PubItem {
         this._status = _status;
     }
 
-    public PubItem(PubStatus _status, PubLinks _links) {
+    @JsonCreator
+    public PubItem(@JsonProperty("_status") PubStatus _status,
+                   @JsonProperty("_links") PubLinks _links) {
         this._links = _links;
         this._status = _status;
     }

@@ -36,7 +36,13 @@ public class PubUtils {
     }
 
     public Response.ResponseBuilder toResponse(PubItem pubItem) {
-        return Response.status(pubItem.get_status().getCode()).entity(pubItem);
+        Response.ResponseBuilder builder = Response.status(pubItem.get_status().getCode()).entity(pubItem);
+
+        for (PubLink link : pubItem.get_links().values()) {
+            builder.link(link.getHref(), link.getRel());
+        }
+
+        return builder;
     }
 
 

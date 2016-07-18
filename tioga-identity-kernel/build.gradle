@@ -11,6 +11,12 @@ project(":tioga-identity-kernel") {
         testCompile ("org.testng:testng:6.8.21")
     }
 
+    configurations.all({
+        resolutionStrategy({
+            // force("org.springframework:spring-beans:4.1.6.RELEASE")
+        })
+    })
+
     apply(from: urlCache.get("https://raw.githubusercontent.com/tioga/build-scripts/master/build-config-deployer.gradle"))
 }
 

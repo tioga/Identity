@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module external.linked.project.id=":tioga-identity-engine:test" external.linked.project.path="$MODULE_DIR$/../../../tioga-identity-engine" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="org.tiogasolutions.identity" external.system.module.type="sourceSet" external.system.module.version="1.0.0" type="JAVA_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="Spring" name="Spring">
+      <configuration>
+        <fileset id="fileset" name="Spring Application Context" removed="false">
+          <file>jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.glassfish.jersey.ext/jersey-spring3/2.17/53564bfeba91f64fdebae891161b4a8a80038a03/jersey-spring3-2.17.jar!/jersey-spring-applicationContext.xml</file>
+          <file>file://$MODULE_DIR$/../../../tioga-identity-engine/src/main/java/org/tiogasolutions/identity/engine/IdentityEngineDefaultSpringConfig.java</file>
+          <file>file://$MODULE_DIR$/../../../tioga-identity-engine/src/test/resources/tioga-identity-engine/spring-test.properties</file>
+        </fileset>
+      </configuration>
+    </facet>
+  </component>
   <component name="NewModuleRootManager" LANGUAGE_LEVEL="JDK_1_8" inherit-compiler-output="false">
     <output-test url="file://$MODULE_DIR$/../../../tioga-identity-engine/build/classes/test" />
     <exclude-output />

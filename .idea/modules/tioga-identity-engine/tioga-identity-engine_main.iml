@@ -7,6 +7,7 @@
           <file>jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/org.glassfish.jersey.ext/jersey-spring3/2.17/53564bfeba91f64fdebae891161b4a8a80038a03/jersey-spring3-2.17.jar!/jersey-spring-applicationContext.xml</file>
           <file>file://$MODULE_DIR$/../../../tioga-identity-engine/src/main/java/org/tiogasolutions/identity/engine/IdentityEngineHostedSpringConfig.java</file>
           <file>file://$MODULE_DIR$/../../../tioga-identity-engine/src/main/resources/tioga-identity-engine/spring-config.xml</file>
+          <file>file://$MODULE_DIR$/../../../tioga-identity-engine/src/main/resources/tioga-identity-engine/spring.properties</file>
         </fileset>
       </configuration>
     </facet>

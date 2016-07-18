@@ -1,5 +1,6 @@
 package org.tiogasolutions.identity.client.domain;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.client.core.PubItem;
 import org.tiogasolutions.identity.client.core.PubLinks;
@@ -8,7 +9,10 @@ public class IdentityInfo extends PubItem {
 
     private final String upTime;
 
-    public IdentityInfo(HttpStatusCode httpStatusCode, PubLinks links, long elapsed) {
+    public IdentityInfo(@JsonProperty("httpStatusCode") HttpStatusCode httpStatusCode,
+                        @JsonProperty("links") PubLinks links,
+                        @JsonProperty("elapsed") long elapsed) {
+
         super(httpStatusCode, links);
 
         this.upTime = String.format("%s days, %s hours, %s minutes, %s seconds",
