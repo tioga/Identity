@@ -18,31 +18,26 @@ import static org.tiogasolutions.identity.kernel.constants.Paths.$identities;
 import static org.tiogasolutions.identity.kernel.constants.Paths.$policies;
 import static org.tiogasolutions.identity.kernel.constants.Paths.$tokens;
 
-public class MeResource {
+public class MeResource extends ResourceSupport {
 
     private final PubUtils pubUtils;
-    private final ExecutionManager<IdentityKernel> executionManager;
 
     public MeResource(ExecutionManager<IdentityKernel> executionManager, PubUtils pubUtils) {
+        super(executionManager);
         this.pubUtils = pubUtils;
-        this.executionManager = executionManager;
-    }
-
-    private IdentityKernel getKernel() {
-        return executionManager.getContext().getDomain();
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getDomainProfile(@QueryParam("include") List<String> includes) {
         SecurityContext sc = executionManager.getContext().getSecurityContext();
-        IdentityDomain identityDomain = pubUtils.toDomainProfile(sc, HttpStatusCode.OK, getKernel().getDomainProfile());
+        IdentityDomain identityDomain = pubUtils.toDomainProfile(sc, HttpStatusCode.OK, getKernel().getCurrentDomainProfile());
         return pubUtils.toResponse(identityDomain).build();
     }
 
     @Path($tokens)
     public TokensResource getTokensResource() {
-        return new TokensResource(executionManager, pubUtils);
+        return new TokensResource(false, executionManager, pubUtils);
     }
 
     @Path($identities)

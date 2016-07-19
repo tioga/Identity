@@ -50,12 +50,12 @@ public class InMemoryStore implements DomainStore, IdentityStore {
         addUser(domain, "time-and-billing-client", "password-123").assign(realm, apiRole);
 
         realm = policy.addRealm(PHOTO_LAB_DOMAIN);
-        findIdentityByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
-        findIdentityByName(domain, "harlan.work@gmail.com").assign(realm, ownerRole);
+        findIdentityByUsername(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        findIdentityByUsername(domain, "harlan.work@gmail.com").assign(realm, ownerRole);
         addUser(domain, "photo-lab-client", "password-123").assign(realm, apiRole);
 
         realm = policy.addRealm(ACK_IM_DOMAIN);
-        findIdentityByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        findIdentityByUsername(domain, "me@jacobparr.com").assign(realm, ownerRole);
         addUser(domain, "chrisjasp@gmail.com", "password-123").assign(realm, ownerRole);
         addUser(domain, "ack-im-client", "password-123").assign(realm, ownerRole);
 
@@ -102,35 +102,35 @@ public class InMemoryStore implements DomainStore, IdentityStore {
 
         // These are Jacob & Angela's checking & savings accounts
         RealmEo realm = policy.addRealm("xxxx-2162");
-        findIdentityByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        findIdentityByUsername(domain, "me@jacobparr.com").assign(realm, ownerRole);
         addUser(domain, "angieparr@gmail.com", "password-123").assign(realm, ownerRole);
 
         realm = policy.addRealm("xxxx-0510");
-        findIdentityByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
-        findIdentityByName(domain, "angieparr@gmail.com").assign(realm, ownerRole);
+        findIdentityByUsername(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        findIdentityByUsername(domain, "angieparr@gmail.com").assign(realm, ownerRole);
 
         realm = policy.addRealm("xxxx-3100");
-        findIdentityByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
-        findIdentityByName(domain, "angieparr@gmail.com").assign(realm, ownerRole);
+        findIdentityByUsername(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        findIdentityByUsername(domain, "angieparr@gmail.com").assign(realm, ownerRole);
 
         realm = policy.addRealm("xxxx-1196");
-        findIdentityByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
-        findIdentityByName(domain, "angieparr@gmail.com").assign(realm, ownerRole);
+        findIdentityByUsername(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        findIdentityByUsername(domain, "angieparr@gmail.com").assign(realm, ownerRole);
 
         realm = policy.addRealm("xxxx-3730");
-        findIdentityByName(domain, "me@jacobparr.com").assign(realm, ownerRole);
-        findIdentityByName(domain, "angieparr@gmail.com").assign(realm, ownerRole);
+        findIdentityByUsername(domain, "me@jacobparr.com").assign(realm, ownerRole);
+        findIdentityByUsername(domain, "angieparr@gmail.com").assign(realm, ownerRole);
 
 
         // This is Brittany's checking account
         realm = policy.addRealm("xxxx-9186");
         addUser(domain, "tigerspanda1994@gmail.com", "password-123").assign(realm, ownerRole);
-        findIdentityByName(domain, "angieparr@gmail.com").assign(realm, guestRole);
+        findIdentityByUsername(domain, "angieparr@gmail.com").assign(realm, guestRole);
 
 
         // This is Jesse's checking account
         addUser(domain, "jedijes@gmail.com", "password-123").assign(realm, ownerRole);
-        findIdentityByName(domain, "me@jacobparr.com").assign(realm, guestRole);
+        findIdentityByUsername(domain, "me@jacobparr.com").assign(realm, guestRole);
 
         this.domainProfiles.add(domain);
     }
@@ -244,7 +244,7 @@ public class InMemoryStore implements DomainStore, IdentityStore {
     }
 
     @Override
-    public IdentityEo findIdentityByName(DomainProfileEo domainProfile, String username) {
+    public IdentityEo findIdentityByUsername(DomainProfileEo domainProfile, String username) {
         String domainName = domainProfile.getDomainName();
         for (IdentityEo identity : identities) {
             if (objectsEqual(domainName, identity.getDomainName()) &&

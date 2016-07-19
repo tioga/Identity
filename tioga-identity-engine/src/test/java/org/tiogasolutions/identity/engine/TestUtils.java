@@ -2,6 +2,10 @@ package org.tiogasolutions.identity.engine;
 
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import org.testng.Assert;
+import org.tiogasolutions.identity.client.core.PubItem;
+import org.tiogasolutions.identity.client.core.PubLink;
+import org.tiogasolutions.identity.client.core.PubLinks;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -10,14 +14,11 @@ import javax.xml.bind.DatatypeConverter;
  */
 @Component
 @Profile("test")
-public class TestFactory {
+public class TestUtils {
 
-  public static final String API_KEY = "9999";
-  public static final String API_PASSWORD = "unittest";
-  public static final String DOMAIN_NAME = "kernel";
-
-  public static String toHttpAuth(String username, String password) {
+  public String toHttpAuth(String username, String password) {
     byte[] value = (username + ":" + password).getBytes();
     return "Basic " + DatatypeConverter.printBase64Binary(value);
   }
+
 }

@@ -1,23 +1,31 @@
 package org.tiogasolutions.identity.engine;
 
 import ch.qos.logback.classic.Level;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.server.ResourceConfig;
 import org.glassfish.jersey.test.JerseyTestNg;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.tiogasolutions.app.standard.jackson.StandardObjectMapper;
 import org.tiogasolutions.app.standard.jaxrs.StandardReaderWriterProvider;
 import org.tiogasolutions.dev.common.LogbackUtils;
-import org.tiogasolutions.lib.jaxrs.providers.TiogaReaderWriterProvider;
+import org.tiogasolutions.dev.common.exceptions.ApiException;
+import org.tiogasolutions.identity.client.IdentityClient;
+import org.tiogasolutions.identity.client.LiveIdentityClient;
+import org.tiogasolutions.identity.client.core.PubItem;
+import org.tiogasolutions.identity.client.core.PubLink;
+import org.tiogasolutions.identity.client.core.PubLinks;
 
 import javax.ws.rs.core.Application;
 
-public class AbstractEngineJaxRsTest extends JerseyTestNg.ContainerPerMethodTest {
+import static java.lang.String.format;
 
-    private ConfigurableListableBeanFactory beanFactory;
+public abstract class AbstractEngineJaxRsTest extends JerseyTestNg.ContainerPerMethodTest {
+
+    protected ConfigurableListableBeanFactory beanFactory;
+    protected LiveIdentityClient client;
 
     @BeforeMethod
     public void autowireTest() throws Exception {
@@ -26,8 +34,6 @@ public class AbstractEngineJaxRsTest extends JerseyTestNg.ContainerPerMethodTest
 
     @Override
     protected void configureClient(ClientConfig config) {
-        String[] names = beanFactory.getBeanDefinitionNames();
-
         StandardObjectMapper om = beanFactory.getBean(StandardObjectMapper.class);
         config.register(new StandardReaderWriterProvider(om));
     }
@@ -47,13 +53,25 @@ public class AbstractEngineJaxRsTest extends JerseyTestNg.ContainerPerMethodTest
         beanFactory = applicationContext.getBeanFactory();
 
         return beanFactory.getBean(ResourceConfig.class);
+    }
 
-//    ResourceConfig resourceConfig = ResourceConfig.forApplication(application);
-//    resourceConfig.register(SpringLifecycleListener.class);
-//    resourceConfig.register(RequestContextFilter.class);
-//    resourceConfig.property("contextConfig", applicationContext);
-//    resourceConfig.packages("org.tiogasolutions.identity");
 
-//    return resourceConfig;
+    protected void assertItem(PubItem item, int code, String message) {
+        Assert.assertNotNull(item);
+
+        Assert.assertNotNull(item.get_status());
+        Assert.assertEquals(item.get_status().getCode(), code);
+        Assert.assertEquals(item.get_status().getMessage(), message);
+
+        PubLinks links = item.get_links();
+        Assert.assertNotNull(links);
+
+//        for (PubLink link : item.get_links().values()) {
+//            try {
+//                client.getOptions(link);
+//            } catch (ApiException e) {
+//                Assert.fail(format("The link \"%s\" is not valid: %s", link.getRel(), link.getHref()), e);
+//            }
+//        }
     }
 }

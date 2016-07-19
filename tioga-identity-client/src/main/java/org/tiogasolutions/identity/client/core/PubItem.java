@@ -13,7 +13,7 @@ public class PubItem {
     private final PubLinks _links;
 
     public PubItem(PubStatus _status) {
-        this._links = new PubLinks();
+        this._links = PubLinks.empty();
         this._status = _status;
     }
 
@@ -35,5 +35,9 @@ public class PubItem {
 
     public PubStatus get_status() {
         return _status;
+    }
+
+    public PubLink getLink(String rel) {
+        return _links.getLink(rel);
     }
 }

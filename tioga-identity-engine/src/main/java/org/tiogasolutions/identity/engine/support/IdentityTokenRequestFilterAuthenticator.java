@@ -45,7 +45,7 @@ public class IdentityTokenRequestFilterAuthenticator extends TokenRequestFilterA
 
             IdentityKernel identityKernel = new IdentityKernel(domainStore, identityStore, domainProfile);
 
-            return new IdentityTokenBasedSecurityContext(requestContext.getSecurityContext(), identityKernel, roles);
+            return new IdentitySecurityContext(requestContext.getSecurityContext(), identityKernel, roles);
 
         } catch (ApiException e) {
             throw e;

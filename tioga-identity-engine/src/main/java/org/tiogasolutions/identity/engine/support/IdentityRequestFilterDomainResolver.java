@@ -14,8 +14,8 @@ public class IdentityRequestFilterDomainResolver implements StandardRequestFilte
     @Override
     public IdentityKernel getDomain(ContainerRequestContext rc) {
         SecurityContext sc = rc.getSecurityContext();
-        if (sc instanceof IdentityTokenBasedSecurityContext) {
-            IdentityTokenBasedSecurityContext isc = (IdentityTokenBasedSecurityContext)sc;
+        if (sc instanceof IdentitySecurityContext) {
+            IdentitySecurityContext isc = (IdentitySecurityContext)sc;
             return isc.getIdentityKernel();
         }
         return null;
@@ -24,6 +24,6 @@ public class IdentityRequestFilterDomainResolver implements StandardRequestFilte
     @Override
     public String getDomainName(ContainerRequestContext requestContext) {
         IdentityKernel kernel = getDomain(requestContext);
-        return (kernel == null) ? null : kernel.getDomainName();
+        return (kernel == null || kernel.getCurrentDomainProfile() == null) ? null : kernel.getCurrentDomainProfile().getDomainName();
     }
 }

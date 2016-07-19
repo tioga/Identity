@@ -18,6 +18,7 @@ import org.tiogasolutions.app.standard.readers.BundledStaticContentReader;
 import org.tiogasolutions.app.standard.view.thymeleaf.ThymeleafMessageBodyWriterConfig;
 import org.tiogasolutions.dev.jackson.TiogaJacksonModule;
 import org.tiogasolutions.dev.jackson.TiogaJacksonTranslator;
+import org.tiogasolutions.identity.engine.support.UnauthenticatedRequestFilterAuthenticator;
 import org.tiogasolutions.identity.engine.support.IdentityAuthenticationResponseFactory;
 import org.tiogasolutions.identity.engine.support.IdentityRequestFilterDomainResolver;
 import org.tiogasolutions.identity.engine.support.IdentityTokenRequestFilterAuthenticator;
@@ -31,8 +32,7 @@ import org.tiogasolutions.runners.grizzly.GrizzlyServerConfig;
 import java.util.Collections;
 import java.util.List;
 
-import static org.tiogasolutions.identity.kernel.constants.Paths.$api_v1;
-import static org.tiogasolutions.identity.kernel.constants.Paths.$authenticate;
+import static org.tiogasolutions.identity.kernel.constants.Paths.*;
 
 @Configuration
 public class IdentityEngineDefaultSpringConfig {
@@ -74,11 +74,17 @@ public class IdentityEngineDefaultSpringConfig {
                 "^css/.*",      // any css file
                 "^images/.*",   // any image
                 "^favicon.ico",
-                "^application.wadl",
-                "^"+ $api_v1 + "/" + $authenticate
+                "^application.wadl"
         );
 
-        config.registerAuthenticator(new IdentityTokenRequestFilterAuthenticator(domainStore, identityStore), "^"+ $api_v1 + "/.*");
+        config.registerAuthenticator(new UnauthenticatedRequestFilterAuthenticator(domainStore, identityStore),
+                "^"+ $api,
+                "^"+ $api + "/",
+                "^"+ $api_v1,
+                "^"+ $api_v1 + "/",
+                "^"+ $api_v1 + "/" + $anonymous + ".*");
+
+        config.registerAuthenticator(new IdentityTokenRequestFilterAuthenticator(domainStore, identityStore),   "^"+ $api_v1 + ".*");
 
         return config;
     }

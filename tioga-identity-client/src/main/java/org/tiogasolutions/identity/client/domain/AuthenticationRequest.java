@@ -4,20 +4,21 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class AuthenticationRequest {
 
-    private final String domain;
+    private final String domainName;
     private final String username;
     private final String password;
 
-    public AuthenticationRequest(@JsonProperty("domain") String domain,
+    public AuthenticationRequest(@JsonProperty("domainName") String domainName,
                                  @JsonProperty("username") String username,
                                  @JsonProperty("password") String password) {
-        this.domain = domain;
+
+        this.domainName = domainName;
         this.username = username;
         this.password = password;
     }
 
-    public String getDomain() {
-        return domain;
+    public String getDomainName() {
+        return domainName;
     }
 
     public String getUsername() {
@@ -27,4 +28,5 @@ public class AuthenticationRequest {
     public String getPassword() {
         return password;
     }
+
 }

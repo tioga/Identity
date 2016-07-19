@@ -2,6 +2,7 @@ package org.tiogasolutions.identity.engine.resources.admin;
 
 import org.tiogasolutions.app.standard.execution.ExecutionManager;
 import org.tiogasolutions.dev.common.net.HttpStatusCode;
+import org.tiogasolutions.identity.engine.resources.ResourceSupport;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.store.DomainStore;
@@ -16,26 +17,24 @@ import javax.ws.rs.core.Response;
 
 import static org.tiogasolutions.identity.kernel.constants.Paths.$domains;
 
-public class AdminResource {
+public class AdminResource extends ResourceSupport {
 
-    private final ExecutionManager<IdentityKernel> executionManager;
     private final PubUtils pubUtils;
-    private final DomainStore domainStore;
 
-    public AdminResource(ExecutionManager<IdentityKernel> executionManager, PubUtils pubUtils, DomainStore domainStore) {
-        this.executionManager = executionManager;
+    public AdminResource(ExecutionManager<IdentityKernel> executionManager, PubUtils pubUtils) {
+        super(executionManager);
         this.pubUtils = pubUtils;
-        this.domainStore = domainStore;
     }
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     public Response getApiRoot() {
 
-        PubLinks pubLinks = new PubLinks();
-        pubLinks.add("self", pubUtils.uriAdmin());
-        pubLinks.add("domains", pubUtils.uriDomains(null, null, null));
-        pubLinks.add("api", pubUtils.uriApi());
+        PubLinks pubLinks = PubLinks.self(pubUtils.lnkAdmin());
+
+        pubLinks.addAll(pubUtils.lnkDomains(null, null, null));
+
+        pubLinks.add(pubUtils.lnkApiV1());
         PubItem pubItem = new PubItem(HttpStatusCode.OK, pubLinks);
 
         return pubUtils.toResponse(pubItem).build();
@@ -43,6 +42,6 @@ public class AdminResource {
 
     @Path($domains)
     public DomainsResource getDomainsResource() {
-        return new DomainsResource(executionManager, domainStore, pubUtils);
+        return new DomainsResource(executionManager, pubUtils);
     }
 }

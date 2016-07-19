@@ -7,18 +7,8 @@ import java.util.*;
 
 public class PubLinks extends LinkedHashMap<String,PubLink> {
 
-    public PubLinks(PubLink...links) {
-        this(links == null ? Collections.emptyList() : Arrays.asList(links));
-    }
-
-    public PubLinks(List<PubLink> links) {
-        for (PubLink link : links) {
-            put(link.getRel(), link);
-        }
-    }
-
     @JsonCreator
-    public PubLinks(Map<String,PubLink> links) {
+    private PubLinks(Map<String,PubLink> links) {
         for (PubLink link : links.values()) {
             put(link.getRel(), link);
         }
@@ -38,11 +28,44 @@ public class PubLinks extends LinkedHashMap<String,PubLink> {
     }
 
     public PubLink add(String rel, String href) {
-        if (href == null) return null;
-        return put(rel, new PubLink(rel, href));
+        return add(PubLink.create(rel, href));
     }
-    public PubLink add(String rel, String href, String title) {
-        if (href == null) return null;
-        return put(rel, new PubLink(rel, href, title));
+    public PubLink add(PubLink link) {
+        return put(link.getRel(), link);
+    }
+
+    public void addAll(Collection<PubLink> links) {
+        links.forEach(this::add);
+    }
+
+//    public void addFPNL(PubLink firstLink, PubLink prevLink, PubLink nextLink, PubLink lastLink) {
+//        add(firstLink.clone("first"));
+//        add(prevLink.clone("prev"));
+//        add(nextLink.clone("next"));
+//        add(lastLink.clone("last"));
+//    }
+
+    public static PubLinks empty() {
+        return new PubLinks(Collections.emptyMap());
+    }
+
+    public static PubLinks self(PubLink...items) {
+        return self(Arrays.asList(items));
+    }
+
+    public static PubLinks self(List<PubLink> items) {
+        PubLinks links = new PubLinks(Collections.emptyMap());
+        for (PubLink link : items) {
+            if (link.getRel().endsWith("-links")) {
+                links.add(link.clone("self-links"));
+
+            } else if (link.getRel().endsWith("-items")) {
+                links.add(link.clone("self-items"));
+
+            } else  {
+                links.add(link.clone("self"));
+            }
+        }
+        return links;
     }
 }

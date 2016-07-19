@@ -14,6 +14,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.SecurityContext;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
+import java.net.URI;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -49,28 +50,20 @@ public class PubUtils {
 
 
 
-
     public IdentityToken toToken(HttpStatusCode statusCode, DomainProfileEo domainProfile, String tokenName) {
-        PubLinks links = new PubLinks();
-        links.add("self", uriToken(tokenName));
+        PubLinks links = PubLinks.self(lnkToken(tokenName));
+        links.add(lnkAuthenticatedTokens());
 
-        links.add("me", uriMe());
+        links.add(lnkMe());
 
         // We cannot check the security context because we may have just authenticated in
         // which case the SC thinks we are anonymous even though this *IS* the admin domainProfile.
         if (INTERNAL_DOMAIN.equals(domainProfile.getDomainName())) {
-            links.add("admin",   uriAdmin());
-            links.add("admin-domains", uriDomains(null, null, null));
-            links.add("admin-domains-links", uriDomains(singletonList("links"), null, null));
+            links.add(lnkAdmin());
+            links.addAll(lnkDomains(null, null, null));
         }
 
-        links.add("policies",       uriPolicies(null));
-        links.add("policies-links", uriPolicies(singletonList("links")));
-        links.add("policies-items", uriPolicies(singletonList("items")));
-
-        links.add("identities",       uriIdentities(null, null, null, null));
-        links.add("identities-links", uriIdentities(singletonList("links"), null, null, null));
-        links.add("identities-items", uriIdentities(singletonList("items"), null, null, null));
+        links.addAll(lnkPolicies());
 
         return new IdentityToken(
                 toStatus(statusCode),
@@ -81,6 +74,33 @@ public class PubUtils {
         );
     }
 
+    public IdentityTokens toTokens(HttpStatusCode statusCode, DomainProfileEo domainProfile, List<String> includes) {
+        if (includes == null) includes = emptyList();
+
+        PubLinks links = PubLinks.self(lnkAuthenticatedTokens());
+        links.add(lnkMe());
+
+        Map<String, String> tokens = domainProfile.getAuthorizationTokens();
+        List<PubLink> linksList = new ArrayList<>();
+        List<IdentityToken> itemsList = new ArrayList<>();
+
+        for (String tokenName : tokens.keySet()) {
+            itemsList.add(toToken(null, domainProfile, tokenName));
+            linksList.add(lnkAdminDomain(domainProfile));
+        }
+
+        return new IdentityTokens(
+                toStatus(statusCode),
+                links,
+                linksList.size(),
+                linksList.size(),
+                0,
+                Integer.MAX_VALUE,
+                includes.contains("items") ? itemsList : null,
+                includes.contains("links") ? linksList : null);
+    }
+
+
 
 
 
@@ -88,21 +108,15 @@ public class PubUtils {
 
     public IdentityDomain toDomainProfile(SecurityContext sc, HttpStatusCode statusCode, DomainProfileEo domainProfile) {
 
-        PubLinks links = new PubLinks();
-        links.add("self", uriMe());
+        PubLinks links = PubLinks.self(lnkMe());
 
         if (sc != null && sc.isUserInRole($ADMIN)) {
-            links.add("admin",   uriAdmin());
-            links.add("admin-domains", uriDomains(null, null, null));
+            links.add(lnkAdmin());
+            links.addAll(lnkDomains(null, null, null));
         }
 
-        links.add("policies",       uriPolicies(null));
-        links.add("policies-links", uriPolicies(singletonList("links")));
-        links.add("policies-items", uriPolicies(singletonList("items")));
-
-        links.add("identities",       uriIdentities(null, null, null, null));
-        links.add("identities-links", uriIdentities(singletonList("links"), null, null, null));
-        links.add("identities-items", uriIdentities(singletonList("items"), null, null, null));
+        links.addAll(lnkPolicies());
+        links.addAll(lnkIdentities(null, null, null, null));
 
         List<IdentityPolicy> pubPolicies = new ArrayList<>();
         for (PolicyEo policy : domainProfile.getPolicies()) {
@@ -121,23 +135,17 @@ public class PubUtils {
                 pubPolicies);
     }
 
-    public IdentityDomains toDomains(HttpStatusCode statusCode, List<DomainProfileEo> domainProfiles, List<String> includes, Object offset, Object limit) {
+    public IdentityDomains toDomains(HttpStatusCode statusCode, List<DomainProfileEo> domainProfiles, List<String> includes, Object offsetObj, Object limitObj) {
         if (includes == null) includes = emptyList();
 
-        PubLinks links = new PubLinks();
+        PubLinks links = PubLinks.self(lnkDomains(includes, offsetObj, limitObj));
 
-        links.add("self",       uriDomains(includes, offset, limit));
-        links.add("self-links", uriDomains(singletonList("links"), offset, limit));
-
-        links.add("first", uriDomains(includes, offset, limit));
-        links.add("prev",  uriDomains(includes, offset, limit));
-        links.add("next",  uriDomains(includes, offset, limit));
-        links.add("last",  uriDomains(includes, offset, limit));
+        links.addAll(lnkDomainsFPNL(includes, offsetObj, limitObj));
 
         List<PubLink> linksList = new ArrayList<>();
         for (DomainProfileEo domainProfile : domainProfiles) {
-            linksList.add(new PubLink(domainProfile.getDomainName(), uriAdminDomain(domainProfile)));
-            linksList.add(new PubLink("impersonate-" + domainProfile.getDomainName(), uriImpersonate(domainProfile)));
+            linksList.add(lnkAdminDomain(domainProfile).clone(domainProfile.getDomainName()));
+            linksList.add(lnkImpersonate(domainProfile).clone("impersonate-"+domainProfile.getDomainName()));
         }
 
         return new IdentityDomains(
@@ -146,14 +154,13 @@ public class PubUtils {
                 linksList.size(),
                 linksList.size(),
                 0,
-                999999999,
+                Integer.MAX_VALUE,
                 includes.contains("links") ? linksList : null);
     }
 
     public IdentityPolicy toPolicy(HttpStatusCode statusCode, PolicyEo policy) {
 
-        PubLinks links = new PubLinks();
-        links.add("self", uriPolicyById(policy));
+        PubLinks links = PubLinks.self(lnkPolicyById(policy));
 
         List<IdentityRole> roles = new ArrayList<>();
         for (RoleEo role : policy.getRoles()) {
@@ -204,15 +211,12 @@ public class PubUtils {
     public IdentityPolicies toPolicies(HttpStatusCode statusCode, DomainProfileEo domainProfile, List<String> includes) {
         if (includes == null) includes = emptyList();
 
-        PubLinks links = new PubLinks();
-        List<PolicyEo> policies = domainProfile.getPolicies();
-
-        links.add("self",       uriPolicies(includes));
-        links.add("self-items", uriPolicies(singletonList("items")));
-        links.add("self-links", uriPolicies(singletonList("links")));
+        PubLinks links = PubLinks.self(lnkPolicies());
 
         List<IdentityPolicy> itemsList = new ArrayList<>();
         List<PubLink> linksList = new ArrayList<>();
+        List<PolicyEo> policies = domainProfile.getPolicies();
+
         for (PolicyEo policy : policies) {
             IdentityPolicy identityPolicy = toPolicy(null, policy);
             itemsList.add(identityPolicy);
@@ -233,8 +237,7 @@ public class PubUtils {
 
     public Identity toIdentity(HttpStatusCode statusCode, DomainProfileEo domain, IdentityEo identity) {
 
-        PubLinks links = new PubLinks();
-        links.add("self", uriUserById(identity));
+        PubLinks links = PubLinks.self(lnkIdentityById(identity));
 
         Set<IdentityGrant> grants = new HashSet<>();
         Set<IdentityRole> roles = new HashSet<>();
@@ -264,19 +267,12 @@ public class PubUtils {
                 roles);
     }
 
-    public Identities toIdentities(HttpStatusCode statusCode, DomainProfileEo domain, List<IdentityEo> identities, List<String> includes, String username, Object offset, Object limit) {
+    public Identities toIdentities(HttpStatusCode statusCode, DomainProfileEo domain, List<IdentityEo> identities, List<String> includes, String username, Object offsetObj, Object limitObj) {
         if (includes == null) includes = emptyList();
 
-        PubLinks links = new PubLinks();
+        PubLinks links = PubLinks.self(lnkIdentities(includes, username, offsetObj, limitObj));
 
-        links.add("self",       uriIdentities(includes, username, offset, limit));
-        links.add("self-items", uriIdentities(singletonList("items"), username, offset, limit));
-        links.add("self-links", uriIdentities(singletonList("links"), username, offset, limit));
-
-        links.add("first", uriIdentities(null, username, 0, limit));
-        links.add("prev",  uriIdentities(null, username, 0, limit));
-        links.add("next",  uriIdentities(null, username, 0, limit));
-        links.add("last",  uriIdentities(null, username, 0, limit));
+        links.addAll(lnkIdentitiesFPNL(includes, username, offsetObj, limitObj));
 
         List<Identity> usersList = new ArrayList<>();
         List<PubLink> linksList = new ArrayList<>();
@@ -302,50 +298,60 @@ public class PubUtils {
         return statusCode == null ? null : new PubStatus(statusCode);
     }
 
-    public String uriRoot() {
-        return uriInfo.getBaseUriBuilder().toTemplate();
+    public PubLink lnkAnonymousInfo() {
+        String href = uriInfo.getBaseUriBuilder().path($api_v1).path($anonymous).path($info).toTemplate();
+        return PubLink.create("status", href, "GET: Fetch the current system status.");
     }
 
-    public String uriApi() {
-        return uriInfo.getBaseUriBuilder()
+    public PubLink lnkApiV1() {
+        String href = uriInfo.getBaseUriBuilder()
                 .path($api_v1)
                 .toTemplate();
+
+        return PubLink.create("api-v1", href);
     }
 
-    public String uriAuthenticate() {
-        return uriInfo.getBaseUriBuilder()
-                .path($api_v1)
-                .path($authenticate)
-                .toTemplate();
-    }
-
-    public String uriAdmin() {
-        return uriInfo.getBaseUriBuilder()
+    public PubLink lnkAdmin() {
+        String href = uriInfo.getBaseUriBuilder()
                 .path($api_v1)
                 .path($admin)
                 .toTemplate();
+
+        return PubLink.create("admin", href, "GET: Administer all profiles for this system.");
     }
 
-    private String uriAdminDomain(DomainProfileEo domainProfile) {
-        return uriInfo.getBaseUriBuilder()
+    private PubLink lnkAdminDomain(DomainProfileEo domainProfile) {
+        String href = uriInfo.getBaseUriBuilder()
                 .path($api_v1)
                 .path($admin)
                 .path($domains)
                 .path(domainProfile.getDomainName())
                 .toTemplate();
+
+        return PubLink.create("admin-domain", href, "GET: Fetch list of all domains: ~includes[links,items]");
     }
 
-    private String uriImpersonate(DomainProfileEo domainProfile) {
-        return uriInfo.getBaseUriBuilder()
+    private PubLink lnkImpersonate(DomainProfileEo domainProfile) {
+        String href = uriInfo.getBaseUriBuilder()
                 .path($api_v1)
                 .path($admin)
                 .path($domains)
                 .path(domainProfile.getDomainName())
                 .path($impersonate)
                 .toTemplate();
+
+        return PubLink.create("impersonate", href, "GET: Impersonate the specified domain.");
     }
 
-    public String uriDomains(List<String> includes, Object offset, Object limit) {
+    public List<PubLink> lnkDomains(List<String> includes, Object offsetObj, Object limitObj) {
+        List<PubLink> list = new ArrayList<>();
+        list.add(createDomainsLnk(includes, offsetObj, limitObj));
+        list.add(createDomainsLnk(singletonList("links"), offsetObj, limitObj));
+        list.add(createDomainsLnk(singletonList("items"), offsetObj, limitObj));
+        return list;
+    }
+
+    public PubLink createDomainsLnk(List<String> includes, Object offsetObj, Object limitObj) {
         if (includes == null || includes.isEmpty()) includes = emptyList();
 
         UriBuilder builder = uriInfo.getBaseUriBuilder()
@@ -353,35 +359,58 @@ public class PubUtils {
                 .path($admin)
                 .path($domains);
 
+        addOffsetAndLimit(builder, offsetObj, limitObj);
+
         for (String include : includes) {
             builder.queryParam("include", include);
         }
 
-        return builder.toTemplate();
+        String href = builder.toTemplate();
+        return PubLink.create("admin-domains", href);
     }
 
-    public String uriToken(String tokenName) {
-        return uriInfo.getBaseUriBuilder()
+    public List<PubLink     > lnkDomainsFPNL(List<String> includes, Object offsetObj, Object limitObj) {
+        List<PubLink> list = new ArrayList<>();
+        list.add(createDomainsLnk(includes, offsetObj, limitObj).toFirst());
+        list.add(createDomainsLnk(includes, offsetObj, limitObj).toPrev());
+        list.add(createDomainsLnk(includes, offsetObj, limitObj).toNext());
+        list.add(createDomainsLnk(includes, offsetObj, limitObj).toLast());
+        return list;
+    }
+
+    public PubLink lnkAuthenticatedTokens() {
+        String href = uriInfo.getBaseUriBuilder().path($api_v1).path($me).path($tokens).toTemplate();
+        return PubLink.create("tokens", href, "POST: Generate a new token for the specified user: *domainName, *username, *password.","GET: Fetch all tokens.");
+    }
+
+    public PubLink lnkAnonymousTokens() {
+        String href = uriInfo.getBaseUriBuilder().path($api_v1).path($anonymous).path($tokens).toTemplate();
+        return PubLink.create("tokens", href, "POST: Generate a new token for the specified user: *domainName, *username, *password.");
+    }
+
+    public PubLink lnkToken(String tokenName) {
+        String href = uriInfo.getBaseUriBuilder().path($api_v1).path($me).path($tokens).path(tokenName).toTemplate();
+        return PubLink.create("token", href, "GET: Fetch the specified token.");
+    }
+
+    public PubLink lnkMe() {
+
+        String href = uriInfo.getBaseUriBuilder()
                 .path($api_v1)
                 .path($me)
-                .path($tokens)
-                .path(tokenName)
                 .toTemplate();
+
+        return PubLink.create("me", href, "GET: Fetch the profile for the currently authenticated user.");
     }
 
-    public String uriMe() {
-        return uriInfo.getBaseUriBuilder()
-                .path($api_v1)
-                .path($me)
-                .toTemplate();
-    }
-
-    public String uriPolicyById(PolicyEo policy) {
-        return uriInfo.getBaseUriBuilder()
+    public PubLink lnkPolicyById(PolicyEo policy) {
+        String href = uriInfo.getBaseUriBuilder()
                 .path($api_v1)
                 .path($policies)
                 .path(policy.getId())
                 .toTemplate();
+
+        return PubLink.create("policy", href, "GET: Fetch the specific policy.");
     }
 
 //    public String uriRealmById(RealmEo realm) {
@@ -400,7 +429,16 @@ public class PubUtils {
 //                .toTemplate();
 //    }
 
-    private String uriPolicies(List<String> includes) {
+
+    private List<PubLink> lnkPolicies() {
+        List<PubLink> list = new ArrayList<>();
+        list.add(createPoliciesLnk(null));
+        list.add(createPoliciesLnk(singletonList("links")).toLinks());
+        list.add(createPoliciesLnk(singletonList("items")).toItems());
+        return list;
+    }
+
+    private PubLink createPoliciesLnk(List<String> includes) {
         if (includes == null || includes.isEmpty()) includes = emptyList();
 
         UriBuilder builder = uriInfo.getBaseUriBuilder()
@@ -412,37 +450,72 @@ public class PubUtils {
             builder.queryParam("include", include);
         }
 
-        return builder.toTemplate();
+        String href = builder.toTemplate();
+        return PubLink.create("policies", href);
     }
 
-    public String uriIdentities(List<String> includes, String username, Object offsetObj, Object limitObj) {
+    public List<PubLink> lnkIdentities(List<String> includes, String username, Object offsetObj, Object limitObj) {
+        List<PubLink> list = new ArrayList<>();
+        list.add(createIdentitiesLnk(includes, username, offsetObj, limitObj));
+        list.add(createIdentitiesLnk(singletonList("links"), username, offsetObj, limitObj));
+        list.add(createIdentitiesLnk(singletonList("items"), username, offsetObj, limitObj));
+        return list;
+    }
+
+    public List<PubLink> lnkIdentitiesFPNL(List<String> includes, String username, Object offsetObj, Object limitObj) {
+        List<PubLink> list = new ArrayList<>();
+        list.add(createIdentitiesLnk(includes, username, offsetObj, limitObj).toFirst());
+        list.add(createIdentitiesLnk(includes, username, offsetObj, limitObj).toPrev());
+        list.add(createIdentitiesLnk(includes, username, offsetObj, limitObj).toNext());
+        list.add(createIdentitiesLnk(includes, username, offsetObj, limitObj).toLast());
+        return list;
+    }
+
+    public PubLink createIdentitiesLnk(List<String> includes, String username, Object offsetObj, Object limitObj) {
         if (includes == null) includes = emptyList();
 
-        int offset = toInt(offsetObj, 0, "offset");
-        int limit = toInt(limitObj, Identities.DEFAULT_LIMIT, "limit");
         if (username == null) username = "";
 
         UriBuilder builder = uriInfo.getBaseUriBuilder()
                 .path($api_v1)
                 .path($me)
                 .path($identities)
-                .queryParam("username", username)
-                .queryParam("offset", offset)
-                .queryParam("limit", limit);
+                .queryParam("username", username);
+
+        addOffsetAndLimit(builder, offsetObj, limitObj);
 
         for (String include : includes) {
             builder.queryParam("include", include);
         }
 
-        return builder.toTemplate();
+        String href = builder.toTemplate();
+        return PubLink.create("identities", href);
     }
 
-    public String uriUserById(IdentityEo user) {
-        return uriInfo.getBaseUriBuilder()
+    public PubLink lnkIdentityById(IdentityEo user) {
+        String href = uriInfo.getBaseUriBuilder()
                 .path($api_v1)
                 .path($identities)
                 .path(user == null ? "{id}" : user.getId())
                 .toTemplate();
+
+        return PubLink.create("identity", href, "GET: Fetch the specified identity.");
+    }
+
+    public PubLink lnkAnonymous() {
+        String href = uriInfo.getBaseUriBuilder()
+                .path($api_v1)
+                .path($anonymous)
+                .toTemplate();
+
+        return PubLink.create("identity", href, "GET: Fetch the specified identity.");
+    }
+
+    private void addOffsetAndLimit(UriBuilder builder, Object offsetObj, Object limitObj) {
+        int offset = toInt(offsetObj, 0, "offset");
+        int limit = toInt(limitObj, Identities.DEFAULT_LIMIT, "limit");
+        builder.queryParam("offset", offset);
+        builder.queryParam("limit", limit);
     }
 
     public static int toInt(Object value, Object defaultValue, String paramName) {
@@ -458,5 +531,11 @@ public class PubUtils {
         } catch (Exception e) {
             throw ApiException.badRequest(String.format("The parameter %s must be an integral value.", paramName));
         }
+    }
+
+    public Response movedPermanently(PubLink link) {
+        URI location = URI.create(link.getHref());
+        return Response.status(Response.Status.MOVED_PERMANENTLY).location(location).build();
+
     }
 }

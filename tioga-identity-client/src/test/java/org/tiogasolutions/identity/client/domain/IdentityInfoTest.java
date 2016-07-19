@@ -13,7 +13,7 @@ public class IdentityInfoTest {
     private final JsonTranslator translator = new TiogaJacksonTranslator();
 
     public void testTranslation() throws Exception {
-        PubLinks oldLinks = new PubLinks();
+        PubLinks oldLinks = PubLinks.empty();
         oldLinks.add("self", "http://self.com");
         oldLinks.add("google", "http://google.com");
         oldLinks.add("whatever", "http://whatever.com");

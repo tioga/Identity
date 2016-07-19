@@ -36,11 +36,8 @@ import static org.tiogasolutions.identity.kernel.constants.Paths.$api_v1;
 public class RootResource extends RootResourceSupport {
 
     private static final Log log = LogFactory.getLog(RootResource.class);
-    private static final Long startedAt = System.currentTimeMillis();
 
     private PubUtils pubUtils;
-
-    @Context
     private UriInfo uriInfo;
 
     @Context
@@ -49,14 +46,14 @@ public class RootResource extends RootResourceSupport {
     @Autowired
     private ExecutionManager<IdentityKernel> executionManager;
 
-    @Autowired
-    private DomainStore domainStore;
-
-    @Autowired
-    private IdentityStore identityStore;
-
     public RootResource() {
         log.info("Created ");
+    }
+
+    @Context
+    public void setUriInfo(UriInfo uriInfo) {
+        this.uriInfo = uriInfo;
+        this.pubUtils = new PubUtils(uriInfo);
     }
 
     @Override
@@ -65,39 +62,19 @@ public class RootResource extends RootResourceSupport {
     }
 
     @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getInfo() throws Exception {
-
-        PubLinks links = new PubLinks();
-        links.add("self", getPubUtils().uriRoot());
-        links.add("api", getPubUtils().uriApi());
-        links.add("authenticate", getPubUtils().uriAuthenticate());
-        links.add("me", getPubUtils().uriMe());
-        links.add("admin", getPubUtils().uriAdmin());
-
-        long elapsed = System.currentTimeMillis() - startedAt;
-        IdentityInfo identityInfo = new IdentityInfo(HttpStatusCode.OK, links, elapsed);
-
-        return getPubUtils().toResponse(identityInfo).build();
+    public Response getRoot() throws Exception {
+        return pubUtils.movedPermanently(pubUtils.lnkApiV1());
     }
 
     @GET
     @Path($api)
     public Response getApi() throws Exception {
-        URI location = URI.create(getPubUtils().uriApi());
-        return Response.seeOther(location).build();
+        return pubUtils.movedPermanently(pubUtils.lnkApiV1());
     }
 
     @Path($api_v1)
     public ApiResource getApiV1() throws Exception {
-        return new ApiResource(executionManager, getPubUtils(), domainStore, identityStore);
-    }
-
-    private PubUtils getPubUtils() {
-        if (pubUtils == null) {
-            pubUtils = new PubUtils(uriInfo);
-        }
-        return pubUtils;
+        return new ApiResource(executionManager, pubUtils);
     }
 }
 

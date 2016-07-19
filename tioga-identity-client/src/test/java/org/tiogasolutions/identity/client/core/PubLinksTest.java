@@ -12,7 +12,7 @@ public class PubLinksTest {
 
     public void testEmptyTranslation() throws Exception {
 
-        PubLinks oldLinks = new PubLinks();
+        PubLinks oldLinks = PubLinks.empty();
 
         String json = translator.toJson(oldLinks);
         System.out.println(json);
@@ -23,9 +23,9 @@ public class PubLinksTest {
 
     public void testTranslation() throws Exception {
 
-        PubLinks oldLinks = new PubLinks();
-        oldLinks.add("example", "http://www.example.com", "An Example");
-        oldLinks.add("google", "http://www.google.com", "Search Engine");
+        PubLinks oldLinks = PubLinks.empty();
+        oldLinks.add("example", "http://www.example.com");
+        oldLinks.add("google", "http://www.google.com");
 
         String json = translator.toJson(oldLinks);
         System.out.println(json);

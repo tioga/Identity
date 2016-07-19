@@ -9,13 +9,13 @@ import java.util.List;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.unmodifiableList;
 
-public class IdentityTokenBasedSecurityContext implements SecurityContext {
+public class IdentitySecurityContext implements SecurityContext {
 
     private final boolean secure;
     private final IdentityKernel identityKernel;
     private final List<String> roles;
 
-    public IdentityTokenBasedSecurityContext(SecurityContext securityContext, IdentityKernel identityKernel, List<String> roles) {
+    public IdentitySecurityContext(SecurityContext securityContext, IdentityKernel identityKernel, List<String> roles) {
         this.identityKernel = identityKernel;
         this.secure = securityContext.isSecure();
         this.roles = (roles == null ? emptyList() : unmodifiableList(roles));
@@ -46,6 +46,6 @@ public class IdentityTokenBasedSecurityContext implements SecurityContext {
 
     @Override
     public Principal getUserPrincipal() {
-        return identityKernel::getDomainName;
+        return identityKernel.getCurrentDomainProfile()::getDomainName;
     }
 }

@@ -19,6 +19,7 @@ public class IdentityMain {
 
     private static final String PREFIX = "identity";
     private static final Logger log = getLogger(IdentityMain.class);
+    public  static final Long startedAt = System.currentTimeMillis();
 
     public static void main(String... args) throws Exception {
         // Priority #1, configure default logging levels. This will be

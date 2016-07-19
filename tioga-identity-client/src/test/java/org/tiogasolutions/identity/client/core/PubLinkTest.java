@@ -12,13 +12,12 @@ public class PubLinkTest {
 
     public void testTranslation() throws Exception {
 
-        PubLink oldLink = new PubLink("self", "http://example.com/", "An Example");
+        PubLink oldLink = PubLink.create("self", "http://example.com/");
 
         String json = translator.toJson(oldLink);
         PubLink newLink = translator.fromJson(PubLink.class, json);
 
         Assert.assertEquals(oldLink.getHref(), newLink.getHref());
         Assert.assertEquals(oldLink.getRel(), newLink.getRel());
-        Assert.assertEquals(oldLink.getTitle(), newLink.getTitle());
     }
 }

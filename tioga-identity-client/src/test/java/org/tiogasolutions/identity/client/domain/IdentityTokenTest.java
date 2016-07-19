@@ -15,7 +15,7 @@ public class IdentityTokenTest {
 
     public void testTranslation() throws Exception {
 
-        PubLinks links = new PubLinks();
+        PubLinks links = PubLinks.empty();
 
         IdentityToken oldToken = new IdentityToken(
                 new PubStatus(HttpStatusCode.OK),
