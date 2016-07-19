@@ -12,7 +12,6 @@ import org.tiogasolutions.app.standard.jackson.StandardObjectMapper;
 import org.tiogasolutions.app.standard.jaxrs.StandardReaderWriterProvider;
 import org.tiogasolutions.dev.common.LogbackUtils;
 import org.tiogasolutions.dev.common.exceptions.ApiException;
-import org.tiogasolutions.identity.client.IdentityClient;
 import org.tiogasolutions.identity.client.LiveIdentityClient;
 import org.tiogasolutions.identity.client.core.PubItem;
 import org.tiogasolutions.identity.client.core.PubLink;
@@ -66,12 +65,12 @@ public abstract class AbstractEngineJaxRsTest extends JerseyTestNg.ContainerPerM
         PubLinks links = item.get_links();
         Assert.assertNotNull(links);
 
-//        for (PubLink link : item.get_links().values()) {
-//            try {
-//                client.getOptions(link);
-//            } catch (ApiException e) {
-//                Assert.fail(format("The link \"%s\" is not valid: %s", link.getRel(), link.getHref()), e);
-//            }
-//        }
+        for (PubLink link : item.get_links().values()) {
+            try {
+                client.getOptions(link);
+            } catch (ApiException e) {
+                Assert.fail(format("The link \"%s\" is not valid: %s", link.getRel(), link.getHref()), e);
+            }
+        }
     }
 }

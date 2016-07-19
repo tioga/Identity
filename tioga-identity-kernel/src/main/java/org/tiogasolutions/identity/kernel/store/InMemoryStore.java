@@ -22,13 +22,11 @@ public class InMemoryStore implements DomainStore, IdentityStore {
     private static final String SPENDING_FYI_DOMAIN = "spending-fyi";
     private static final String PHOTO_LAB_DOMAIN = "photo-lab";
     private static final String ACK_IM_DOMAIN = "ack-im";
+    private static final String ACME_SYSTEMS_DOMAIN = "acme-systems";
+    private static final String DISNEY_DOMAIN = "disney";
 
     public InMemoryStore() {
-        createInternal();
-        createPhotoLab();
-        createSpending();
-        createAckIm();
-        createTimeAndBilling();
+        reset();
     }
 
     private void createInternal() {
@@ -59,6 +57,63 @@ public class InMemoryStore implements DomainStore, IdentityStore {
         addUser(domain, "chrisjasp@gmail.com", "password-123").assign(realm, ownerRole);
         addUser(domain, "ack-im-client", "password-123").assign(realm, ownerRole);
 
+        realm = policy.addRealm(ACME_SYSTEMS_DOMAIN);
+        addUser(domain, "acme-systems-client", "password-123").assign(realm, ownerRole);
+        addUser(domain, "wile.e.coyote@acme-systems.com", "password-123").assign(realm, ownerRole);
+
+        this.domainProfiles.add(domain);
+    }
+
+    public static final String DISNEY_CLIENT_TOKEN = "disney-9876543210";
+
+    /** This systems is used explicitly in the unit tests and should not be removed */
+    private void createDisney() {
+
+        DomainProfileEo domain = DomainProfileEo.create(DISNEY_DOMAIN);
+        domain.setAccessToken("disney-client", DISNEY_CLIENT_TOKEN);
+
+        addUser(domain, "donald.duck@disney.com", "password-123");
+
+        this.domainProfiles.add(domain);
+    }
+
+    public static final String ACME_SYSTEM_CLIENT_TOKEN = "acme-9876543210";
+
+    /** This systems is used explicitly in the unit tests and should not be removed */
+    private void createAcmeSystems() {
+
+        DomainProfileEo domain = DomainProfileEo.create(ACME_SYSTEMS_DOMAIN);
+        // Hack the access tokens for testability
+        domain.setAccessToken("acme-systems-client", ACME_SYSTEM_CLIENT_TOKEN);
+        domain.setAccessToken("wile.e.coyote@acme-systems.com", "acme-0123456789");
+
+        IdentityEo client = addUser(domain, "acme-systems-client", "password-123");
+        IdentityEo mMouse = addUser(domain, "mickey.mouse@disney.com", "password-123");
+        IdentityEo coyote = addUser(domain, "wile.e.coyote@acme-systems.com", "password-123");
+
+
+        PolicyEo policy = domain.addPolicy("acme-hardware");
+
+        RoleEo adminRole = policy.addRole("Administrator");
+        adminRole.assign(policy.addPermission("DELETE"));
+        adminRole.assign(policy.addPermission("REFUND"));
+
+        RoleEo userRole = policy.addRole("User");
+        userRole.assign(policy.addPermission("CANCEL"));
+        userRole.assign(policy.addPermission("SEND"));
+
+        RoleEo guestRole = policy.addRole("Guest");
+
+        RealmEo secureRealm = policy.addRealm("Secure");
+        RealmEo publicRealm = policy.addRealm("Public");
+
+        client.assign(secureRealm, adminRole);
+
+        coyote.assign(secureRealm, adminRole, userRole, guestRole);
+        coyote.assign(publicRealm, userRole, guestRole);
+
+        mMouse.assign(publicRealm, guestRole);
+
         this.domainProfiles.add(domain);
     }
 
@@ -66,9 +121,9 @@ public class InMemoryStore implements DomainStore, IdentityStore {
 
         DomainProfileEo domain = DomainProfileEo.create(ACK_IM_DOMAIN);
         // Hack the access tokens for testability
-        domain.setAccessToken("me@jacobparr.com", "9876543210");
-        domain.setAccessToken("chrisjasp@gmail.com", "9876543210");
-        domain.setAccessToken("ack-im-client", "9876543210");
+        domain.setAccessToken("me@jacobparr.com", "ack-9876543210");
+        domain.setAccessToken("chrisjasp@gmail.com", "ack-0123456789");
+        domain.setAccessToken("ack-im-client", "ack-0918273645");
 
         PolicyEo policy = domain.addPolicy("default-policy");
         RealmEo realm = policy.addRealm("default-realm");
@@ -85,8 +140,8 @@ public class InMemoryStore implements DomainStore, IdentityStore {
 
         DomainProfileEo domain = DomainProfileEo.create(SPENDING_FYI_DOMAIN);
         // Hack the access tokens for testability
-        domain.setAccessToken("spending-client", "9876543210");
-        domain.setAccessToken("me@jacobparr.com", "9876543210");
+        domain.setAccessToken("spending-client", "fyi-9876543210");
+        domain.setAccessToken("me@jacobparr.com", "fyi-0123456789");
 
         PolicyEo policy = domain.addPolicy("default-policy");
 
@@ -138,8 +193,8 @@ public class InMemoryStore implements DomainStore, IdentityStore {
     private void createTimeAndBilling() {
         DomainProfileEo domain = DomainProfileEo.create(TIME_AND_BILLING);
         // Hack the access tokens for testability
-        domain.setAccessToken("harlan.work@gmail.com", "9876543210");
-        domain.setAccessToken("time-and-billing-client", "9876543210");
+        domain.setAccessToken("harlan.work@gmail.com",   "tnb-9876543210");
+        domain.setAccessToken("time-and-billing-client", "tnb-0123456789");
 
         PolicyEo policy = domain.addPolicy("default-policy");
         RealmEo realm = policy.addRealm("default-realm");
@@ -153,9 +208,9 @@ public class InMemoryStore implements DomainStore, IdentityStore {
     private void createPhotoLab() {
         DomainProfileEo domain = DomainProfileEo.create(PHOTO_LAB_DOMAIN);
         // Hack the access tokens for testability
-        domain.setAccessToken("me@jacobparr.com", "9876543210");
-        domain.setAccessToken("harlan.work@gmail.com", "9876543210");
-        domain.setAccessToken("photo-lab-client", "9876543210");
+        domain.setAccessToken("me@jacobparr.com", "pl-9876543210");
+        domain.setAccessToken("harlan.work@gmail.com", "pl-0123456789");
+        domain.setAccessToken("photo-lab-client", "pl-0918273645");
 
         // Create the users of this profile
         IdentityEo jacob = addUser(domain, "me@jacobparr.com", "password-123");
@@ -202,7 +257,8 @@ public class InMemoryStore implements DomainStore, IdentityStore {
     }
 
     private IdentityEo addUser(DomainProfileEo domainProfile, String username, String password) {
-        IdentityEo user = IdentityEo.create(domainProfile, username, password);
+        String id = domainProfile.getDomainName() + ":" + username;
+        IdentityEo user = IdentityEo.createTest(domainProfile, username, password, id);
         identities.add(user);
         return user;
     }
@@ -253,7 +309,7 @@ public class InMemoryStore implements DomainStore, IdentityStore {
                 return identity;
             }
         }
-        throw ApiException.notFound("The specified user was not found.");
+        throw ApiException.notFound("The specified identity was not found.");
     }
 
     public IdentityEo findIdentityById(String id) {
@@ -262,7 +318,7 @@ public class InMemoryStore implements DomainStore, IdentityStore {
                 return identity;
             }
         }
-        throw ApiException.notFound("The specified user was not found.");
+        throw ApiException.notFound("The specified identity was not found.");
     }
 
     @Override
@@ -275,5 +331,18 @@ public class InMemoryStore implements DomainStore, IdentityStore {
                 .collect(Collectors.toList()));
 
         return list;
+    }
+
+    public void reset() {
+        domainProfiles.clear();
+        identities.clear();
+
+        createInternal();
+        createPhotoLab();
+        createSpending();
+        createAckIm();
+        createAcmeSystems();
+        createTimeAndBilling();
+        createDisney();
     }
 }

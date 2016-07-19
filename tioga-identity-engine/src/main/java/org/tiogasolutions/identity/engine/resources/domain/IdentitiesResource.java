@@ -7,6 +7,7 @@ import org.tiogasolutions.dev.common.net.HttpStatusCode;
 import org.tiogasolutions.identity.engine.resources.ResourceSupport;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
+import org.tiogasolutions.identity.kernel.constants.Paths;
 import org.tiogasolutions.identity.kernel.domain.DomainProfileEo;
 import org.tiogasolutions.identity.kernel.domain.IdentityEo;
 import org.tiogasolutions.identity.client.domain.Identity;
@@ -17,6 +18,9 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.tiogasolutions.identity.kernel.constants.Paths.$byId;
+import static org.tiogasolutions.identity.kernel.constants.Paths.$byUsername;
 
 public class IdentitiesResource extends ResourceSupport {
 
@@ -51,8 +55,9 @@ public class IdentitiesResource extends ResourceSupport {
     }
 
     @GET
-    @Path("/by-username/{username}")
+    @Path($byUsername+"/{username}")
     @Produces(MediaType.APPLICATION_JSON)
+    @SuppressWarnings("RSReferenceInspection")
     public Response getIdentityByUsername(@PathParam("username") String username) {
 
         DomainProfileEo domainProfile = getKernel().getCurrentDomainProfile();
@@ -68,13 +73,16 @@ public class IdentitiesResource extends ResourceSupport {
     }
 
     @GET
-    @Path("/by-id/{identityId}")
+    @Path($byId+"/{identityId}")
     @Produces(MediaType.APPLICATION_JSON)
+    @SuppressWarnings("RSReferenceInspection")
     public Response getIdentityById(@PathParam("identityId") String userId) {
-        IdentityEo user = getKernel().findIdentityById(userId);
+
+        DomainProfileEo domainProfile = getKernel().getCurrentDomainProfile();
+        IdentityEo user = getKernel().findIdentityById(domainProfile, userId);
 
         if (user == null) {
-            throw ApiException.notFound("The specified user was not found.");
+            throw ApiException.notFound("The specified identity was not found.");
         }
 
         DomainProfileEo currentDomain = getKernel().getCurrentDomainProfile();

@@ -64,6 +64,7 @@ public class PubUtils {
         }
 
         links.addAll(lnkPolicies());
+        links.addAll(lnkIdentities(null, null, null, null));
 
         return new IdentityToken(
                 toStatus(statusCode),
@@ -118,12 +119,6 @@ public class PubUtils {
         links.addAll(lnkPolicies());
         links.addAll(lnkIdentities(null, null, null, null));
 
-        List<IdentityPolicy> pubPolicies = new ArrayList<>();
-        for (PolicyEo policy : domainProfile.getPolicies()) {
-            IdentityPolicy identityPolicy = toPolicy(null, policy);
-            pubPolicies.add(identityPolicy);
-        }
-
         return new IdentityDomain(
                 toStatus(statusCode),
                 links,
@@ -131,8 +126,7 @@ public class PubUtils {
                 domainProfile.getRevision(),
                 domainProfile.getStatus(),
                 domainProfile.getAuthorizationTokens(),
-                domainProfile.getDbName(),
-                pubPolicies);
+                domainProfile.getDbName());
     }
 
     public IdentityDomains toDomains(HttpStatusCode statusCode, List<DomainProfileEo> domainProfiles, List<String> includes, Object offsetObj, Object limitObj) {
@@ -238,8 +232,10 @@ public class PubUtils {
     public Identity toIdentity(HttpStatusCode statusCode, DomainProfileEo domain, IdentityEo identity) {
 
         PubLinks links = PubLinks.self(lnkIdentityById(identity));
+        links.add(lnkIdentityByUsername(identity));
+        links.addAll(lnkPolicies());
 
-        Set<IdentityGrant> grants = new HashSet<>();
+        Map<String,List<String>>  grantsMap = new HashMap<>();
         Set<IdentityRole> roles = new HashSet<>();
 
         for (AssignedRoleEo assignedRole : identity.getAssignedRoles()) {
@@ -251,8 +247,18 @@ public class PubUtils {
                     .map(PermissionEo::getPermissionName)
                     .collect(Collectors.toList());
 
-            grants.add(new IdentityGrant(realm.getRealmName(), permissions));
             roles.add(new IdentityRole(role.getRoleName(), permissions));
+
+            if (grantsMap.containsKey(realm.getRealmName()) == false) {
+                grantsMap.put(realm.getRealmName(), new ArrayList<>());
+            }
+            grantsMap.get(realm.getRealmName()).addAll(permissions);
+        }
+
+        Set<IdentityGrant> grants = new HashSet<>();
+        for (Map.Entry<String,List<String>> entry : grantsMap.entrySet()) {
+            IdentityGrant grant = new IdentityGrant(entry.getKey(), entry.getValue());
+            grants.add(grant);
         }
 
         return new Identity(
@@ -279,7 +285,6 @@ public class PubUtils {
         for (IdentityEo user : identities) {
             Identity pubUser = toIdentity(null, domain, user);
             usersList.add(pubUser);
-
             linksList.add(pubUser.get_links().get("self").clone(pubUser.getUsername()));
         }
 
@@ -457,8 +462,8 @@ public class PubUtils {
     public List<PubLink> lnkIdentities(List<String> includes, String username, Object offsetObj, Object limitObj) {
         List<PubLink> list = new ArrayList<>();
         list.add(createIdentitiesLnk(includes, username, offsetObj, limitObj));
-        list.add(createIdentitiesLnk(singletonList("links"), username, offsetObj, limitObj));
-        list.add(createIdentitiesLnk(singletonList("items"), username, offsetObj, limitObj));
+        list.add(createIdentitiesLnk(singletonList("links"), username, offsetObj, limitObj).toLinks());
+        list.add(createIdentitiesLnk(singletonList("items"), username, offsetObj, limitObj).toItems());
         return list;
     }
 
@@ -493,13 +498,29 @@ public class PubUtils {
     }
 
     public PubLink lnkIdentityById(IdentityEo user) {
+
         String href = uriInfo.getBaseUriBuilder()
                 .path($api_v1)
+                .path($me)
                 .path($identities)
+                .path($byId)
                 .path(user == null ? "{id}" : user.getId())
                 .toTemplate();
 
         return PubLink.create("identity", href, "GET: Fetch the specified identity.");
+    }
+
+    public PubLink lnkIdentityByUsername(IdentityEo user) {
+
+        String href = uriInfo.getBaseUriBuilder()
+                .path($api_v1)
+                .path($me)
+                .path($identities)
+                .path($byUsername)
+                .path(user == null ? "{username}" : user.getUsername())
+                .toTemplate();
+
+        return PubLink.create("identity-by-username", href, "GET: Fetch the specified identity.");
     }
 
     public PubLink lnkAnonymous() {

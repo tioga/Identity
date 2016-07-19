@@ -54,16 +54,6 @@ public class ApiResource extends ResourceSupport {
         return new MeResource(executionManager, pubUtils);
     }
 
-    @Path($identities)
-    public IdentitiesResource getUsersResource() {
-        return new IdentitiesResource(executionManager, pubUtils);
-    }
-
-    @Path($policies)
-    public PoliciesResource getPoliciesResource() {
-        return new PoliciesResource(executionManager, pubUtils);
-    }
-
     @Path($anonymous)
     public AnonymousResource getAnonymousResource() {
         return new AnonymousResource(executionManager, pubUtils);

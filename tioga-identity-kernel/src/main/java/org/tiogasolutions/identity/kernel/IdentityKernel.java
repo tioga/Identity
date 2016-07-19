@@ -1,5 +1,6 @@
 package org.tiogasolutions.identity.kernel;
 
+import org.tiogasolutions.dev.common.EqualsUtils;
 import org.tiogasolutions.dev.common.StringUtils;
 import org.tiogasolutions.dev.common.exceptions.ApiException;
 import org.tiogasolutions.identity.kernel.domain.DomainProfileEo;
@@ -30,8 +31,15 @@ public class IdentityKernel {
         return identityStore.findIdentityByUsername(domainProfile, username);
     }
 
-    public IdentityEo findIdentityById(String userId) {
-        return identityStore.findIdentityById(userId);
+    public IdentityEo findIdentityById(DomainProfileEo domainProfile, String userId) {
+        IdentityEo identity = identityStore.findIdentityById(userId);
+
+        if (EqualsUtils.objectsNotEqual(domainProfile.getDomainName(), identity.getDomainName())) {
+            // HACKER ALERT: We found it, but it belongs to someone  else.
+            throw ApiException.forbidden("The specified identity was not found.");
+        }
+
+        return identity;
     }
 
     public List<IdentityEo> getAllIdentities(DomainProfileEo domainProfile, int offset, int limit) {

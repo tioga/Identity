@@ -2,6 +2,7 @@ package org.tiogasolutions.identity.kernel.domain;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import org.tiogasolutions.dev.common.id.uuid.TimeUuid;
 
 import java.util.*;
 
@@ -74,8 +75,16 @@ public class IdentityEo {
 
     public static IdentityEo create(DomainProfileEo domainProfile, String username, String password) {
 
-        String id = domainProfile.getDomainName() + ":" + username;
+        return new IdentityEo(
+                TimeUuid.randomUUID().toString(),
+                null,
+                domainProfile.getDomainName(),
+                username,
+                password,
+                emptyList());
+    }
 
+    public static IdentityEo createTest(DomainProfileEo domainProfile, String username, String password, String id) {
         return new IdentityEo(
             id,
             null,

@@ -18,16 +18,13 @@ public class IdentityDomain extends PubItem {
     private final Map<String,String> authorizationTokens = new HashMap<>();
     private final String dbName;
 
-    private final List<IdentityPolicy> policies = new ArrayList<>();
-
     public IdentityDomain(@JsonProperty("_status")PubStatus _status,
                           @JsonProperty("_links") PubLinks _links,
                           @JsonProperty("domainName") String domainName,
                           @JsonProperty("revision") String revision,
                           @JsonProperty("status") DomainStatus status,
                           @JsonProperty("authorizationToken") Map<String,String> authorizationTokens,
-                          @JsonProperty("dbName") String dbName,
-                          @JsonProperty("policies") List<IdentityPolicy> policies) {
+                          @JsonProperty("dbName") String dbName) {
 
         super(_status, _links);
 
@@ -37,7 +34,6 @@ public class IdentityDomain extends PubItem {
         this.dbName = dbName;
 
         if (authorizationTokens != null) this.authorizationTokens.putAll(authorizationTokens);
-        if (policies != null) this.policies.addAll(policies);
     }
 
     public Map<String, String> getAuthorizationTokens() {
@@ -58,9 +54,5 @@ public class IdentityDomain extends PubItem {
 
     public String getDbName() {
         return dbName;
-    }
-
-    public List<IdentityPolicy> getPolicies() {
-        return policies;
     }
 }

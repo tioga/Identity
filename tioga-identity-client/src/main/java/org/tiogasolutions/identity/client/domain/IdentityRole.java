@@ -47,4 +47,8 @@ public class IdentityRole {
         result = 31 * result + permissions.hashCode();
         return result;
     }
+
+    public String toString() {
+        return roleName + " " + permissions;
+    }
 }

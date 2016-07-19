@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Configuration;
 import org.tiogasolutions.app.standard.StandardApplication;
 import org.tiogasolutions.app.standard.execution.ExecutionManager;
 import org.tiogasolutions.app.standard.jackson.StandardObjectMapper;
+import org.tiogasolutions.app.standard.jaxrs.StandardJaxRsExceptionMapper;
 import org.tiogasolutions.app.standard.jaxrs.auth.AnonymousRequestFilterAuthenticator;
 import org.tiogasolutions.app.standard.jaxrs.filters.StandardRequestFilterConfig;
 import org.tiogasolutions.app.standard.jaxrs.filters.StandardResponseFilterConfig;
@@ -18,17 +19,16 @@ import org.tiogasolutions.app.standard.readers.BundledStaticContentReader;
 import org.tiogasolutions.app.standard.view.thymeleaf.ThymeleafMessageBodyWriterConfig;
 import org.tiogasolutions.dev.jackson.TiogaJacksonModule;
 import org.tiogasolutions.dev.jackson.TiogaJacksonTranslator;
-import org.tiogasolutions.identity.engine.support.UnauthenticatedRequestFilterAuthenticator;
-import org.tiogasolutions.identity.engine.support.IdentityAuthenticationResponseFactory;
-import org.tiogasolutions.identity.engine.support.IdentityRequestFilterDomainResolver;
-import org.tiogasolutions.identity.engine.support.IdentityTokenRequestFilterAuthenticator;
+import org.tiogasolutions.identity.engine.support.*;
 import org.tiogasolutions.identity.kernel.CouchServersConfig;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.store.DomainStore;
 import org.tiogasolutions.identity.kernel.store.IdentityStore;
+import org.tiogasolutions.lib.jaxrs.domain.TiogaExceptionInfo;
 import org.tiogasolutions.runners.grizzly.GrizzlyServer;
 import org.tiogasolutions.runners.grizzly.GrizzlyServerConfig;
 
+import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
 
@@ -130,6 +130,9 @@ public class IdentityEngineDefaultSpringConfig {
     public ResourceConfig resourceConfig(ApplicationContext applicationContext) {
         StandardApplication application = new StandardApplication();
         application.getClasses().add(RolesAllowedDynamicFeature.class);
+
+        application.getClasses().remove(StandardJaxRsExceptionMapper.class);
+        application.getClasses().add(IdentityExceptionMapper.class);
 
         ResourceConfig resourceConfig = ResourceConfig.forApplication(application);
         resourceConfig.property("contextConfig", applicationContext);

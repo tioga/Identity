@@ -13,6 +13,8 @@ public abstract class Paths {
     public static final String $domains = "domains";
     public static final String $impersonate = "impersonate";
     public static final String $identities = "identities";
+    public static final String $byId = "by-id";
+    public static final String $byUsername = "by-username";
     public static final String $policies = "policies";
 
 }

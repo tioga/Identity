@@ -5,13 +5,14 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static java.util.Collections.unmodifiableSet;
 
 public class IdentityGrant {
 
     private final String realmName;
-    private final Set<String> permissions = new HashSet<>();
+    private final Set<String> permissions = new TreeSet<>();
 
     public IdentityGrant(@JsonProperty("realmName") String realmName,
                          @JsonProperty("permissions") Collection<String> permissions) {
@@ -45,5 +46,10 @@ public class IdentityGrant {
         int result = realmName.hashCode();
         result = 31 * result + permissions.hashCode();
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return realmName + " " + permissions;
     }
 }

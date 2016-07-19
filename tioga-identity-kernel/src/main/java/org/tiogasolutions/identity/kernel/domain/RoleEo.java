@@ -59,4 +59,8 @@ public class RoleEo {
         String id = policy.getIdPath() + ":" + roleName;
         return new RoleEo(policy, id, roleName, emptyList());
     }
+
+    public void assign(PermissionEo permission) {
+        this.permissionIds.add(permission.getId());
+    }
 }
