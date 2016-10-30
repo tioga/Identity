@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.tiogasolutions.identity.client.core.PubLinksTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2016-10-30T06:32:23" hostname="Dragon" time="0.007">
+  <properties/>
+  <testcase name="testEmptyTranslation" classname="org.tiogasolutions.identity.client.core.PubLinksTest" time="0.004"/>
+  <testcase name="testTranslation" classname="org.tiogasolutions.identity.client.core.PubLinksTest" time="0.002"/>
+  <system-out><![CDATA[{ }
+{
+  "example" : {
+    "rel" : "example",
+    "href" : "http://www.example.com"
+  },
+  "google" : {
+    "rel" : "google",
+    "href" : "http://www.google.com"
+  }
+}
+]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

@@ -1,0 +1,11 @@
+{ }
+	¥{
+  "example" : {
+    "rel" : "example",
+    "href" : "http://www.example.com"
+  },
+  "google" : {
+    "rel" : "google",
+    "href" : "http://www.google.com"
+  }
+}

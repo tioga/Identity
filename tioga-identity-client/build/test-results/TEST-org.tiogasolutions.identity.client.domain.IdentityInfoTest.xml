@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="org.tiogasolutions.identity.client.domain.IdentityInfoTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2016-10-30T06:32:23" hostname="Dragon" time="0.171">
+  <properties/>
+  <testcase name="testTranslation" classname="org.tiogasolutions.identity.client.domain.IdentityInfoTest" time="0.171"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>
