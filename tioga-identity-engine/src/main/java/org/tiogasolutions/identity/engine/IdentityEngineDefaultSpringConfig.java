@@ -24,11 +24,9 @@ import org.tiogasolutions.identity.kernel.CouchServersConfig;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.store.DomainStore;
 import org.tiogasolutions.identity.kernel.store.IdentityStore;
-import org.tiogasolutions.lib.jaxrs.domain.TiogaExceptionInfo;
 import org.tiogasolutions.runners.grizzly.GrizzlyServer;
 import org.tiogasolutions.runners.grizzly.GrizzlyServerConfig;
 
-import javax.ws.rs.core.Response;
 import java.util.Collections;
 import java.util.List;
 
@@ -91,9 +89,7 @@ public class IdentityEngineDefaultSpringConfig {
 
     @Bean
     public StandardResponseFilterConfig standardResponseFilterConfig() {
-        StandardResponseFilterConfig config = new StandardResponseFilterConfig();
-        config.getExtraHeaders().put(StandardResponseFilterConfig.P3P, "CP=\"The Identity App does not have a P3P policy.\"");
-        return config;
+        return new StandardResponseFilterConfig();
     }
 
     @Bean

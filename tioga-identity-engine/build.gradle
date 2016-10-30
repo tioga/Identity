@@ -8,7 +8,7 @@ project(":tioga-identity-engine") {
         compile(project(":tioga-identity-kernel"))
 
         compile("org.tiogasolutions.lib:tioga-lib-jaxrs:+")
-        compile("javax.annotation:javax.annotation-api:+")
+        //compile("javax.annotation:javax.annotation-api:+")
 
         compile("org.tiogasolutions.app:tioga-app-standard:+")
 

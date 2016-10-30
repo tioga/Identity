@@ -7,7 +7,6 @@ import org.tiogasolutions.identity.engine.resources.ResourceSupport;
 import org.tiogasolutions.identity.engine.support.PubUtils;
 import org.tiogasolutions.identity.kernel.IdentityKernel;
 import org.tiogasolutions.identity.kernel.domain.DomainProfileEo;
-import org.tiogasolutions.identity.kernel.store.DomainStore;
 import org.tiogasolutions.identity.client.domain.IdentityDomain;
 import org.tiogasolutions.identity.client.domain.IdentityDomains;
 import org.tiogasolutions.identity.client.domain.IdentityToken;
