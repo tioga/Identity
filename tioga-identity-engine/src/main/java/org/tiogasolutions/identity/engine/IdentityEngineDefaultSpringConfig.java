@@ -11,12 +11,11 @@ import org.springframework.context.annotation.Configuration;
 import org.tiogasolutions.app.standard.StandardApplication;
 import org.tiogasolutions.app.standard.execution.ExecutionManager;
 import org.tiogasolutions.app.standard.jackson.StandardObjectMapper;
-import org.tiogasolutions.app.standard.jaxrs.StandardJaxRsExceptionMapper;
 import org.tiogasolutions.app.standard.jaxrs.auth.AnonymousRequestFilterAuthenticator;
 import org.tiogasolutions.app.standard.jaxrs.filters.StandardRequestFilterConfig;
 import org.tiogasolutions.app.standard.jaxrs.filters.StandardResponseFilterConfig;
 import org.tiogasolutions.app.standard.readers.BundledStaticContentReader;
-import org.tiogasolutions.app.standard.view.thymeleaf.ThymeleafMessageBodyWriterConfig;
+import org.tiogasolutions.app.thymeleaf.ThymeleafMessageBodyWriterConfig;
 import org.tiogasolutions.dev.jackson.TiogaJacksonModule;
 import org.tiogasolutions.dev.jackson.TiogaJacksonTranslator;
 import org.tiogasolutions.identity.engine.support.*;
@@ -127,7 +126,6 @@ public class IdentityEngineDefaultSpringConfig {
         StandardApplication application = new StandardApplication();
         application.getClasses().add(RolesAllowedDynamicFeature.class);
 
-        application.getClasses().remove(StandardJaxRsExceptionMapper.class);
         application.getClasses().add(IdentityExceptionMapper.class);
 
         ResourceConfig resourceConfig = ResourceConfig.forApplication(application);

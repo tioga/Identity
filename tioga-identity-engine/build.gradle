@@ -8,13 +8,12 @@ project(":tioga-identity-engine") {
         compile(project(":tioga-identity-kernel"))
 
         compile("org.tiogasolutions.lib:tioga-lib-jaxrs:+")
-        //compile("javax.annotation:javax.annotation-api:+")
 
+        compile("org.tiogasolutions.app:tioga-app-common:+")
         compile("org.tiogasolutions.app:tioga-app-standard:+")
+        compile("org.tiogasolutions.app:tioga-app-thymeleaf:+")
 
-        compile("org.thymeleaf.extras:thymeleaf-extras-java8time:2.1.0.RELEASE")
-
-        compile("org.glassfish.jersey.ext:jersey-spring3:2.17")
+        compile("org.glassfish.jersey.ext:jersey-spring3:2.22.2")
         compile("org.springframework:spring-aop:4.1.6.RELEASE") { force = true }
         compile("org.springframework:spring-core:4.1.6.RELEASE") { force = true }
         compile("org.springframework:spring-beans:4.1.6.RELEASE") { force = true }
@@ -24,8 +23,8 @@ project(":tioga-identity-engine") {
         compile("org.tiogasolutions.lib:tioga-lib-spring:+")
         compile("org.tiogasolutions.runners:tioga-runners-grizzly:+")
 
-        testCompile("org.glassfish.jersey.test-framework:jersey-test-framework-core:2.17")
-        testCompile("org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:2.17")
+        testCompile("org.glassfish.jersey.test-framework:jersey-test-framework-core:2.22.2")
+        testCompile("org.glassfish.jersey.test-framework.providers:jersey-test-framework-provider-grizzly2:2.22.2")
     }
 
     configurations.all({
